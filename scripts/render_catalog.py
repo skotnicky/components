@@ -13,7 +13,7 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from catalog_data import CURATED_COMPONENTS, EXCLUDED_COMPONENTS, HELMFORGE_MIRROR, component_matrix
+from catalog_data import CURATED_COMPONENTS, EXCLUDED_COMPONENTS, component_matrix
 
 
 CHARTS_DIR = ROOT / "charts"
@@ -112,24 +112,7 @@ def render_catalog_matrix() -> str:
             "{packaging_mode} | {questions_yaml_support} | {ccf_smoke_test_profile} | "
             "{image_source_choice} | {notes} |".format(**row)
         )
-    header.extend(
-        [
-            "",
-            "## HelmForge Mirror",
-            "",
-            f"- Source classification: `{HELMFORGE_MIRROR['source_classification']}`",
-            f"- Packaging mode: `{HELMFORGE_MIRROR['packaging_mode']}`",
-            f"- Questions support: `no`",
-            f"- Upstream repository: `{HELMFORGE_MIRROR['repository_url']}`",
-            f"- OCI destination prefix: `{HELMFORGE_MIRROR['oci_prefix']}`",
-            "- Requested component coverage via mirror: "
-            + ", ".join(f"`{name}`" for name in HELMFORGE_MIRROR["requested_component_coverage"]),
-            f"- Notes: {HELMFORGE_MIRROR['notes']}",
-            "",
-            "## Explicit Exclusions",
-            "",
-        ]
-    )
+    header.extend(["", "## Explicit Exclusions", "",])
     for item in EXCLUDED_COMPONENTS:
         header.append(f"- `{item['id']}`: {item['reason']}")
     header.append("")

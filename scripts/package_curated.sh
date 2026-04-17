@@ -13,6 +13,7 @@ python3 "$ROOT_DIR/scripts/ensure_helm_repos.py"
 
 for chart_dir in "$ROOT_DIR"/charts/*; do
   [[ -d "$chart_dir" ]] || continue
+  [[ -f "$chart_dir/Chart.yaml" ]] || continue
   helm dependency build "$chart_dir"
   helm package "$chart_dir" --destination "$DIST_DIR"
 done

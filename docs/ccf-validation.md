@@ -13,7 +13,6 @@ Local validation is fully repository-driven:
 - `helm lint`
 - `helm template`
 - `questions.yaml` path checks
-- HelmForge mirror inventory and integrity checks
 
 ## Live CCF Validation
 
@@ -34,7 +33,7 @@ The expected execution environment is a self-hosted automation runner with:
 
 ## Validation Sequence
 
-For each curated chart and each mirrored HelmForge chart:
+For each curated chart:
 
 1. ensure the source repository is imported into CCF
 2. ensure the application exists in the validation catalog
@@ -57,13 +56,11 @@ Smoke tests intentionally stop short of deep product-specific workflows.
 
 ## Sharding
 
-The full HelmForge catalog is large enough that validation should be sharded.
+Curated validation can still be sharded to shorten the total runtime.
 
 Recommended approach:
 
-- shard by chart index modulo shard count
-- keep curated charts on shard `0`
-- distribute mirrored HelmForge charts across all shards
+- shard by curated chart index modulo shard count
 
 ## Manual-Only Profiles
 

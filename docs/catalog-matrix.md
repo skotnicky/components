@@ -13,7 +13,6 @@ Generated from `scripts/catalog_data.py` to keep the curated catalog, validation
 | cloudnative-pg | ccf-cloudnative-pg | `https://cloudnative-pg.github.io/charts` | 0.28.0 | `cnpg-system` | official | curated-wrapper | yes | default | upstream-official | Namespace-scoped operator defaults are used for safer CCF project installs. |
 | eck-operator | ccf-eck-operator | `https://helm.elastic.co` | 3.3.2 | `elastic-system` | official | curated-wrapper | yes | default | upstream-official | Elastic's operator is packaged separately so the stack chart can be validated after it. |
 | eck-stack | ccf-eck-stack | `https://helm.elastic.co` | 0.18.2 | `elastic-stack` | official | curated-wrapper | yes | needs-overrides | upstream-official | Validated only after the ECK operator is installed. The default profile keeps the stack small and enables Elasticsearch plus Kibana. |
-| wordpress | ccf-wordpress | `https://repo.helmforge.dev` | 1.4.7 | `wordpress` | community | curated-wrapper | yes | needs-overrides | upstream-official | HelmForge is used here to satisfy the non-Bitnami WordPress requirement. |
 | grafana | ccf-grafana | `https://grafana.github.io/helm-charts` | 10.5.15 | `grafana` | official | curated-wrapper | yes | default | upstream-official | Initial defaults remain close to upstream and keep ingress off by default. |
 | jupyterhub | ccf-jupyterhub | `https://hub.jupyter.org/helm-chart/` | 4.3.3 | `jupyterhub` | official | curated-wrapper | yes | needs-overrides | upstream-official | Proxy service is normalized to ClusterIP to fit most CCF projects. |
 | ollama | ccf-ollama | `https://helm.otwld.com/` | 1.54.0 | `ollama` | community | curated-wrapper | yes | needs-overrides | upstream-official | Community chart. Default profile keeps networking internal and persistence enabled. |
@@ -24,18 +23,12 @@ Generated from `scripts/catalog_data.py` to keep the curated catalog, validation
 | openmetadata | ccf-openmetadata | `https://helm.open-metadata.org/` | 1.12.5 | `openmetadata` | official | curated-wrapper | yes | manual-only | upstream-official | The application chart expects external database and search services for a clean non-Bitnami setup. Validation remains manual-only until those overrides are supplied. |
 | netbox | ccf-netbox | `https://charts.netbox.oss.netboxlabs.com/` | 8.1.1 | `netbox` | community | curated-wrapper | yes | manual-only | upstream-official | The community chart currently depends on Bitnami common/postgresql/valkey artifacts. Validation remains manual-only while external service wiring is supplied. |
 | chaos-mesh | ccf-chaos-mesh | `https://charts.chaos-mesh.org` | 2.8.2 | `chaos-mesh` | official | curated-wrapper | yes | needs-overrides | upstream-official | Dashboard is normalized to ClusterIP instead of the upstream NodePort default. |
+| rabbitmq | excluded | `n/a` | n/a | `n/a` | excluded | excluded | no | manual-only | n/a | Not curated in this repository. Import an external community or vendor repository directly into CCF when RabbitMQ is needed. |
+| wordpress | excluded | `n/a` | n/a | `n/a` | excluded | excluded | no | manual-only | n/a | Not curated in this repository. Import the upstream community repository directly into CCF if WordPress is needed. |
 | memcached | excluded | `n/a` | n/a | `n/a` | excluded | excluded | no | manual-only | n/a | No maintained official or community Helm chart could be validated outside archived charts or Bitnami. |
-
-## HelmForge Mirror
-
-- Source classification: `community`
-- Packaging mode: `helmforge-mirror`
-- Questions support: `no`
-- Upstream repository: `https://repo.helmforge.dev`
-- OCI destination prefix: `oci://ghcr.io/<owner>/helmforge-mirror`
-- Requested component coverage via mirror: `rabbitmq`, `elasticsearch`, `wordpress`
-- Notes: Mirror all published HelmForge packages into a dedicated OCI namespace. Validation is sharded because the upstream catalog changes over time.
 
 ## Explicit Exclusions
 
+- `rabbitmq`: Not curated in this repository. Import an external community or vendor repository directly into CCF when RabbitMQ is needed.
+- `wordpress`: Not curated in this repository. Import the upstream community repository directly into CCF if WordPress is needed.
 - `memcached`: No maintained official or community Helm chart could be validated outside archived charts or Bitnami.
