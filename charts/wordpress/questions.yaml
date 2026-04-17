@@ -1,0 +1,38 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: wordpress.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose WordPress through an ingress resource managed by the project.
+  group: Networking
+  required: false
+- variable: wordpress.ingress.ingressClassName
+  label: Ingress class
+  type: string
+  default: ''
+  description: Ingress class name used by the WordPress ingress.
+  group: Networking
+  required: false
+- variable: wordpress.persistence.storageClass
+  label: Storage class
+  type: string
+  default: ''
+  description: StorageClass used for WordPress uploads and content.
+  group: Storage
+  required: false
+- variable: wordpress.persistence.size
+  label: Content PVC size
+  type: string
+  default: 5Gi
+  description: Persistent volume size for WordPress content.
+  group: Storage
+  required: true
+- variable: wordpress.wordpress.adminEmail
+  label: Admin email
+  type: string
+  default: admin@example.com
+  description: Administrator email used during bootstrap.
+  group: Application
+  required: true

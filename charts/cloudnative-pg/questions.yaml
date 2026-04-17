@@ -1,0 +1,37 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: cloudnative-pg.config.clusterWide
+  label: Cluster-wide operator
+  type: boolean
+  default: false
+  description: Enable cluster-wide operator scope. Keep disabled for per-project CCF
+    deployments.
+  group: Operator
+  required: false
+- variable: cloudnative-pg.service.type
+  label: Webhook service type
+  type: enum
+  default: ClusterIP
+  description: Kubernetes service type for the operator webhook.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: cloudnative-pg.monitoring.podMonitorEnabled
+  label: Enable PodMonitor
+  type: boolean
+  default: false
+  description: Turn on PodMonitor resources when Prometheus Operator is available
+    in the project.
+  group: Observability
+  required: false
+- variable: cloudnative-pg.image.repository
+  label: Operator image repository
+  type: string
+  default: ghcr.io/cloudnative-pg/cloudnative-pg
+  description: Container image repository for the CloudNativePG operator.
+  group: Images
+  required: true

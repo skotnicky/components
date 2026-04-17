@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-external-dns
+description: Curated external-dns wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 0.20.0
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://kubernetes-sigs.github.io/external-dns/
+  ccf.catalog/default-namespace: external-dns
+  ccf.catalog/smoke-profile: needs-overrides
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: external-dns
+  repository: https://kubernetes-sigs.github.io/external-dns/
+  version: 1.20.0

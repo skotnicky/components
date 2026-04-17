@@ -1,0 +1,13 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+eck-operator:
+  createClusterScopedResources: false
+  managedNamespaces: []
+  installCRDs: true
+  config:
+    validateStorageClass: false
+  webhook:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 150Mi

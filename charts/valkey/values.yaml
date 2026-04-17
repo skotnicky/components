@@ -1,0 +1,11 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+valkey:
+  service:
+    type: ClusterIP
+  dataStorage:
+    requestedSize: 8Gi
+  replica:
+    enabled: false
+    replicas: 2
+  tls:
+    enabled: false

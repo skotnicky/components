@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: grafana.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for Grafana.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: grafana.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Create an ingress for Grafana.
+  group: Networking
+  required: false
+- variable: grafana.persistence.enabled
+  label: Enable persistence
+  type: boolean
+  default: true
+  description: Persist dashboards and plugins across restarts.
+  group: Storage
+  required: false
+- variable: grafana.persistence.size
+  label: Grafana PVC size
+  type: string
+  default: 10Gi
+  description: Persistent volume size for Grafana data.
+  group: Storage
+  required: true

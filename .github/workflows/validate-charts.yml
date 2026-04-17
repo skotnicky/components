@@ -1,0 +1,38 @@
+name: Validate Charts
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate curated charts
+        run: python3 scripts/render_catalog.py
+
+      - name: Validate curated charts
+        run: python3 scripts/validate_charts.py
+
+      - name: Build sample validation manifest
+        run: python3 scripts/build_validation_manifest.py --mirror-limit 25
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: chart-validation-reports
+          path: |
+            docs/catalog-matrix.md
+            reports/ccf-validation-manifest.json

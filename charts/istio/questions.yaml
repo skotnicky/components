@@ -1,0 +1,42 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: base.global.istioNamespace
+  label: Istio namespace
+  type: string
+  default: istio-system
+  description: Namespace used for Istio control-plane resources.
+  group: Operator
+  required: true
+- variable: base.defaultRevision
+  label: Default revision
+  type: string
+  default: default
+  description: Revision label installed by the Istio base chart.
+  group: Operator
+  required: true
+- variable: base.global.resourceScope
+  label: Resource scope
+  type: enum
+  default: namespace
+  description: Resource ownership scope for the Istio base chart.
+  group: Operator
+  required: false
+  options:
+  - all
+  - cluster
+  - namespace
+- variable: istiod.replicaCount
+  label: istiod replicas
+  type: int
+  default: 1
+  description: Number of istiod replicas to run.
+  group: Operator
+  required: true
+- variable: istiod.meshConfig.accessLogFile
+  label: Access log file
+  type: string
+  default: /dev/stdout
+  description: Mesh access log target used by the control plane.
+  group: Observability
+  required: false

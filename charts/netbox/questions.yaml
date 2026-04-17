@@ -1,0 +1,31 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: netbox.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose NetBox through ingress.
+  group: Networking
+  required: false
+- variable: netbox.ingress.className
+  label: Ingress class
+  type: string
+  default: ''
+  description: Ingress class used for the NetBox UI.
+  group: Networking
+  required: false
+- variable: netbox.persistence.storageClass
+  label: Storage class
+  type: string
+  default: ''
+  description: StorageClass used for NetBox persistent data.
+  group: Storage
+  required: false
+- variable: netbox.persistence.size
+  label: PVC size
+  type: string
+  default: 5Gi
+  description: Persistent volume size for NetBox uploads and reports.
+  group: Storage
+  required: true

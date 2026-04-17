@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: backstage.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose Backstage through an ingress resource.
+  group: Networking
+  required: false
+- variable: backstage.ingress.host
+  label: Ingress hostname
+  type: string
+  default: ''
+  description: Hostname used when ingress is enabled.
+  group: Networking
+  required: false
+- variable: backstage.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Backstage backend.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: backstage.backstage.replicas
+  label: Replica count
+  type: int
+  default: 1
+  description: Number of Backstage application replicas.
+  group: Application
+  required: true

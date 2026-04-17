@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: cert-manager.installCRDs
+  label: Install CRDs
+  type: boolean
+  default: true
+  description: Install cert-manager CRDs as part of the chart.
+  group: Operator
+  required: false
+- variable: cert-manager.prometheus.enabled
+  label: Enable Prometheus metrics
+  type: boolean
+  default: false
+  description: Expose cert-manager metrics service resources.
+  group: Observability
+  required: false
+- variable: cert-manager.webhook.timeoutSeconds
+  label: Webhook timeout
+  type: int
+  default: 30
+  description: Admission webhook timeout in seconds.
+  group: Operator
+  required: true
+- variable: cert-manager.webhook.serviceType
+  label: Webhook service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the webhook service.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort

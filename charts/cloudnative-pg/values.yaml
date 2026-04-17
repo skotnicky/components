@@ -1,0 +1,11 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+cloudnative-pg:
+  config:
+    clusterWide: false
+  service:
+    type: ClusterIP
+  monitoring:
+    podMonitorEnabled: false
+  image:
+    repository: ghcr.io/cloudnative-pg/cloudnative-pg
+    tag: 1.29.0

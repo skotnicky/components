@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-grafana
+description: Curated Grafana wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 12.3.1
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://grafana.github.io/helm-charts
+  ccf.catalog/default-namespace: grafana
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: grafana
+  repository: https://grafana.github.io/helm-charts
+  version: 10.5.15

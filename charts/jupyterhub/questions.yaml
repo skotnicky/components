@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: jupyterhub.proxy.service.type
+  label: Proxy service type
+  type: enum
+  default: ClusterIP
+  description: Service type for the proxy-public service.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: jupyterhub.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Create an ingress in front of JupyterHub.
+  group: Networking
+  required: false
+- variable: jupyterhub.singleuser.storage.capacity
+  label: Singleuser storage size
+  type: string
+  default: 10Gi
+  description: Storage allocation for each notebook user.
+  group: Storage
+  required: true
+- variable: jupyterhub.hub.config.JupyterHub.admin_access
+  label: Enable admin access
+  type: boolean
+  default: true
+  description: Allow administrators to access user servers for support.
+  group: Application
+  required: false

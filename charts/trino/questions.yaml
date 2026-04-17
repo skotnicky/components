@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: trino.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Trino coordinator.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: trino.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose Trino through an ingress resource.
+  group: Networking
+  required: false
+- variable: trino.server.workers
+  label: Worker count
+  type: int
+  default: 2
+  description: Number of Trino worker pods.
+  group: Application
+  required: true
+- variable: trino.coordinator.jvm.maxHeapSize
+  label: Coordinator JVM heap
+  type: string
+  default: 2G
+  description: Heap size for the Trino coordinator JVM.
+  group: Resources
+  required: true

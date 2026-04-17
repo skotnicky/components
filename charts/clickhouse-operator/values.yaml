@@ -1,0 +1,10 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+clickhouse-operator-helm:
+  manager:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+  prometheus:
+    service_monitor: false

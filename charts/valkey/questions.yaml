@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: valkey.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for Valkey.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: valkey.dataStorage.requestedSize
+  label: Primary PVC size
+  type: string
+  default: 8Gi
+  description: Persistent volume size for the primary Valkey node.
+  group: Storage
+  required: true
+- variable: valkey.replica.enabled
+  label: Enable replicas
+  type: boolean
+  default: false
+  description: Turn on replica nodes for read scaling and HA.
+  group: Application
+  required: false
+- variable: valkey.tls.enabled
+  label: Enable TLS
+  type: boolean
+  default: false
+  description: Enable TLS for Valkey client and replica traffic.
+  group: Security
+  required: false

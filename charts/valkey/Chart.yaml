@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-valkey
+description: Curated Valkey wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 9.0.2
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://valkey.io/valkey-helm/
+  ccf.catalog/default-namespace: valkey
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: valkey
+  repository: https://valkey.io/valkey-helm/
+  version: 0.9.4

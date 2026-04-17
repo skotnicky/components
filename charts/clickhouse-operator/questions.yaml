@@ -1,0 +1,31 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: clickhouse-operator-helm.manager.replicas
+  label: Operator replicas
+  type: int
+  default: 1
+  description: Number of ClickHouse operator replicas.
+  group: Operator
+  required: true
+- variable: clickhouse-operator-helm.manager.resources.requests.cpu
+  label: CPU request
+  type: string
+  default: 10m
+  description: CPU request for the ClickHouse operator manager.
+  group: Resources
+  required: true
+- variable: clickhouse-operator-helm.manager.resources.requests.memory
+  label: Memory request
+  type: string
+  default: 64Mi
+  description: Memory request for the ClickHouse operator manager.
+  group: Resources
+  required: true
+- variable: clickhouse-operator-helm.prometheus.service_monitor
+  label: Enable ServiceMonitor
+  type: boolean
+  default: false
+  description: Create ServiceMonitor resources when a Prometheus Operator is present.
+  group: Observability
+  required: false

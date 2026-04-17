@@ -1,0 +1,21 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+wordpress:
+  wordpress:
+    adminUser: admin
+    adminEmail: admin@example.com
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    ingressClassName: ''
+    hosts: []
+    tls: []
+  persistence:
+    enabled: true
+    storageClass: ''
+    size: 5Gi
+  mysql:
+    primary:
+      persistence:
+        enabled: true
+        size: 8Gi

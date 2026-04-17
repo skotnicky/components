@@ -1,0 +1,56 @@
+name: Sync HelmForge Mirror
+
+on:
+  schedule:
+    - cron: "35 2 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Skip OCI pushes"
+        required: false
+        default: "false"
+      limit:
+        description: "Optional limit for test runs"
+        required: false
+        default: "0"
+      filter_regex:
+        description: "Optional regex to select a subset of HelmForge charts"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Login to GHCR
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.dry_run != 'true' }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Sync HelmForge charts
+        env:
+          OCI_PREFIX: oci://ghcr.io/${{ github.repository_owner }}/helmforge-mirror
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == 'true' && '1' || '0' }}
+          HELMFORGE_LIMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.limit || '0' }}
+          HELMFORGE_FILTER_REGEX: ${{ github.event_name == 'workflow_dispatch' && inputs.filter_regex || '' }}
+        run: |
+          chmod +x scripts/sync-helmforge.sh
+          bash scripts/sync-helmforge.sh
+
+      - name: Upload mirror manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: helmforge-mirror-manifest
+          path: reports/helmforge-mirror-manifest.json

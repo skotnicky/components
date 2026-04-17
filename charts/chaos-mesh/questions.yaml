@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: chaos-mesh.controllerManager.replicaCount
+  label: Controller replicas
+  type: int
+  default: 1
+  description: Number of controller-manager replicas to run.
+  group: Operator
+  required: true
+- variable: chaos-mesh.dashboard.service.type
+  label: Dashboard service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Chaos Mesh dashboard.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: chaos-mesh.dashboard.ingress.enabled
+  label: Enable dashboard ingress
+  type: boolean
+  default: false
+  description: Create an ingress in front of the Chaos Mesh dashboard.
+  group: Networking
+  required: false
+- variable: chaos-mesh.dashboard.persistentVolume.size
+  label: Dashboard PVC size
+  type: string
+  default: 5Gi
+  description: Persistent volume size for dashboard workflow artifacts.
+  group: Storage
+  required: true

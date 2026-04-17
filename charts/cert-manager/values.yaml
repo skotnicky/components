@@ -1,0 +1,12 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+cert-manager:
+  installCRDs: true
+  prometheus:
+    enabled: false
+  replicaCount: 1
+  cainjector:
+    replicaCount: 1
+  webhook:
+    replicaCount: 1
+    timeoutSeconds: 30
+    serviceType: ClusterIP

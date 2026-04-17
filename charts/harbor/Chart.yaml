@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-harbor
+description: Curated Harbor wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 2.14.3
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://helm.goharbor.io
+  ccf.catalog/default-namespace: harbor
+  ccf.catalog/smoke-profile: needs-overrides
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: harbor
+  repository: https://helm.goharbor.io
+  version: 1.18.3

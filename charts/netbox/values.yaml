@@ -1,0 +1,15 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+netbox:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    className: ''
+  persistence:
+    enabled: true
+    storageClass: ''
+    size: 5Gi
+  postgresql:
+    enabled: false
+  valkey:
+    enabled: false

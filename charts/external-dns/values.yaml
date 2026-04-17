@@ -1,0 +1,15 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+external-dns:
+  provider:
+    name: aws
+  serviceAccount:
+    create: true
+  txtOwnerId: ccf-external-dns
+  sources:
+  - service
+  - ingress
+  domainFilters: []
+  policy: upsert-only
+  registry: txt
+  interval: 1m
+  triggerLoopOnEvent: false

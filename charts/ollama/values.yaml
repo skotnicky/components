@@ -1,0 +1,19 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+ollama:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    className: ''
+    hosts:
+    - host: ollama.local
+      paths:
+      - path: /
+        pathType: Prefix
+    tls: []
+  persistentVolume:
+    enabled: true
+    size: 30Gi
+  ollama:
+    models:
+      pull: []

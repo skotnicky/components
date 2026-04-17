@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-chaos-mesh
+description: Curated Chaos Mesh wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 2.8.2
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://charts.chaos-mesh.org
+  ccf.catalog/default-namespace: chaos-mesh
+  ccf.catalog/smoke-profile: needs-overrides
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: chaos-mesh
+  repository: https://charts.chaos-mesh.org
+  version: 2.8.2

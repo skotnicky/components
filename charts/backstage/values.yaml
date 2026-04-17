@@ -1,0 +1,12 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+backstage:
+  ingress:
+    enabled: false
+    className: ''
+    host: ''
+  service:
+    type: ClusterIP
+  backstage:
+    replicas: 1
+  postgresql:
+    enabled: false

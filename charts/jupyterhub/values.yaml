@@ -1,0 +1,14 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+jupyterhub:
+  proxy:
+    service:
+      type: ClusterIP
+  ingress:
+    enabled: false
+  singleuser:
+    storage:
+      capacity: 10Gi
+  hub:
+    config:
+      JupyterHub:
+        admin_access: true

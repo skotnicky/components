@@ -1,0 +1,8 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+eck-stack:
+  eck-elasticsearch:
+    enabled: true
+  eck-kibana:
+    enabled: true
+  eck-agent:
+    enabled: false

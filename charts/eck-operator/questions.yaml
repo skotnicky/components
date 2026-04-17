@@ -1,0 +1,45 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: eck-operator.createClusterScopedResources
+  label: Create cluster-scoped resources
+  type: boolean
+  default: false
+  description: Keep disabled to reduce blast radius in shared CCF projects.
+  group: Operator
+  required: false
+- variable: eck-operator.installCRDs
+  label: Install CRDs
+  type: boolean
+  default: true
+  description: Install the Elastic CRDs required by stack resources.
+  group: Operator
+  required: false
+- variable: eck-operator.webhook.enabled
+  label: Enable webhook
+  type: boolean
+  default: false
+  description: Keep disabled for namespace-scoped validation profiles.
+  group: Operator
+  required: false
+- variable: eck-operator.config.validateStorageClass
+  label: Validate storage classes
+  type: boolean
+  default: false
+  description: Keep disabled when cluster-scoped resources are turned off.
+  group: Operator
+  required: false
+- variable: eck-operator.resources.requests.cpu
+  label: CPU request
+  type: string
+  default: 100m
+  description: CPU request for the ECK operator deployment.
+  group: Resources
+  required: true
+- variable: eck-operator.resources.requests.memory
+  label: Memory request
+  type: string
+  default: 150Mi
+  description: Memory request for the ECK operator deployment.
+  group: Resources
+  required: true

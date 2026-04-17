@@ -1,0 +1,47 @@
+name: Release Curated OCI Charts
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish-curated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate curated charts
+        run: python3 scripts/render_catalog.py
+
+      - name: Validate curated charts
+        run: python3 scripts/validate_charts.py
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Package and push curated charts
+        env:
+          PUSH: "1"
+          OCI_PREFIX: oci://ghcr.io/${{ github.repository_owner }}/ccf-charts
+        run: |
+          chmod +x scripts/package_curated.sh
+          bash scripts/package_curated.sh
+
+      - name: Upload packaged curated charts
+        uses: actions/upload-artifact@v4
+        with:
+          name: curated-chart-packages
+          path: dist/curated

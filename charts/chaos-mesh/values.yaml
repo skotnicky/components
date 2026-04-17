@@ -1,0 +1,11 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+chaos-mesh:
+  controllerManager:
+    replicaCount: 1
+  dashboard:
+    service:
+      type: ClusterIP
+    ingress:
+      enabled: false
+    persistentVolume:
+      size: 5Gi

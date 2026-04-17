@@ -1,0 +1,38 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: harbor.expose.ingress.className
+  label: Ingress class
+  type: string
+  default: ''
+  description: Ingress class used when exposing Harbor through CCF-managed ingress.
+  group: Networking
+  required: false
+- variable: harbor.expose.ingress.hosts.core
+  label: Core hostname
+  type: string
+  default: harbor.local
+  description: Primary hostname for the Harbor UI and API.
+  group: Networking
+  required: true
+- variable: harbor.externalURL
+  label: External URL
+  type: string
+  default: http://harbor.local
+  description: Public URL CCF operators use to access Harbor.
+  group: Networking
+  required: true
+- variable: harbor.persistence.persistentVolumeClaim.registry.storageClass
+  label: Registry storage class
+  type: string
+  default: ''
+  description: StorageClass for Harbor registry data.
+  group: Storage
+  required: false
+- variable: harbor.persistence.persistentVolumeClaim.registry.size
+  label: Registry PVC size
+  type: string
+  default: 5Gi
+  description: PVC size for the Harbor registry component.
+  group: Storage
+  required: true

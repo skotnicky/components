@@ -1,0 +1,32 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: openmetadata.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose the OpenMetadata UI through ingress.
+  group: Networking
+  required: false
+- variable: openmetadata.replicaCount
+  label: Replica count
+  type: int
+  default: 1
+  description: Number of OpenMetadata application replicas.
+  group: Application
+  required: true
+- variable: openmetadata.openmetadata.config.pipelineServiceClientConfig.enabled
+  label: Enable pipeline client
+  type: boolean
+  default: false
+  description: Enable the built-in pipeline client integration when an orchestration
+    backend is available.
+  group: Integrations
+  required: false
+- variable: openmetadata.openmetadata.config.pipelineServiceClientConfig.k8s.namespace
+  label: Ingestion namespace
+  type: string
+  default: ''
+  description: Namespace used for ingestion jobs when Kubernetes mode is enabled.
+  group: Integrations
+  required: false

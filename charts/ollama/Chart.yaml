@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-ollama
+description: Curated Ollama wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 0.19.0
+annotations:
+  ccf.catalog/source-classification: community
+  ccf.catalog/source-repository: https://helm.otwld.com/
+  ccf.catalog/default-namespace: ollama
+  ccf.catalog/smoke-profile: needs-overrides
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: ollama
+  repository: https://helm.otwld.com/
+  version: 1.54.0

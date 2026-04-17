@@ -1,0 +1,35 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: ollama.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Ollama API.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: ollama.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose Ollama through ingress.
+  group: Networking
+  required: false
+- variable: ollama.persistentVolume.size
+  label: Model PVC size
+  type: string
+  default: 30Gi
+  description: Persistent storage size for downloaded models.
+  group: Storage
+  required: true
+- variable: ollama.ingress.hosts.0.host
+  label: Ingress hostname
+  type: string
+  default: ollama.local
+  description: Primary hostname used when ingress is enabled.
+  group: Networking
+  required: false

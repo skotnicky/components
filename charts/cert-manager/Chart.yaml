@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-cert-manager
+description: Curated cert-manager wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: v1.20.2
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://charts.jetstack.io
+  ccf.catalog/default-namespace: cert-manager
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: cert-manager
+  repository: https://charts.jetstack.io
+  version: v1.20.2

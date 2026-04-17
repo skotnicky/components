@@ -1,0 +1,16 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+openmetadata:
+  replicaCount: 1
+  ingress:
+    enabled: false
+    className: ''
+  openmetadata:
+    config:
+      database:
+        host: mysql
+      elasticsearch:
+        host: opensearch
+      pipelineServiceClientConfig:
+        enabled: false
+        k8s:
+          namespace: ''

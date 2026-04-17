@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-eck-operator
+description: Curated Elastic ECK Operator wrapper chart for the Cloudera Cloud Factory
+  components catalog.
+type: application
+version: 0.1.0
+appVersion: 3.3.2
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://helm.elastic.co
+  ccf.catalog/default-namespace: elastic-system
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: eck-operator
+  repository: https://helm.elastic.co
+  version: 3.3.2

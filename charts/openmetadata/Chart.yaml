@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-openmetadata
+description: Curated OpenMetadata wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 1.12.5
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://helm.open-metadata.org/
+  ccf.catalog/default-namespace: openmetadata
+  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: openmetadata
+  repository: https://helm.open-metadata.org/
+  version: 1.12.5

@@ -1,0 +1,27 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+harbor:
+  expose:
+    type: ingress
+    tls:
+      enabled: false
+      certSource: none
+    ingress:
+      className: ''
+      hosts:
+        core: harbor.local
+  externalURL: http://harbor.local
+  persistence:
+    enabled: true
+    persistentVolumeClaim:
+      registry:
+        storageClass: ''
+        size: 5Gi
+      database:
+        storageClass: ''
+        size: 1Gi
+      redis:
+        storageClass: ''
+        size: 1Gi
+      trivy:
+        storageClass: ''
+        size: 5Gi

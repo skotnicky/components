@@ -1,0 +1,8 @@
+dist/
+mirror-cache/
+reports/
+.bin/
+.tmp/
+charts/*/charts/
+charts/*/Chart.lock
+__pycache__/

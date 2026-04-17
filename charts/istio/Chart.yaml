@@ -1,0 +1,21 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-istio
+description: Curated Istio wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 1.29.2
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://istio-release.storage.googleapis.com/charts
+  ccf.catalog/default-namespace: istio-system
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: base
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.29.2
+- name: istiod
+  repository: https://istio-release.storage.googleapis.com/charts
+  version: 1.29.2

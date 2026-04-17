@@ -1,0 +1,18 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-backstage
+description: Curated Backstage wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 2.6.3
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://backstage.github.io/charts
+  ccf.catalog/default-namespace: backstage
+  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/image-source-choice: upstream-official
+dependencies:
+- name: backstage
+  repository: https://backstage.github.io/charts
+  version: 2.6.3

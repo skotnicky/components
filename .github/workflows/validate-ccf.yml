@@ -1,0 +1,47 @@
+name: Validate On CCF
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+    inputs:
+      mirror_limit:
+        description: "Optional limit for mirrored HelmForge apps"
+        required: false
+        default: "0"
+
+jobs:
+  validate:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare CCF validation shard and run MCP-backed executor
+        env:
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_TOTAL: 4
+          MIRROR_LIMIT: ${{ github.event_name == 'workflow_dispatch' && inputs.mirror_limit || '0' }}
+          REQUIRE_MCP_RUNNER: "1"
+          MCP_RUNNER_CMD: ${{ secrets.CCF_MCP_RUNNER_CMD }}
+        run: |
+          chmod +x scripts/validate-ccf-catalog.sh
+          bash scripts/validate-ccf-catalog.sh
+
+      - name: Upload shard manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ccf-validation-shard-${{ matrix.shard }}
+          path: reports/ccf-validation-shard-${{ matrix.shard }}.json

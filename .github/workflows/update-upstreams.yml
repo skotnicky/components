@@ -1,0 +1,42 @@
+name: Detect Upstream Updates
+
+on:
+  schedule:
+    - cron: "15 3 * * 1"
+  workflow_dispatch:
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Detect upstream chart updates
+        run: |
+          chmod +x scripts/detect_upstream_updates.sh
+          bash scripts/detect_upstream_updates.sh
+
+      - name: Summarize update report
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("reports/upstream-updates.json").read_text())
+          changed = [item for item in data if item["needsUpdate"]]
+          print(f"Detected {len(changed)} curated chart(s) with upstream changes.")
+          for item in changed:
+              print(f"- {item['component']}: {item['currentVersion']} -> {item['latestVersion']}")
+          PY
+
+      - name: Upload upstream update report
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-update-report
+          path: reports/upstream-updates.json

@@ -1,0 +1,24 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+questions:
+- variable: eck-stack.eck-elasticsearch.enabled
+  label: Enable Elasticsearch
+  type: boolean
+  default: true
+  description: Install the Elasticsearch example resources managed by ECK.
+  group: Stack
+  required: false
+- variable: eck-stack.eck-kibana.enabled
+  label: Enable Kibana
+  type: boolean
+  default: true
+  description: Install the Kibana example resources managed by ECK.
+  group: Stack
+  required: false
+- variable: eck-stack.eck-agent.enabled
+  label: Enable Elastic Agent
+  type: boolean
+  default: false
+  description: Enable Agent resources only when additional Fleet settings are supplied.
+  group: Stack
+  required: false

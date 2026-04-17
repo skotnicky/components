@@ -1,0 +1,17 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+base:
+  global:
+    istioNamespace: istio-system
+    resourceScope: namespace
+  defaultRevision: default
+istiod:
+  global:
+    istioNamespace: istio-system
+  revision: default
+  replicaCount: 1
+  meshConfig:
+    accessLogFile: /dev/stdout
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
