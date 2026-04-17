@@ -4,7 +4,7 @@ name: ccf-istio
 description: Curated Istio wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 1.29.2
 annotations:
   ccf.catalog/source-classification: official
@@ -19,3 +19,5 @@ dependencies:
 - name: istiod
   repository: https://istio-release.storage.googleapis.com/charts
   version: 1.29.2
+home: https://istio.io
+icon: https://istio.io/latest/favicons/android-192x192.png

@@ -4,7 +4,7 @@ name: ccf-openmetadata
 description: Curated OpenMetadata wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 1.12.5
 annotations:
   ccf.catalog/source-classification: official
@@ -16,3 +16,5 @@ dependencies:
 - name: openmetadata
   repository: https://helm.open-metadata.org/
   version: 1.12.5
+home: https://open-metadata.org/
+icon: https://open-metadata.org/assets/favicon.png

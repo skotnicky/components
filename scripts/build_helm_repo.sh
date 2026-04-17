@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO_DIR="${REPO_DIR:-$ROOT_DIR/dist/helm-repo}"
 HELM_REPO_URL="${HELM_REPO_URL:-}"
+TMP_DIST_DIR="${TMP_DIST_DIR:-$ROOT_DIR/.tmp/helm-repo-packages}"
+EXISTING_INDEX_PATH="$REPO_DIR/.existing-index.yaml"
 
 if [[ -z "$HELM_REPO_URL" ]]; then
   echo "HELM_REPO_URL must be set to build a classic Helm repository index." >&2
@@ -13,10 +15,25 @@ fi
 HELM_REPO_URL="${HELM_REPO_URL%/}"
 
 rm -rf "$REPO_DIR"
+rm -rf "$TMP_DIST_DIR"
 mkdir -p "$REPO_DIR"
+mkdir -p "$TMP_DIST_DIR"
 
-DIST_DIR="$REPO_DIR" PUSH=0 bash "$ROOT_DIR/scripts/package_curated.sh" >/dev/null
-helm repo index "$REPO_DIR" --url "$HELM_REPO_URL"
+python3 "$ROOT_DIR/scripts/seed_existing_helm_repo.py" \
+  --repo-url "$HELM_REPO_URL" \
+  --output-dir "$REPO_DIR" \
+  --index-output "$EXISTING_INDEX_PATH"
+
+DIST_DIR="$TMP_DIST_DIR" PUSH=0 bash "$ROOT_DIR/scripts/package_curated.sh" >/dev/null
+cp "$TMP_DIST_DIR"/*.tgz "$REPO_DIR"/
+
+if [[ -f "$EXISTING_INDEX_PATH" ]]; then
+  helm repo index "$REPO_DIR" --url "$HELM_REPO_URL" --merge "$EXISTING_INDEX_PATH"
+else
+  helm repo index "$REPO_DIR" --url "$HELM_REPO_URL"
+fi
+rm -f "$EXISTING_INDEX_PATH"
+rm -rf "$TMP_DIST_DIR"
 touch "$REPO_DIR/.nojekyll"
 
 cat > "$REPO_DIR/index.html" <<EOF

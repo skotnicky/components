@@ -1,6 +1,8 @@
 """Shared catalog metadata for curated CCF charts."""
 
 from copy import deepcopy
+import json
+import pathlib
 
 
 def q(variable, label, qtype, default, description, group, options=None, required=False):
@@ -19,6 +21,78 @@ def q(variable, label, qtype, default, description, group, options=None, require
 
 
 SERVICE_TYPE_OPTIONS = ["ClusterIP", "LoadBalancer", "NodePort"]
+DEFAULT_CHART_VERSION = "0.1.0"
+STATE_PATH = pathlib.Path(__file__).with_name("catalog_state.json")
+CHART_MEDIA = {
+    "cert-manager": {
+        "icon": "https://raw.githubusercontent.com/cert-manager/community/4d35a69437d21b76322157e6284be4cd64e6d2b7/logo/logo-small.png",
+        "home": "https://cert-manager.io",
+    },
+    "external-dns": {
+        "icon": "https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/external-dns.png",
+        "home": "https://github.com/kubernetes-sigs/external-dns/",
+    },
+    "istio": {
+        "icon": "https://istio.io/latest/favicons/android-192x192.png",
+        "home": "https://istio.io",
+    },
+    "harbor": {
+        "icon": "https://raw.githubusercontent.com/goharbor/website/main/static/img/logos/harbor-icon-color.png",
+        "home": "https://goharbor.io",
+    },
+    "cloudnative-pg": {
+        "icon": "https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg",
+        "home": "https://cloudnative-pg.io",
+    },
+    "eck-operator": {
+        "icon": "https://helm.elastic.co/icons/eck.png",
+        "home": "https://github.com/elastic/cloud-on-k8s",
+    },
+    "eck-stack": {
+        "icon": "https://helm.elastic.co/icons/eck.png",
+        "home": "https://github.com/elastic/cloud-on-k8s",
+    },
+    "grafana": {
+        "icon": "https://artifacthub.io/image/b4fed1a7-6c8f-4945-b99d-096efa3e4116",
+        "home": "https://grafana.com",
+    },
+    "jupyterhub": {
+        "icon": "https://hub.jupyter.org/helm-chart/images/hublogo.svg",
+        "home": "https://z2jh.jupyter.org",
+    },
+    "ollama": {
+        "icon": "https://ollama.ai/public/ollama.png",
+        "home": "https://ollama.ai/",
+    },
+    "backstage": {
+        "icon": "https://raw.githubusercontent.com/cncf/artwork/master/projects/backstage/icon/color/backstage-icon-color.svg",
+        "home": "https://backstage.io",
+    },
+    "trino": {
+        "icon": "https://trino.io/assets/trino.png",
+        "home": "https://trino.io/",
+    },
+    "clickhouse-operator": {
+        "icon": "https://clickhouse.com/docs/img/clickhouse-operator-logo.svg",
+        "home": "https://github.com/ClickHouse/clickhouse-operator",
+    },
+    "valkey": {
+        "icon": "https://dyltqmyl993wv.cloudfront.net/assets/stacks/valkey/img/valkey-stack-220x234.png",
+        "home": "https://valkey.io/valkey-helm/",
+    },
+    "openmetadata": {
+        "icon": "https://open-metadata.org/assets/favicon.png",
+        "home": "https://open-metadata.org/",
+    },
+    "netbox": {
+        "icon": "https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo_light.svg",
+        "home": "https://netbox.dev/",
+    },
+    "chaos-mesh": {
+        "icon": "https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/static/logo.svg",
+        "home": "https://chaos-mesh.org",
+    },
+}
 
 
 CURATED_COMPONENTS = [
@@ -1297,3 +1371,32 @@ def component_matrix():
             }
         )
     return deepcopy(rows)
+
+
+def load_catalog_state() -> dict:
+    if not STATE_PATH.exists():
+        return {}
+    data = json.loads(STATE_PATH.read_text(encoding="utf-8"))
+    return data if isinstance(data, dict) else {}
+
+
+def apply_catalog_state() -> None:
+    state = load_catalog_state()
+    for component in CURATED_COMPONENTS:
+        component_state = state.get(component["id"], {})
+        component["chart_version"] = component_state.get("chart_version", DEFAULT_CHART_VERSION)
+        dependency_state = component_state.get("dependencies", {})
+        for dependency in component["dependencies"]:
+            override = dependency_state.get(dependency["name"], {})
+            for key in ("repository", "version", "app_version"):
+                if key in override:
+                    dependency[key] = override[key]
+
+
+def apply_chart_media() -> None:
+    for component in CURATED_COMPONENTS:
+        component.update(CHART_MEDIA.get(component["id"], {}))
+
+
+apply_chart_media()
+apply_catalog_state()

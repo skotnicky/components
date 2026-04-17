@@ -4,7 +4,7 @@ name: ccf-clickhouse-operator
 description: Curated ClickHouse Operator wrapper chart for the Cloudera Cloud Factory
   components catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: v0.0.3
 annotations:
   ccf.catalog/source-classification: official
@@ -16,3 +16,5 @@ dependencies:
 - name: clickhouse-operator-helm
   repository: oci://ghcr.io/clickhouse
   version: 0.0.3
+home: https://github.com/ClickHouse/clickhouse-operator
+icon: https://clickhouse.com/docs/img/clickhouse-operator-logo.svg
