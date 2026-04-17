@@ -38,6 +38,7 @@ The generated compatibility matrix lives in `docs/catalog-matrix.md`.
 - `scripts/build_helm_repo.sh`: packages curated charts and generates a classic Helm repo with `index.yaml`
 - `scripts/validate_charts.py`: local Helm dependency, lint, template, and `questions.yaml` validation
 - `scripts/validate-ccf-catalog.sh`: builds sharded CCF validation manifests for MCP-backed execution
+- `scripts/validate_k8s_resources.py`: kubeconfig-backed smoke checks and cleanup helpers for live validation
 - `docs/`: import, validation, and versioning guidance
 - `.github/workflows/`: chart validation, publishing, and update automation
 
@@ -66,6 +67,8 @@ Build a sample CCF validation manifest:
 ```bash
 bash scripts/validate-ccf-catalog.sh
 ```
+
+This only prepares manifests unless you run it locally with MCP access.
 
 Build a classic Helm repository locally:
 
@@ -112,6 +115,47 @@ triggers for PRs created by that token.
 
 Enable GitHub repository auto-merge in the repository settings so the scheduled update PR can merge
 itself after the required checks succeed.
+
+## Question Parameters
+
+Generated `questions.yaml` files are carried into CCF catalog app parameters. Boolean and integer
+defaults are normalized for CCF transport during live validation so they can be passed through app
+parameters without changing the underlying Helm value intent.
+
+Current live-validation normalization uses:
+
+- lowercase booleans such as `true` and `false`
+- decimal strings for integers
+- JSON array strings for list-of-string question defaults
+
+Current live validation in CCF also supports:
+
+- removing chart packages from temporary catalogs after each run
+- deleting leftover namespaces and namespaced Kubernetes resources through the MCP Kubernetes tools
+- validating cluster access, smoke-checking workloads, and deleting namespaces through kubeconfig-backed `kubectl`
+- querying project logs and Prometheus metrics through local MCP tools when monitoring is enabled
+
+The preferred live-validation mode is now hybrid:
+
+- use CCF MCP for catalog and application lifecycle
+- use kubeconfig plus `kubectl` for Kubernetes inspection and cleanup
+
+Live CCF validation is intended to run only on your local computer. GitHub workflows in this
+repository prepare manifests and other repo artifacts, but they do not call the MCP server.
+
+Validation manifests now include both:
+
+- `kubernetesValidation` hints for kubeconfig-backed checks
+- `observabilityValidation` hints for local MCP log and metric queries
+
+When running `scripts/validate-ccf-catalog.sh` or `scripts/validate-ccf-app.sh`, set:
+
+```bash
+VALIDATION_USE_KUBECTL=1
+VALIDATION_KUBECONFIG_PATH=/absolute/path/to/kubeconfig.yaml
+```
+
+The kubeconfig itself can be created through the CCF MCP `create-kubeconfig` tool and then retrieved with `get-kubeconfig`.
 
 External community repositories that are not curated here can be added directly to CCF from
 their upstream sources.

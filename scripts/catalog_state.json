@@ -1,53 +1,53 @@
 {
   "backstage": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "cert-manager": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "chaos-mesh": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "clickhouse-operator": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "cloudnative-pg": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "eck-operator": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "eck-stack": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "external-dns": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "grafana": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "harbor": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "istio": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "jupyterhub": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "netbox": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "ollama": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "openmetadata": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "trino": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   },
   "valkey": {
-    "chart_version": "0.1.1"
+    "chart_version": "0.1.2"
   }
 }

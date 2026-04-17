@@ -4,7 +4,7 @@ name: ccf-cert-manager
 description: Curated cert-manager wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: v1.20.2
 annotations:
   ccf.catalog/source-classification: official

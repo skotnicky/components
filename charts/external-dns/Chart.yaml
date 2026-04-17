@@ -4,7 +4,7 @@ name: ccf-external-dns
 description: Curated external-dns wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: 0.20.0
 annotations:
   ccf.catalog/source-classification: official

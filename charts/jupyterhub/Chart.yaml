@@ -4,7 +4,7 @@ name: ccf-jupyterhub
 description: Curated JupyterHub wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: 5.4.4
 annotations:
   ccf.catalog/source-classification: official

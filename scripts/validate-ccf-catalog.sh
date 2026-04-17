@@ -6,12 +6,16 @@ REPORT_DIR="${REPORT_DIR:-$ROOT_DIR/reports}"
 MANIFEST_PATH="${MANIFEST_PATH:-$REPORT_DIR/ccf-validation-manifest.json}"
 SHARD_INDEX="${SHARD_INDEX:-0}"
 SHARD_TOTAL="${SHARD_TOTAL:-1}"
+REPOSITORY_NAME="${REPOSITORY_NAME:-ccf}"
 MCP_RUNNER_CMD="${MCP_RUNNER_CMD:-}"
 REQUIRE_MCP_RUNNER="${REQUIRE_MCP_RUNNER:-0}"
+VALIDATION_USE_KUBECTL="${VALIDATION_USE_KUBECTL:-0}"
+VALIDATION_KUBECONFIG_PATH="${VALIDATION_KUBECONFIG_PATH:-}"
+KUBECTL_VALIDATION_SCRIPT="${KUBECTL_VALIDATION_SCRIPT:-$ROOT_DIR/scripts/validate_k8s_resources.py}"
 
 mkdir -p "$REPORT_DIR"
 
-python3 "$ROOT_DIR/scripts/build_validation_manifest.py" --output "$MANIFEST_PATH"
+python3 "$ROOT_DIR/scripts/build_validation_manifest.py" --repository-name "$REPOSITORY_NAME" --output "$MANIFEST_PATH"
 
 SHARD_MANIFEST="$REPORT_DIR/ccf-validation-shard-${SHARD_INDEX}.json"
 export MANIFEST_PATH SHARD_MANIFEST SHARD_INDEX SHARD_TOTAL
@@ -38,6 +42,20 @@ print(shard_manifest)
 PY
 
 echo "Prepared CCF shard manifest: $SHARD_MANIFEST"
+
+if [[ "$VALIDATION_USE_KUBECTL" == "1" ]]; then
+  if [[ -z "$VALIDATION_KUBECONFIG_PATH" ]]; then
+    echo "VALIDATION_KUBECONFIG_PATH must be set when VALIDATION_USE_KUBECTL=1." >&2
+    exit 1
+  fi
+  python3 "$KUBECTL_VALIDATION_SCRIPT" \
+    --manifest "$SHARD_MANIFEST" \
+    --kubeconfig "$VALIDATION_KUBECONFIG_PATH" \
+    --phase preflight \
+    --report "$REPORT_DIR/ccf-k8s-preflight-shard-${SHARD_INDEX}.json"
+fi
+
+export VALIDATION_USE_KUBECTL VALIDATION_KUBECONFIG_PATH KUBECTL_VALIDATION_SCRIPT
 
 if [[ -n "$MCP_RUNNER_CMD" ]]; then
   echo "Invoking MCP runner command for shard manifest."

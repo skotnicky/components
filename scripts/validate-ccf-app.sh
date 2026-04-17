@@ -2,20 +2,43 @@
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $0 <app-json-file>" >&2
+  echo "Usage: $0 <app-json-file|component-id>" >&2
   exit 1
 fi
 
-APP_FILE="$1"
+INPUT="$1"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPORT_DIR="${REPORT_DIR:-$ROOT_DIR/reports}"
 MCP_RUNNER_CMD="${MCP_RUNNER_CMD:-}"
 REQUIRE_MCP_RUNNER="${REQUIRE_MCP_RUNNER:-0}"
+VALIDATION_USE_KUBECTL="${VALIDATION_USE_KUBECTL:-0}"
+VALIDATION_KUBECONFIG_PATH="${VALIDATION_KUBECONFIG_PATH:-}"
+KUBECTL_VALIDATION_SCRIPT="${KUBECTL_VALIDATION_SCRIPT:-$ROOT_DIR/scripts/validate_k8s_resources.py}"
 
-if [[ ! -f "$APP_FILE" ]]; then
-  echo "App manifest not found: $APP_FILE" >&2
-  exit 1
+mkdir -p "$REPORT_DIR"
+
+if [[ -f "$INPUT" ]]; then
+  APP_FILE="$INPUT"
+else
+  APP_FILE="$REPORT_DIR/ccf-validation-app-${INPUT}.json"
+  python3 "$ROOT_DIR/scripts/build_validation_manifest.py" --component "$INPUT" --output "$APP_FILE" >/dev/null
 fi
 
 echo "Prepared CCF app validation manifest: $APP_FILE"
+
+if [[ "$VALIDATION_USE_KUBECTL" == "1" ]]; then
+  if [[ -z "$VALIDATION_KUBECONFIG_PATH" ]]; then
+    echo "VALIDATION_KUBECONFIG_PATH must be set when VALIDATION_USE_KUBECTL=1." >&2
+    exit 1
+  fi
+  python3 "$KUBECTL_VALIDATION_SCRIPT" \
+    --manifest "$APP_FILE" \
+    --kubeconfig "$VALIDATION_KUBECONFIG_PATH" \
+    --phase preflight \
+    --report "$REPORT_DIR/ccf-k8s-preflight-app.json"
+fi
+
+export VALIDATION_USE_KUBECTL VALIDATION_KUBECONFIG_PATH KUBECTL_VALIDATION_SCRIPT
 
 if [[ -n "$MCP_RUNNER_CMD" ]]; then
   echo "Invoking MCP runner command for app manifest."

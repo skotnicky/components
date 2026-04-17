@@ -16,7 +16,7 @@ This chart packages upstream Helm dependencies with curated default values and a
 - Namespace: `valkey`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.1`
+- Chart version: `0.1.2`
 - Upstream app version: `9.0.2`
 
 ## Notes
