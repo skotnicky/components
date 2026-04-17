@@ -18,6 +18,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Python dependencies
+        run: python3 -m pip install -r requirements.txt
+
       - name: Detect upstream chart updates
         run: |
           chmod +x scripts/detect_upstream_updates.sh

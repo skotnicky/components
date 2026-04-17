@@ -45,6 +45,12 @@ The generated compatibility matrix lives in `docs/catalog-matrix.md`.
 
 ## Local Development
 
+Install Python dependencies first:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
 Regenerate the curated charts and matrix:
 
 ```bash

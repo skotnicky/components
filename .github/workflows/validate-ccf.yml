@@ -28,6 +28,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Python dependencies
+        run: python3 -m pip install -r requirements.txt
+
       - name: Prepare CCF validation shard and run MCP-backed executor
         env:
           SHARD_INDEX: ${{ matrix.shard }}
