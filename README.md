@@ -37,6 +37,7 @@ The generated compatibility matrix lives in `docs/catalog-matrix.md`.
 - `charts/`: generated curated wrapper charts
 - `scripts/catalog_data.py`: single source of truth for curated chart metadata
 - `scripts/render_catalog.py`: regenerates charts and the catalog matrix
+- `scripts/build_helm_repo.sh`: packages curated charts and generates a classic Helm `index.yaml`
 - `scripts/sync-helmforge.sh`: mirrors the full HelmForge catalog into OCI
 - `scripts/validate_charts.py`: local Helm dependency, lint, template, and `questions.yaml` validation
 - `scripts/validate-ccf-catalog.sh`: builds sharded CCF validation manifests for MCP-backed execution
@@ -75,6 +76,13 @@ Mirror a small HelmForge sample without pushing:
 DRY_RUN=1 HELMFORGE_LIMIT=5 bash scripts/sync-helmforge.sh
 ```
 
+Build a classic Helm repository locally:
+
+```bash
+HELM_REPO_URL=https://example.github.io/components \
+bash scripts/build_helm_repo.sh
+```
+
 ## Publishing
 
 Curated charts are intended to be pushed to:
@@ -88,5 +96,13 @@ HelmForge mirror artifacts are intended to be pushed to:
 ```text
 oci://ghcr.io/<owner>/helmforge-mirror
 ```
+
+The classic Helm repository published by GitHub Pages is intended to be available at:
+
+```text
+https://<owner>.github.io/<repo>/
+```
+
+Set the optional repository variable `HELM_REPO_URL` if you want Pages to publish a custom repository base URL into `index.yaml`.
 
 See `docs/ccf-import.md` for the CCF-side repository and catalog flow.

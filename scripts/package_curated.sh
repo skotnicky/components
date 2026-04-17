@@ -7,6 +7,7 @@ OCI_PREFIX="${OCI_PREFIX:-}"
 PUSH="${PUSH:-0}"
 
 mkdir -p "$DIST_DIR"
+rm -f "$DIST_DIR"/*.tgz
 
 python3 "$ROOT_DIR/scripts/ensure_helm_repos.py"
 
