@@ -4,7 +4,7 @@ name: ccf-chaos-mesh
 description: Curated Chaos Mesh wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 2.8.2
 annotations:
   ccf.catalog/source-classification: official
@@ -16,3 +16,5 @@ dependencies:
 - name: chaos-mesh
   repository: https://charts.chaos-mesh.org
   version: 2.8.2
+home: https://chaos-mesh.org
+icon: https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/static/logo.svg

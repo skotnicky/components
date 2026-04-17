@@ -30,7 +30,7 @@ jobs:
         run: python3 scripts/validate_charts.py
 
       - name: Build sample validation manifest
-        run: python3 scripts/build_validation_manifest.py --mirror-limit 25
+        run: python3 scripts/build_validation_manifest.py
 
       - name: Upload reports
         uses: actions/upload-artifact@v4

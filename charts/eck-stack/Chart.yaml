@@ -4,7 +4,7 @@ name: ccf-eck-stack
 description: Curated Elastic ECK Stack wrapper chart for the Cloudera Cloud Factory
   components catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.18.2
 annotations:
   ccf.catalog/source-classification: official
@@ -16,3 +16,5 @@ dependencies:
 - name: eck-stack
   repository: https://helm.elastic.co
   version: 0.18.2
+home: https://github.com/elastic/cloud-on-k8s
+icon: https://helm.elastic.co/icons/eck.png

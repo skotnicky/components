@@ -13,7 +13,7 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from catalog_data import CURATED_COMPONENTS, EXCLUDED_COMPONENTS, component_matrix
+from catalog_data import CURATED_COMPONENTS, DEFAULT_CHART_VERSION, EXCLUDED_COMPONENTS, component_matrix
 
 
 CHARTS_DIR = ROOT / "charts"
@@ -42,7 +42,7 @@ def render_chart_yaml(component: dict) -> str:
             "components catalog."
         ),
         "type": "application",
-        "version": "0.1.0",
+        "version": component.get("chart_version", DEFAULT_CHART_VERSION),
         "appVersion": component["dependencies"][0]["app_version"] or component["dependencies"][0]["version"],
         "annotations": {
             "ccf.catalog/source-classification": component["source_classification"],
@@ -53,6 +53,10 @@ def render_chart_yaml(component: dict) -> str:
         },
         "dependencies": dependency_items,
     }
+    if component.get("home"):
+        chart["home"] = component["home"]
+    if component.get("icon"):
+        chart["icon"] = component["icon"]
     return (
         "# Generated from scripts/catalog_data.py. Edit metadata there and re-run "
         "scripts/render_catalog.py.\n"

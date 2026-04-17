@@ -4,7 +4,7 @@ name: ccf-backstage
 description: Curated Backstage wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 2.6.3
 annotations:
   ccf.catalog/source-classification: official
@@ -16,3 +16,5 @@ dependencies:
 - name: backstage
   repository: https://backstage.github.io/charts
   version: 2.6.3
+home: https://backstage.io
+icon: https://raw.githubusercontent.com/cncf/artwork/master/projects/backstage/icon/color/backstage-icon-color.svg

@@ -1,15 +1,27 @@
-name: Detect Upstream Updates
+name: Update Curated Versions
 
 on:
   schedule:
     - cron: "15 3 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  detect:
+  update:
     runs-on: ubuntu-latest
     steps:
+      - name: Select automation token
+        id: auth
+        env:
+          TOKEN: ${{ secrets.CATALOG_UPDATE_TOKEN != '' && secrets.CATALOG_UPDATE_TOKEN || github.token }}
+        run: echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.auth.outputs.token }}
 
       - uses: azure/setup-helm@v4
 
@@ -21,22 +33,60 @@ jobs:
       - name: Install Python dependencies
         run: python3 -m pip install -r requirements.txt
 
-      - name: Detect upstream chart updates
+      - name: Apply upstream chart updates
         run: |
-          chmod +x scripts/detect_upstream_updates.sh
-          bash scripts/detect_upstream_updates.sh
+          python3 scripts/apply_upstream_updates.py --write
 
-      - name: Summarize update report
+      - name: Detect repository changes
+        id: changes
         run: |
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          data = json.loads(Path("reports/upstream-updates.json").read_text())
-          changed = [item for item in data if item["needsUpdate"]]
-          print(f"Detected {len(changed)} curated chart(s) with upstream changes.")
-          for item in changed:
-              print(f"- {item['component']}: {item['currentVersion']} -> {item['latestVersion']}")
-          PY
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Regenerate curated charts
+        if: steps.changes.outputs.changed == 'true'
+        run: python3 scripts/render_catalog.py
+
+      - name: Validate curated charts
+        if: steps.changes.outputs.changed == 'true'
+        run: python3 scripts/validate_charts.py
+
+      - name: Build sample validation manifest
+        if: steps.changes.outputs.changed == 'true'
+        run: python3 scripts/build_validation_manifest.py
+
+      - name: Create update pull request
+        id: cpr
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.auth.outputs.token }}
+          branch: automation/update-curated-versions
+          delete-branch: true
+          commit-message: |
+            Update curated chart versions
+
+            Add new curated wrapper versions for upstream chart releases.
+          title: Update curated chart versions
+          body: |
+            ## Summary
+            - refresh pinned upstream chart versions for curated components
+            - bump curated wrapper chart versions instead of replacing released versions
+            - regenerate rendered charts and docs
+
+            ## Validation
+            - `python3 scripts/render_catalog.py`
+            - `python3 scripts/validate_charts.py`
+            - `python3 scripts/build_validation_manifest.py`
+
+      - name: Enable PR auto-merge
+        if: steps.cpr.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ steps.auth.outputs.token }}
+        run: gh pr merge --auto --squash "${{ steps.cpr.outputs.pull-request-url }}"
 
       - name: Upload upstream update report
         uses: actions/upload-artifact@v4

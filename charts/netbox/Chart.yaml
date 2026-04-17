@@ -4,7 +4,7 @@ name: ccf-netbox
 description: Curated NetBox wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: v4.5.8
 annotations:
   ccf.catalog/source-classification: community
@@ -16,3 +16,5 @@ dependencies:
 - name: netbox
   repository: https://charts.netbox.oss.netboxlabs.com/
   version: 8.1.1
+home: https://netbox.dev/
+icon: https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo_light.svg

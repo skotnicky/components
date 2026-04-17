@@ -1,0 +1,53 @@
+{
+  "backstage": {
+    "chart_version": "0.1.1"
+  },
+  "cert-manager": {
+    "chart_version": "0.1.1"
+  },
+  "chaos-mesh": {
+    "chart_version": "0.1.1"
+  },
+  "clickhouse-operator": {
+    "chart_version": "0.1.1"
+  },
+  "cloudnative-pg": {
+    "chart_version": "0.1.1"
+  },
+  "eck-operator": {
+    "chart_version": "0.1.1"
+  },
+  "eck-stack": {
+    "chart_version": "0.1.1"
+  },
+  "external-dns": {
+    "chart_version": "0.1.1"
+  },
+  "grafana": {
+    "chart_version": "0.1.1"
+  },
+  "harbor": {
+    "chart_version": "0.1.1"
+  },
+  "istio": {
+    "chart_version": "0.1.1"
+  },
+  "jupyterhub": {
+    "chart_version": "0.1.1"
+  },
+  "netbox": {
+    "chart_version": "0.1.1"
+  },
+  "ollama": {
+    "chart_version": "0.1.1"
+  },
+  "openmetadata": {
+    "chart_version": "0.1.1"
+  },
+  "trino": {
+    "chart_version": "0.1.1"
+  },
+  "valkey": {
+    "chart_version": "0.1.1"
+  }
+}

@@ -4,7 +4,7 @@ name: ccf-ollama
 description: Curated Ollama wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 0.19.0
 annotations:
   ccf.catalog/source-classification: community
@@ -16,3 +16,5 @@ dependencies:
 - name: ollama
   repository: https://helm.otwld.com/
   version: 1.54.0
+home: https://ollama.ai/
+icon: https://ollama.ai/public/ollama.png

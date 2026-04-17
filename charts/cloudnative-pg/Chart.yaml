@@ -4,7 +4,7 @@ name: ccf-cloudnative-pg
 description: Curated CloudNativePG wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 1.29.0
 annotations:
   ccf.catalog/source-classification: official
@@ -16,3 +16,5 @@ dependencies:
 - name: cloudnative-pg
   repository: https://cloudnative-pg.github.io/charts
   version: 0.28.0
+home: https://cloudnative-pg.io
+icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
