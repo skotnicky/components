@@ -4,7 +4,7 @@ name: ccf-clickhouse-operator
 description: Curated ClickHouse Operator wrapper chart for the Cloudera Cloud Factory
   components catalog.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: v0.0.3
 annotations:
   ccf.catalog/source-classification: official

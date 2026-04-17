@@ -1,4 +1,4 @@
-name: Validate On CCF
+name: Prepare CCF Validation Manifests
 
 on:
   schedule:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate:
-    runs-on: self-hosted
+  prepare:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -26,12 +26,10 @@ jobs:
       - name: Install Python dependencies
         run: python3 -m pip install -r requirements.txt
 
-      - name: Prepare CCF validation shard and run MCP-backed executor
+      - name: Prepare CCF validation shard manifest
         env:
           SHARD_INDEX: ${{ matrix.shard }}
           SHARD_TOTAL: 4
-          REQUIRE_MCP_RUNNER: "1"
-          MCP_RUNNER_CMD: ${{ secrets.CCF_MCP_RUNNER_CMD }}
         run: |
           chmod +x scripts/validate-ccf-catalog.sh
           bash scripts/validate-ccf-catalog.sh

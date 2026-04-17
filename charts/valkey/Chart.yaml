@@ -4,7 +4,7 @@ name: ccf-valkey
 description: Curated Valkey wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: 9.0.2
 annotations:
   ccf.catalog/source-classification: official

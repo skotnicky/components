@@ -37,6 +37,7 @@ The CCF MCP server exposes that same sequence through:
 - `import-repository`
 - `catalog-create`
 - `catalog-app-add`
+- `catalog-app-remove`
 - `catalog-app-defaults-set`
 - `bind-projects-to-catalog`
 - `app-install`
@@ -55,6 +56,10 @@ Typical curated questions cover:
 - storage class and PVC size
 - lightweight resource settings
 - bootstrap admin or secret references when the upstream chart supports them
+
+Generated catalog prompts are intended to map directly to CCF app parameters. Boolean and integer
+defaults should remain available as questions, but validation tooling may need to normalize their
+serialized values before sending them through the CCF install path.
 
 ## Catalog Strategy
 

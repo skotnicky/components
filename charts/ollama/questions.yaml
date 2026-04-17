@@ -1,5 +1,6 @@
 # Generated from scripts/catalog_data.py.
-# This file follows the common Rancher-style questions.yaml shape so catalog UIs can present CCF-friendly prompts.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
 questions:
 - variable: ollama.service.type
   label: Service type

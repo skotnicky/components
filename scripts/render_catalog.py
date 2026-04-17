@@ -90,8 +90,8 @@ def render_questions_yaml(component: dict) -> str:
     payload = {"questions": questions}
     return (
         "# Generated from scripts/catalog_data.py.\n"
-        "# This file follows the common Rancher-style questions.yaml shape so catalog "
-        "UIs can present CCF-friendly prompts.\n"
+        "# This file follows the common Rancher-style questions.yaml shape so catalog UIs can\n"
+        "# present CCF-friendly prompts.\n"
         + dump_yaml(payload)
     )
 
