@@ -19,7 +19,7 @@ def run(cmd: list[str], cwd: pathlib.Path | None = None) -> None:
 
 
 def chart_dirs() -> list[pathlib.Path]:
-    return sorted(path for path in CHARTS_DIR.iterdir() if path.is_dir())
+    return sorted(path for path in CHARTS_DIR.iterdir() if path.is_dir() and (path / "Chart.yaml").exists())
 
 
 def main() -> int:

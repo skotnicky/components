@@ -1,4 +1,4 @@
-"""Shared catalog metadata for curated CCF charts and HelmForge mirroring."""
+"""Shared catalog metadata for curated CCF charts."""
 
 from copy import deepcopy
 
@@ -551,88 +551,6 @@ CURATED_COMPONENTS = [
                 False,
                 "Enable Agent resources only when additional Fleet settings are supplied.",
                 "Stack",
-            ),
-        ],
-    },
-    {
-        "id": "wordpress",
-        "display_name": "WordPress",
-        "package_name": "ccf-wordpress",
-        "namespace": "wordpress",
-        "source_classification": "community",
-        "packaging_mode": "curated-wrapper",
-        "questions_support": True,
-        "smoke_profile": "needs-overrides",
-        "image_source_choice": "upstream-official",
-        "notes": "HelmForge is used here to satisfy the non-Bitnami WordPress requirement.",
-        "dependencies": [
-            {
-                "name": "wordpress",
-                "repository": "https://repo.helmforge.dev",
-                "version": "1.4.7",
-                "app_version": "6.9.4",
-            }
-        ],
-        "values": {
-            "wordpress": {
-                "wordpress": {
-                    "adminUser": "admin",
-                    "adminEmail": "admin@example.com",
-                },
-                "service": {"type": "ClusterIP"},
-                "ingress": {"enabled": False, "ingressClassName": "", "hosts": [], "tls": []},
-                "persistence": {
-                    "enabled": True,
-                    "storageClass": "",
-                    "size": "5Gi",
-                },
-                "mysql": {
-                    "primary": {"persistence": {"enabled": True, "size": "8Gi"}}
-                },
-            }
-        },
-        "questions": [
-            q(
-                "wordpress.ingress.enabled",
-                "Enable ingress",
-                "boolean",
-                False,
-                "Expose WordPress through an ingress resource managed by the project.",
-                "Networking",
-            ),
-            q(
-                "wordpress.ingress.ingressClassName",
-                "Ingress class",
-                "string",
-                "",
-                "Ingress class name used by the WordPress ingress.",
-                "Networking",
-            ),
-            q(
-                "wordpress.persistence.storageClass",
-                "Storage class",
-                "string",
-                "",
-                "StorageClass used for WordPress uploads and content.",
-                "Storage",
-            ),
-            q(
-                "wordpress.persistence.size",
-                "Content PVC size",
-                "string",
-                "5Gi",
-                "Persistent volume size for WordPress content.",
-                "Storage",
-                required=True,
-            ),
-            q(
-                "wordpress.wordpress.adminEmail",
-                "Admin email",
-                "string",
-                "admin@example.com",
-                "Administrator email used during bootstrap.",
-                "Application",
-                required=True,
             ),
         ],
     },
@@ -1313,22 +1231,21 @@ CURATED_COMPONENTS = [
 ]
 
 
-HELMFORGE_MIRROR = {
-    "source_classification": "community",
-    "packaging_mode": "helmforge-mirror",
-    "questions_support": False,
-    "smoke_profile": "default",
-    "repository_url": "https://repo.helmforge.dev",
-    "oci_prefix": "oci://ghcr.io/<owner>/helmforge-mirror",
-    "requested_component_coverage": ["rabbitmq", "elasticsearch", "wordpress"],
-    "notes": (
-        "Mirror all published HelmForge packages into a dedicated OCI namespace. "
-        "Validation is sharded because the upstream catalog changes over time."
-    ),
-}
-
-
 EXCLUDED_COMPONENTS = [
+    {
+        "id": "rabbitmq",
+        "reason": (
+            "Not curated in this repository. Import an external community or vendor repository "
+            "directly into CCF when RabbitMQ is needed."
+        ),
+    },
+    {
+        "id": "wordpress",
+        "reason": (
+            "Not curated in this repository. Import the upstream community repository directly "
+            "into CCF if WordPress is needed."
+        ),
+    },
     {
         "id": "memcached",
         "reason": (

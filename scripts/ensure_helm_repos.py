@@ -23,7 +23,10 @@ def repo_alias(url: str) -> str:
 def iter_repo_urls() -> set[str]:
     repos = set()
     for chart_dir in sorted(path for path in CHARTS_DIR.iterdir() if path.is_dir()):
-        chart = yaml.safe_load((chart_dir / "Chart.yaml").read_text(encoding="utf-8")) or {}
+        chart_path = chart_dir / "Chart.yaml"
+        if not chart_path.exists():
+            continue
+        chart = yaml.safe_load(chart_path.read_text(encoding="utf-8")) or {}
         for dep in chart.get("dependencies", []):
             repo = dep.get("repository", "")
             if repo and not repo.startswith("oci://"):
