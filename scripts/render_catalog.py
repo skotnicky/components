@@ -96,6 +96,57 @@ def render_questions_yaml(component: dict) -> str:
     )
 
 
+def render_chart_readme(component: dict) -> str:
+    dependency_lines = "\n".join(
+        f"- `{dep['name']}` from `{dep['repository']}` at `{dep['version']}`"
+        for dep in component["dependencies"]
+    )
+    notes = component.get("notes", "").strip()
+    home = component.get("home", "").strip()
+    icon = component.get("icon", "").strip()
+    lines = [
+        f"# {component['package_name']}",
+        "",
+        f"Curated `{component['display_name']}` wrapper chart for the Cloudera Cloud Factory components catalog.",
+        "",
+        "## Purpose",
+        "",
+        "This chart packages upstream Helm dependencies with curated default values and a Rancher-style",
+        "`questions.yaml` so it can be imported and installed more easily in CCF.",
+        "",
+        "## Upstream Dependencies",
+        "",
+        dependency_lines,
+        "",
+        "## Defaults",
+        "",
+        f"- Namespace: `{component['namespace']}`",
+        f"- Smoke profile: `{component['smoke_profile']}`",
+        f"- Image source choice: `{component['image_source_choice']}`",
+        f"- Chart version: `{component.get('chart_version', DEFAULT_CHART_VERSION)}`",
+        f"- Upstream app version: `{component['dependencies'][0]['app_version'] or component['dependencies'][0]['version']}`",
+        "",
+        "## Notes",
+        "",
+        notes if notes else "No additional notes.",
+        "",
+        "## Files",
+        "",
+        "- `Chart.yaml`: wrapper metadata and pinned upstream dependencies",
+        "- `values.yaml`: curated default values for CCF environments",
+        "- `questions.yaml`: catalog prompts exposed to operators",
+        "",
+        "## References",
+        "",
+        f"- Upstream repository: `{component['dependencies'][0]['repository']}`",
+    ]
+    if home:
+        lines.append(f"- Project home: {home}")
+    if icon:
+        lines.append(f"- Icon: {icon}")
+    return "\n".join(lines) + "\n"
+
+
 def render_catalog_matrix() -> str:
     rows = component_matrix()
     header = [
@@ -141,6 +192,7 @@ def main() -> None:
         write_text(chart_dir / "Chart.yaml", render_chart_yaml(component))
         write_text(chart_dir / "values.yaml", render_values_yaml(component))
         write_text(chart_dir / "questions.yaml", render_questions_yaml(component))
+        write_text(chart_dir / "README.md", render_chart_readme(component))
     write_text(DOCS_DIR / "catalog-matrix.md", render_catalog_matrix())
     print(
         dedent(
