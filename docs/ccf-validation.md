@@ -28,6 +28,7 @@ The repository prepares sharded validation manifests through:
 - `scripts/build_validation_manifest.py`
 - `scripts/validate-ccf-catalog.sh`
 - `scripts/validate-ccf-app.sh`
+- `scripts/probe_question_types_mcp.py`
 
 The expected execution environment for live validation is your local workstation with:
 
@@ -136,22 +137,27 @@ The kubeconfig helper currently focuses on:
 
 ## Question Transport
 
-Live validation uses CCF application parameters for generated `questions.yaml` prompts. Boolean,
-integer, and list-style defaults should stay available to operators; validation tooling must
-normalize those values into the form CCF expects before sending them through the install path.
+Live validation uses CCF application parameters only for question types that reliably survive the
+current transport path. In practice, local validation automation now limits app-parameter injection
+to `string` and `enum` prompts and lets the wrapper chart `values.yaml` carry the defaults for
+boolean, integer, and list-style values.
 
-Observed normalization rules:
+Current reliable transport path:
 
-- booleans: lowercase YAML booleans such as `true` and `false`
-- integers: plain decimal strings such as `30`
-- list of strings: JSON array strings such as `["service", "ingress"]`
+- strings: passed directly as app parameters
+- enums: passed directly as app parameters
+- booleans, integers, and list of strings: left in chart defaults unless a future CCF path proves
+  they are preserved as typed values end-to-end
 
 Observed live behavior:
 
-- normalized boolean/string/enum question defaults worked for `grafana`
-- normalized boolean/string/enum question defaults also progressed cleanly for `cloudnative-pg`
-- `cert-manager` no longer failed on schema typing after normalization; the remaining failure came
-  from pre-existing CRDs owned by an older Helm release in the target cluster
+- `grafana` installed successfully with string/enum-style defaults applied through app parameters
+- `cloudnative-pg` and similar charts can keep their boolean/integer defaults in chart values while
+  only safe string/enum parameters are injected through CCF
+- `cert-manager` still fails when boolean/integer question defaults are pushed through CCF app
+  parameters because Helm receives them as strings; with those typed parameters removed from the
+  install path, the remaining blocker becomes the pre-existing CRDs owned by an older Helm release
+  in the target cluster
 - `grafana` installed successfully, reached `Ready`, uninstalled, and its leftover namespace could
   be removed through the Kubernetes resource MCP tools
 - a project kubeconfig could be created through MCP and used successfully for cluster-wide reads,
@@ -170,6 +176,36 @@ Observed live behavior:
   points
 - the repo now carries observability hints, but local automation still needs to decide exactly when
   to query logs and metrics during install failures or post-ready smoke checks
+- typed CCF app-parameter transport remains a platform limitation for schema-validated charts, so
+  boolean/integer/list prompts cannot yet be treated as safe install-time overrides
+
+## MCP Question Probe
+
+The repository now includes `scripts/probe_question_types_mcp.py` for question-transport checks
+against the standalone `ccf-question-types-smoke` chart using the same MCP-runner path as the rest
+of local CCF validation.
+
+The probe:
+
+1. builds one single-app manifest per question type plus a baseline manifest
+2. overrides exactly one parameter in each manifest
+3. writes the case manifests under `reports/question-types-mcp-cases/`
+4. optionally runs `scripts/validate-ccf-app.sh` for each case when `--run` is supplied
+5. relies on the existing `MCP_RUNNER_CMD` hook to execute the live CCF MCP lifecycle
+6. collects per-case runner exit codes and stdout/stderr into a JSON report
+
+Example:
+
+```bash
+MCP_RUNNER_CMD='your-local-mcp-runner' \
+python3 scripts/probe_question_types_mcp.py \
+  --repository-name ccf \
+  --run
+```
+
+Without `--run`, the script only prepares the per-case manifests so they can be executed or
+inspected manually. The summary report is written to `reports/question-types-mcp-probe.json` by
+default.
 
 ## Sharding
 

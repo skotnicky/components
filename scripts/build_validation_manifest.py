@@ -12,7 +12,7 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from catalog_data import CURATED_COMPONENTS
+from catalog_data import CURATED_COMPONENTS, component_app_version
 
 
 VALIDATION_HINTS = {
@@ -25,7 +25,7 @@ VALIDATION_HINTS = {
     "jupyterhub": {"waitTimeout": 1200},
     "openmetadata": {"waitTimeout": 1200},
 }
-SUPPORTED_CCF_QUESTION_TYPES = {"string", "enum", "boolean", "int", "listofstrings"}
+SUPPORTED_CCF_PARAMETER_TYPES = {"string", "enum"}
 KUBERNETES_READY_KINDS = ["deployments", "statefulsets", "daemonsets", "jobs"]
 KUBERNETES_OBSERVED_KINDS = ["pods", "services", "endpoints", "ingresses", "persistentvolumeclaims"]
 KUBERNETES_CLEANUP_KINDS = [
@@ -38,6 +38,20 @@ KUBERNETES_CLEANUP_KINDS = [
     "secrets",
 ]
 OBSERVABILITY_LOG_LIMIT = 100
+
+
+def parse_path(path: str) -> list[str]:
+    parts = []
+    for chunk in path.split("."):
+        while "[" in chunk:
+            prefix, rest = chunk.split("[", 1)
+            if prefix:
+                parts.append(prefix)
+            index, chunk = rest.split("]", 1)
+            parts.append(index)
+        if chunk:
+            parts.append(chunk)
+    return parts
 
 
 def normalize_question_value(item: dict) -> str:
@@ -55,7 +69,8 @@ def question_parameters(component: dict) -> tuple[list[dict], list[str]]:
     supported = []
     unsupported = []
     for item in component["questions"]:
-        if item["type"] in SUPPORTED_CCF_QUESTION_TYPES:
+        has_indexed_path = any(part.isdigit() for part in parse_path(item["variable"]))
+        if item["type"] in SUPPORTED_CCF_PARAMETER_TYPES and not has_indexed_path:
             supported.append(
                 {
                     "key": item["variable"],
@@ -141,7 +156,7 @@ def curated_manifest(repository_name: str, component_filter: set[str] | None = N
                 "repositoryName": repository_name,
                 "packageName": component["package_name"],
                 "chartVersion": component.get("chart_version", ""),
-                "appVersion": component["dependencies"][0]["app_version"] or component["dependencies"][0]["version"],
+                "appVersion": component_app_version(component),
                 "namespace": component["namespace"],
                 "smokeProfile": component["smoke_profile"],
                 "installOrder": install_order,

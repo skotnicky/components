@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-question-types" .Release.Name | trunc 63 | trimSuffix "-" }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  stringValue: {{ .Values.questionTypesSmoke.stringValue | quote }}
+  enumValue: {{ .Values.questionTypesSmoke.enumValue | quote }}
+  booleanValue: {{ printf "%v" .Values.questionTypesSmoke.booleanValue | quote }}
+  intValue: {{ printf "%v" .Values.questionTypesSmoke.intValue | quote }}
+  listValue: {{ toJson .Values.questionTypesSmoke.listValue | quote }}

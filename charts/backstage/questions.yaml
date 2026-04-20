@@ -9,6 +9,15 @@ questions:
   description: Expose Backstage through an ingress resource.
   group: Networking
   required: false
+- variable: backstage.ingress.className
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Backstage through the
+    cluster ingress controller. Leave blank to rely on the cluster default ingress
+    class.
+  group: Networking
+  required: false
 - variable: backstage.ingress.host
   label: Ingress hostname
   type: string

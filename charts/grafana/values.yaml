@@ -4,6 +4,7 @@ grafana:
     type: ClusterIP
   ingress:
     enabled: false
+    className: taikun
   persistence:
     enabled: true
     size: 10Gi

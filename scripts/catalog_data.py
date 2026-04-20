@@ -2,7 +2,9 @@
 
 from copy import deepcopy
 import json
+import os
 import pathlib
+import subprocess
 
 
 def q(variable, label, qtype, default, description, group, options=None, required=False):
@@ -18,6 +20,183 @@ def q(variable, label, qtype, default, description, group, options=None, require
     if options:
         item["options"] = options
     return item
+
+
+def primary_dependency(component: dict) -> dict | None:
+    dependencies = component.get("dependencies", [])
+    return dependencies[0] if dependencies else None
+
+
+def component_source_repository(component: dict) -> str:
+    dep = primary_dependency(component)
+    if dep:
+        return dep["repository"]
+    return component.get("source_repository", "local://standalone")
+
+
+def component_app_version(component: dict) -> str:
+    dep = primary_dependency(component)
+    if dep:
+        return dep.get("app_version") or dep["version"]
+    return component.get("app_version", component.get("chart_version", DEFAULT_CHART_VERSION))
+
+
+def parse_path(path: str) -> list[str]:
+    parts = []
+    for chunk in path.split("."):
+        while "[" in chunk:
+            prefix, rest = chunk.split("[", 1)
+            if prefix:
+                parts.append(prefix)
+            index, chunk = rest.split("]", 1)
+            parts.append(index)
+        if chunk:
+            parts.append(chunk)
+    return parts
+
+
+def set_path_default(data: dict, path: str, value) -> None:
+    cur = data
+    parts = parse_path(path)
+    for idx, part in enumerate(parts):
+        is_last = idx == len(parts) - 1
+        next_part = parts[idx + 1] if not is_last else None
+        if isinstance(cur, list):
+            list_index = int(part)
+            while len(cur) <= list_index:
+                cur.append({} if next_part and not next_part.isdigit() else [])
+            if is_last:
+                if cur[list_index] in ({}, None, ""):
+                    cur[list_index] = value
+                return
+            if cur[list_index] in ({}, None, ""):
+                cur[list_index] = {} if next_part and not next_part.isdigit() else []
+            cur = cur[list_index]
+            continue
+        if is_last:
+            cur.setdefault(part, value)
+            return
+        if part not in cur or cur[part] in ({}, None, ""):
+            cur[part] = {} if next_part and not next_part.isdigit() else []
+        cur = cur[part]
+
+
+def replace_or_insert_question(component: dict, question: dict, after_variable: str | None = None) -> None:
+    for idx, existing in enumerate(component["questions"]):
+        if existing["variable"] == question["variable"]:
+            component["questions"][idx] = question
+            return
+    insert_at = len(component["questions"])
+    if after_variable:
+        for idx, existing in enumerate(component["questions"]):
+            if existing["variable"] == after_variable:
+                insert_at = idx + 1
+                break
+    component["questions"].insert(insert_at, question)
+
+
+SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
+ROOT = SCRIPT_DIR.parent
+INGRESS_CLASS_ENV_VARS = ("CCF_INGRESS_CLASS", "INGRESS_CLASS")
+INGRESS_KUBECONFIG_ENV_VARS = ("CCF_INGRESS_KUBECONFIG", "VALIDATION_KUBECONFIG_PATH", "KUBECONFIG")
+KNOWN_CCF_INGRESS_CLASS = "taikun"
+
+
+def iter_kubeconfig_candidates() -> list[pathlib.Path]:
+    candidates = []
+    seen = set()
+    for env_var in INGRESS_KUBECONFIG_ENV_VARS:
+        raw_value = os.environ.get(env_var, "").strip()
+        if not raw_value:
+            continue
+        path = pathlib.Path(raw_value).expanduser()
+        key = str(path.resolve()) if path.exists() else str(path)
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(path)
+    reports_dir = ROOT / "reports"
+    if reports_dir.exists():
+        for pattern in ("*kubeconfig*.yaml", "*kubeconfig*.yml"):
+            for path in sorted(reports_dir.glob(pattern)):
+                key = str(path.resolve())
+                if key in seen:
+                    continue
+                seen.add(key)
+                candidates.append(path)
+    return candidates
+
+
+def detect_ingress_class_default() -> str:
+    for env_var in INGRESS_CLASS_ENV_VARS:
+        ingress_class = os.environ.get(env_var, "").strip()
+        if ingress_class:
+            return ingress_class
+
+    for kubeconfig in iter_kubeconfig_candidates():
+        if not kubeconfig.exists():
+            continue
+        try:
+            result = subprocess.run(
+                ["kubectl", "--kubeconfig", str(kubeconfig), "get", "ingressclass", "-o", "json"],
+                text=True,
+                capture_output=True,
+                check=False,
+                timeout=5,
+            )
+        except FileNotFoundError:
+            return ""
+        except subprocess.TimeoutExpired:
+            continue
+        if result.returncode != 0:
+            continue
+        try:
+            payload = json.loads(result.stdout or "{}")
+        except json.JSONDecodeError:
+            continue
+        items = payload.get("items", [])
+        default_classes = []
+        discovered_classes = []
+        for item in items:
+            metadata = item.get("metadata", {})
+            name = metadata.get("name", "").strip()
+            if not name:
+                continue
+            discovered_classes.append(name)
+            annotations = metadata.get("annotations", {})
+            if annotations.get("ingressclass.kubernetes.io/is-default-class", "").lower() == "true":
+                default_classes.append(name)
+        if default_classes:
+            return default_classes[0]
+        if len(discovered_classes) == 1:
+            return discovered_classes[0]
+        try:
+            ingress_result = subprocess.run(
+                ["kubectl", "--kubeconfig", str(kubeconfig), "get", "ingress", "-A", "-o", "json"],
+                text=True,
+                capture_output=True,
+                check=False,
+                timeout=5,
+            )
+        except subprocess.TimeoutExpired:
+            continue
+        if ingress_result.returncode != 0:
+            continue
+        try:
+            ingress_payload = json.loads(ingress_result.stdout or "{}")
+        except json.JSONDecodeError:
+            continue
+        ingress_classes = []
+        for item in ingress_payload.get("items", []):
+            spec = item.get("spec", {})
+            ingress_class = spec.get("ingressClassName", "").strip()
+            if not ingress_class:
+                ingress_class = item.get("metadata", {}).get("annotations", {}).get("kubernetes.io/ingress.class", "").strip()
+            if ingress_class and ingress_class not in ingress_classes:
+                ingress_classes.append(ingress_class)
+        if len(ingress_classes) == 1:
+            return ingress_classes[0]
+    return KNOWN_CCF_INGRESS_CLASS
 
 
 SERVICE_TYPE_OPTIONS = ["ClusterIP", "LoadBalancer", "NodePort"]
@@ -816,7 +995,7 @@ CURATED_COMPONENTS = [
                 required=True,
             ),
             q(
-                "ollama.ingress.hosts.0.host",
+                "ollama.ingress.hosts[0].host",
                 "Ingress hostname",
                 "string",
                 "ollama.local",
@@ -1165,6 +1344,90 @@ CURATED_COMPONENTS = [
         ],
     },
     {
+        "id": "question-types-smoke",
+        "display_name": "Question Types Smoke Test",
+        "package_name": "ccf-question-types-smoke",
+        "namespace": "question-types-smoke",
+        "source_classification": "local",
+        "packaging_mode": "standalone-test-chart",
+        "questions_support": True,
+        "smoke_profile": "default",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Standalone in-repo chart used to probe how CCF transports each Rancher-style "
+            "questions.yaml type into Helm values. It keeps one prompt each for string, enum, "
+            "boolean, int, and listofstrings while a values schema enforces their expected types. "
+            "Validation manifests still only inject string and enum app parameters automatically, "
+            "so the typed prompts can be exercised through the CCF MCP runner or manually through "
+            "the CCF UI."
+        ),
+        "source_repository": "local://components/question-types-smoke",
+        "app_version": "0.1.0",
+        "dependencies": [],
+        "values": {
+            "questionTypesSmoke": {
+                "stringValue": "alpha",
+                "enumValue": "option-a",
+                "booleanValue": True,
+                "intValue": 7,
+                "listValue": ["one", "two"],
+                "image": {
+                    "repository": "registry.k8s.io/pause",
+                    "tag": "3.10",
+                    "pullPolicy": "IfNotPresent",
+                },
+            }
+        },
+        "questions": [
+            q(
+                "questionTypesSmoke.stringValue",
+                "String value",
+                "string",
+                "alpha",
+                "String transport probe. This should arrive in Helm exactly as a string.",
+                "Transport",
+                required=True,
+            ),
+            q(
+                "questionTypesSmoke.enumValue",
+                "Enum value",
+                "enum",
+                "option-a",
+                "Enum transport probe restricted by values.schema.json.",
+                "Transport",
+                options=["option-a", "option-b", "option-c"],
+                required=True,
+            ),
+            q(
+                "questionTypesSmoke.booleanValue",
+                "Boolean value",
+                "boolean",
+                True,
+                "Boolean transport probe. Schema validation should fail if CCF sends a string.",
+                "Transport",
+                required=True,
+            ),
+            q(
+                "questionTypesSmoke.intValue",
+                "Integer value",
+                "int",
+                7,
+                "Integer transport probe. Schema validation should fail if CCF sends a quoted string.",
+                "Transport",
+                required=True,
+            ),
+            q(
+                "questionTypesSmoke.listValue",
+                "List of strings value",
+                "listofstrings",
+                ["one", "two"],
+                "List transport probe. Schema validation should fail if CCF flattens the array.",
+                "Transport",
+                required=True,
+            ),
+        ],
+    },
+    {
         "id": "netbox",
         "display_name": "NetBox",
         "package_name": "ccf-netbox",
@@ -1330,19 +1593,95 @@ EXCLUDED_COMPONENTS = [
 ]
 
 
+INGRESS_CLASS_DEFAULT = detect_ingress_class_default()
+INGRESS_CAPABILITIES = {
+    "harbor": {
+        "enable_path": None,
+        "class_path": "harbor.expose.ingress.className",
+        "host_path": "harbor.expose.ingress.hosts.core",
+    },
+    "grafana": {
+        "enable_path": "grafana.ingress.enabled",
+        "class_path": "grafana.ingress.className",
+        "host_path": None,
+    },
+    "jupyterhub": {
+        "enable_path": "jupyterhub.ingress.enabled",
+        "class_path": "jupyterhub.ingress.ingressClassName",
+        "host_path": None,
+    },
+    "ollama": {
+        "enable_path": "ollama.ingress.enabled",
+        "class_path": "ollama.ingress.className",
+        "host_path": "ollama.ingress.hosts[0].host",
+    },
+    "backstage": {
+        "enable_path": "backstage.ingress.enabled",
+        "class_path": "backstage.ingress.className",
+        "host_path": "backstage.ingress.host",
+    },
+    "trino": {
+        "enable_path": "trino.ingress.enabled",
+        "class_path": "trino.ingress.className",
+        "host_path": None,
+    },
+    "openmetadata": {
+        "enable_path": "openmetadata.ingress.enabled",
+        "class_path": "openmetadata.ingress.className",
+        "host_path": None,
+    },
+    "netbox": {
+        "enable_path": "netbox.ingress.enabled",
+        "class_path": "netbox.ingress.className",
+        "host_path": None,
+    },
+    "chaos-mesh": {
+        "enable_path": "chaos-mesh.dashboard.ingress.enabled",
+        "class_path": "chaos-mesh.dashboard.ingress.className",
+        "host_path": None,
+    },
+}
+
+
+def ingress_class_question(component: dict, variable: str) -> dict:
+    return q(
+        variable,
+        "Ingress class",
+        "string",
+        INGRESS_CLASS_DEFAULT,
+        (
+            f"Optional ingressClassName used when exposing {component['display_name']} through the "
+            "cluster ingress controller. Leave blank to rely on the cluster default ingress class."
+        ),
+        "Networking",
+    )
+
+
+def apply_ingress_metadata() -> None:
+    for component in CURATED_COMPONENTS:
+        ingress = INGRESS_CAPABILITIES.get(component["id"])
+        if not ingress:
+            continue
+        set_path_default(component["values"], ingress["class_path"], INGRESS_CLASS_DEFAULT)
+        replace_or_insert_question(
+            component,
+            ingress_class_question(component, ingress["class_path"]),
+            after_variable=ingress["enable_path"],
+        )
+
+
 def component_matrix():
     """Return a normalized list used by docs and validation scripts."""
     rows = []
     for item in CURATED_COMPONENTS:
-        dep = item["dependencies"][0]
         rows.append(
             {
                 "requested_component": item["id"],
                 "display_name": item["display_name"],
-                "upstream_chart_source": dep["repository"],
+                "upstream_chart_source": component_source_repository(item),
                 "packaged_chart_name": item["package_name"],
-                "pinned_version": dep["version"],
-                "app_version": dep["app_version"],
+                "pinned_version": item["dependencies"][0]["version"] if item["dependencies"] else item.get("chart_version", DEFAULT_CHART_VERSION),
+                "app_version": component_app_version(item),
                 "default_namespace": item["namespace"],
                 "source_classification": item["source_classification"],
                 "packaging_mode": item["packaging_mode"],
@@ -1400,3 +1739,4 @@ def apply_chart_media() -> None:
 
 apply_chart_media()
 apply_catalog_state()
+apply_ingress_metadata()

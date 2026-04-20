@@ -12,8 +12,9 @@ questions:
 - variable: netbox.ingress.className
   label: Ingress class
   type: string
-  default: ''
-  description: Ingress class used for the NetBox UI.
+  default: taikun
+  description: Optional ingressClassName used when exposing NetBox through the cluster
+    ingress controller. Leave blank to rely on the cluster default ingress class.
   group: Networking
   required: false
 - variable: netbox.persistence.storageClass

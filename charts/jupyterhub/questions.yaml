@@ -20,6 +20,15 @@ questions:
   description: Create an ingress in front of JupyterHub.
   group: Networking
   required: false
+- variable: jupyterhub.ingress.ingressClassName
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing JupyterHub through the
+    cluster ingress controller. Leave blank to rely on the cluster default ingress
+    class.
+  group: Networking
+  required: false
 - variable: jupyterhub.singleuser.storage.capacity
   label: Singleuser storage size
   type: string
