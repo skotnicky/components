@@ -20,6 +20,14 @@ questions:
   description: Expose Ollama through ingress.
   group: Networking
   required: false
+- variable: ollama.ingress.className
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Ollama through the cluster
+    ingress controller. Leave blank to rely on the cluster default ingress class.
+  group: Networking
+  required: false
 - variable: ollama.persistentVolume.size
   label: Model PVC size
   type: string
@@ -27,7 +35,7 @@ questions:
   description: Persistent storage size for downloaded models.
   group: Storage
   required: true
-- variable: ollama.ingress.hosts.0.host
+- variable: ollama.ingress.hosts[0].host
   label: Ingress hostname
   type: string
   default: ollama.local

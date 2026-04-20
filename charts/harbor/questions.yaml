@@ -5,8 +5,9 @@ questions:
 - variable: harbor.expose.ingress.className
   label: Ingress class
   type: string
-  default: ''
-  description: Ingress class used when exposing Harbor through CCF-managed ingress.
+  default: taikun
+  description: Optional ingressClassName used when exposing Harbor through the cluster
+    ingress controller. Leave blank to rely on the cluster default ingress class.
   group: Networking
   required: false
 - variable: harbor.expose.ingress.hosts.core

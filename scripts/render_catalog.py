@@ -13,7 +13,14 @@ SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
 ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from catalog_data import CURATED_COMPONENTS, DEFAULT_CHART_VERSION, EXCLUDED_COMPONENTS, component_matrix
+from catalog_data import (
+    CURATED_COMPONENTS,
+    DEFAULT_CHART_VERSION,
+    EXCLUDED_COMPONENTS,
+    component_app_version,
+    component_matrix,
+    component_source_repository,
+)
 
 
 CHARTS_DIR = ROOT / "charts"
@@ -33,26 +40,28 @@ def render_chart_yaml(component: dict) -> str:
             "version": dep["version"],
         }
         dependency_items.append(item)
+    chart_kind = "wrapper chart" if dependency_items else "standalone chart"
 
     chart = {
         "apiVersion": "v2",
         "name": component["package_name"],
         "description": (
-            f"Curated {component['display_name']} wrapper chart for the Cloudera Cloud Factory "
+            f"Curated {component['display_name']} {chart_kind} for the Cloudera Cloud Factory "
             "components catalog."
         ),
         "type": "application",
         "version": component.get("chart_version", DEFAULT_CHART_VERSION),
-        "appVersion": component["dependencies"][0]["app_version"] or component["dependencies"][0]["version"],
+        "appVersion": component_app_version(component),
         "annotations": {
             "ccf.catalog/source-classification": component["source_classification"],
-            "ccf.catalog/source-repository": component["dependencies"][0]["repository"],
+            "ccf.catalog/source-repository": component_source_repository(component),
             "ccf.catalog/default-namespace": component["namespace"],
             "ccf.catalog/smoke-profile": component["smoke_profile"],
             "ccf.catalog/image-source-choice": component["image_source_choice"],
         },
-        "dependencies": dependency_items,
     }
+    if dependency_items:
+        chart["dependencies"] = dependency_items
     if component.get("home"):
         chart["home"] = component["home"]
     if component.get("icon"):
@@ -97,26 +106,36 @@ def render_questions_yaml(component: dict) -> str:
 
 
 def render_chart_readme(component: dict) -> str:
+    dependencies = component["dependencies"]
     dependency_lines = "\n".join(
-        f"- `{dep['name']}` from `{dep['repository']}` at `{dep['version']}`"
-        for dep in component["dependencies"]
+        f"- `{dep['name']}` from `{dep['repository']}` at `{dep['version']}`" for dep in dependencies
     )
     notes = component.get("notes", "").strip()
     home = component.get("home", "").strip()
     icon = component.get("icon", "").strip()
+    has_dependencies = bool(dependencies)
+    purpose = (
+        "This chart packages upstream Helm dependencies with curated default values and a "
+        "Rancher-style `questions.yaml` so it can be imported and installed more easily in CCF."
+        if has_dependencies
+        else "This chart is maintained directly in this repository so CCF question transport can "
+        "be tested against a small typed workload with a local `values.schema.json`."
+    )
     lines = [
         f"# {component['package_name']}",
         "",
-        f"Curated `{component['display_name']}` wrapper chart for the Cloudera Cloud Factory components catalog.",
+        (
+            f"Curated `{component['display_name']}` {'wrapper' if has_dependencies else 'standalone'} "
+            "chart for the Cloudera Cloud Factory components catalog."
+        ),
         "",
         "## Purpose",
         "",
-        "This chart packages upstream Helm dependencies with curated default values and a Rancher-style",
-        "`questions.yaml` so it can be imported and installed more easily in CCF.",
+        purpose,
         "",
         "## Upstream Dependencies",
         "",
-        dependency_lines,
+        dependency_lines if dependency_lines else "This chart has no external Helm dependencies.",
         "",
         "## Defaults",
         "",
@@ -124,7 +143,7 @@ def render_chart_readme(component: dict) -> str:
         f"- Smoke profile: `{component['smoke_profile']}`",
         f"- Image source choice: `{component['image_source_choice']}`",
         f"- Chart version: `{component.get('chart_version', DEFAULT_CHART_VERSION)}`",
-        f"- Upstream app version: `{component['dependencies'][0]['app_version'] or component['dependencies'][0]['version']}`",
+        f"- App version: `{component_app_version(component)}`",
         "",
         "## Notes",
         "",
@@ -132,13 +151,13 @@ def render_chart_readme(component: dict) -> str:
         "",
         "## Files",
         "",
-        "- `Chart.yaml`: wrapper metadata and pinned upstream dependencies",
+        "- `Chart.yaml`: chart metadata and any pinned upstream dependencies",
         "- `values.yaml`: curated default values for CCF environments",
         "- `questions.yaml`: catalog prompts exposed to operators",
         "",
         "## References",
         "",
-        f"- Upstream repository: `{component['dependencies'][0]['repository']}`",
+        f"- Source repository: `{component_source_repository(component)}`",
     ]
     if home:
         lines.append(f"- Project home: {home}")
@@ -197,7 +216,7 @@ def main() -> None:
     print(
         dedent(
             f"""
-            Rendered {len(CURATED_COMPONENTS)} curated wrapper charts.
+            Rendered {len(CURATED_COMPONENTS)} curated charts.
             Updated {DOCS_DIR / 'catalog-matrix.md'}.
             """
         ).strip()

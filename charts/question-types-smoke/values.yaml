@@ -1,0 +1,13 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+questionTypesSmoke:
+  stringValue: alpha
+  enumValue: option-a
+  booleanValue: true
+  intValue: 7
+  listValue:
+  - one
+  - two
+  image:
+    repository: registry.k8s.io/pause
+    tag: '3.10'
+    pullPolicy: IfNotPresent

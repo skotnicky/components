@@ -5,6 +5,7 @@ jupyterhub:
       type: ClusterIP
   ingress:
     enabled: false
+    ingressClassName: taikun
   singleuser:
     storage:
       capacity: 10Gi

@@ -118,15 +118,15 @@ itself after the required checks succeed.
 
 ## Question Parameters
 
-Generated `questions.yaml` files are carried into CCF catalog app parameters. Boolean and integer
-defaults are normalized for CCF transport during live validation so they can be passed through app
-parameters without changing the underlying Helm value intent.
+Generated `questions.yaml` files remain the source of truth for operator prompts, but live CCF
+validation only injects `string` and `enum` values through app parameters. Boolean, integer, and
+list-style defaults stay in the wrapper chart `values.yaml` until CCF preserves those types
+end-to-end for schema-validated charts.
 
 Current live-validation normalization uses:
 
-- lowercase booleans such as `true` and `false`
-- decimal strings for integers
-- JSON array strings for list-of-string question defaults
+- direct strings for string questions
+- direct strings for enum questions
 
 Current live validation in CCF also supports:
 

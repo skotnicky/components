@@ -9,6 +9,15 @@ questions:
   description: Expose the OpenMetadata UI through ingress.
   group: Networking
   required: false
+- variable: openmetadata.ingress.className
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing OpenMetadata through the
+    cluster ingress controller. Leave blank to rely on the cluster default ingress
+    class.
+  group: Networking
+  required: false
 - variable: openmetadata.replicaCount
   label: Replica count
   type: int

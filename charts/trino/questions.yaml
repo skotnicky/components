@@ -20,6 +20,14 @@ questions:
   description: Expose Trino through an ingress resource.
   group: Networking
   required: false
+- variable: trino.ingress.className
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Trino through the cluster
+    ingress controller. Leave blank to rely on the cluster default ingress class.
+  group: Networking
+  required: false
 - variable: trino.server.workers
   label: Worker count
   type: int

@@ -7,5 +7,6 @@ chaos-mesh:
       type: ClusterIP
     ingress:
       enabled: false
+      className: taikun
     persistentVolume:
       size: 5Gi

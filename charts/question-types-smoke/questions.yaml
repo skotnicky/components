@@ -1,0 +1,48 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: questionTypesSmoke.stringValue
+  label: String value
+  type: string
+  default: alpha
+  description: String transport probe. This should arrive in Helm exactly as a string.
+  group: Transport
+  required: true
+- variable: questionTypesSmoke.enumValue
+  label: Enum value
+  type: enum
+  default: option-a
+  description: Enum transport probe restricted by values.schema.json.
+  group: Transport
+  required: true
+  options:
+  - option-a
+  - option-b
+  - option-c
+- variable: questionTypesSmoke.booleanValue
+  label: Boolean value
+  type: boolean
+  default: true
+  description: Boolean transport probe. Schema validation should fail if CCF sends
+    a string.
+  group: Transport
+  required: true
+- variable: questionTypesSmoke.intValue
+  label: Integer value
+  type: int
+  default: 7
+  description: Integer transport probe. Schema validation should fail if CCF sends
+    a quoted string.
+  group: Transport
+  required: true
+- variable: questionTypesSmoke.listValue
+  label: List of strings value
+  type: listofstrings
+  default:
+  - one
+  - two
+  description: List transport probe. Schema validation should fail if CCF flattens
+    the array.
+  group: Transport
+  required: true

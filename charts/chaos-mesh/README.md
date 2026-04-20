@@ -4,8 +4,7 @@ Curated `Chaos Mesh` wrapper chart for the Cloudera Cloud Factory components cat
 
 ## Purpose
 
-This chart packages upstream Helm dependencies with curated default values and a Rancher-style
-`questions.yaml` so it can be imported and installed more easily in CCF.
+This chart packages upstream Helm dependencies with curated default values and a Rancher-style `questions.yaml` so it can be imported and installed more easily in CCF.
 
 ## Upstream Dependencies
 
@@ -17,7 +16,7 @@ This chart packages upstream Helm dependencies with curated default values and a
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
 - Chart version: `0.1.2`
-- Upstream app version: `2.8.2`
+- App version: `2.8.2`
 
 ## Notes
 
@@ -25,12 +24,12 @@ Dashboard is normalized to ClusterIP instead of the upstream NodePort default.
 
 ## Files
 
-- `Chart.yaml`: wrapper metadata and pinned upstream dependencies
+- `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
 
 ## References
 
-- Upstream repository: `https://charts.chaos-mesh.org`
+- Source repository: `https://charts.chaos-mesh.org`
 - Project home: https://chaos-mesh.org
 - Icon: https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/static/logo.svg
