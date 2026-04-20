@@ -1,0 +1,10 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+opensearch:
+  singleNode: true
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 20Gi
+  service:
+    type: ClusterIP
+  opensearchJavaOpts: -Xms512m -Xmx512m

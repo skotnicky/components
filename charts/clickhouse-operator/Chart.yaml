@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: clickhouse-operator
   ccf.catalog/smoke-profile: default
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://github.com/ClickHouse/clickhouse-operator
+  ccf.catalog/release-notes-url: https://github.com/ClickHouse/clickhouse-operator/releases
 dependencies:
 - name: clickhouse-operator-helm
   repository: oci://ghcr.io/clickhouse

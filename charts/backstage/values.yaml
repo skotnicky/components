@@ -1,12 +1,30 @@
 # Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
 backstage:
+  image:
+    repository: ghcr.io/backstage/backstage
+    tag: latest
+    pullPolicy: IfNotPresent
+  serviceAccount:
+    create: true
+    name: ''
+  service:
+    type: ClusterIP
+    port: 7007
   ingress:
     enabled: false
     className: ''
-    host: ''
-  service:
-    type: ClusterIP
-  backstage:
+    host: backstage.local
+    path: /
+    tls:
+      enabled: false
+      secretName: ''
+  app:
     replicas: 1
-  postgresql:
-    enabled: false
+  database:
+    host: postgres-rw.backstage.svc.cluster.local
+    port: 5432
+    name: backstage
+    user: backstage
+    existingSecretName: backstage-postgresql
+    existingSecretKey: password
+    sslEnabled: false

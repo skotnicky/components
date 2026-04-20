@@ -1,15 +1,63 @@
 # Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
 netbox:
+  image:
+    repository: ghcr.io/netbox-community/netbox
+    tag: v4.5.8
+    pullPolicy: IfNotPresent
+  initImage:
+    repository: busybox
+    tag: 1.37.0
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  worker:
+    enabled: true
+    replicaCount: 1
+    command:
+    - /opt/netbox/venv/bin/python
+    - /opt/netbox/netbox/manage.py
+    - rqworker
+    args: []
   service:
     type: ClusterIP
+    port: 80
   ingress:
     enabled: false
     className: ''
+    hosts:
+    - host: netbox.local
+      paths:
+      - /
+    tls: []
   persistence:
     enabled: true
     storageClass: ''
     size: 5Gi
-  postgresql:
-    enabled: false
-  valkey:
-    enabled: false
+  secretKey: change-me-netbox-secret-key
+  superuser:
+    name: admin
+    email: admin@example.com
+    password: admin
+    apiToken: replace-me-netbox-token
+    existingSecretName: ''
+  allowedHosts:
+  - netbox.local
+  allowedHostsIncludesPodIP: true
+  externalDatabase:
+    host: postgres-rw.netbox.svc.cluster.local
+    port: 5432
+    database: netbox
+    username: netbox
+    existingSecretName: netbox-postgresql
+    existingSecretKey: password
+  tasksDatabase:
+    host: valkey-primary.valkey.svc.cluster.local
+    port: 6379
+    database: 0
+    existingSecretName: netbox-valkey
+    existingSecretKey: tasks-password
+  cachingDatabase:
+    host: valkey-primary.valkey.svc.cluster.local
+    port: 6379
+    database: 1
+    existingSecretName: netbox-valkey
+    existingSecretKey: cache-password

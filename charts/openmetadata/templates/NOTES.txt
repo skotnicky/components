@@ -1,0 +1,38 @@
+{{- $annotations := .Chart.Annotations | default dict -}}
+Thank you for installing {{ .Chart.Name }}.
+
+Release name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Chart version: {{ .Chart.Version }}
+App version: {{ .Chart.AppVersion }}
+
+This curated wrapper chart pins upstream Helm dependencies for easier import into CCF.
+The application chart expects external MySQL and OpenSearch services for a clean non-Bitnami setup. Curated companion backend charts are available in this catalog, but application wiring remains manual-only until project-specific hostnames and credentials are supplied.
+
+Useful commands:
+  helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  helm get all {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
+  kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp
+
+{{- $accessUrl := "" -}}
+{{- if (and (index .Values "openmetadata" "ingress" "enabled") (not (empty ((index .Values "openmetadata" "ingress" "hosts" 0 "host"))))) -}}
+{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "openmetadata" "ingress" "tls"))) 0)) (index .Values "openmetadata" "ingress" "hosts" 0 "host") (default "/" (index .Values "openmetadata" "ingress" "hosts" 0 "paths" 0 "path")) -}}
+{{- end -}}
+{{- if $accessUrl }}
+Access URL:
+  {{ $accessUrl }}
+{{- end }}
+
+{{- with (index $annotations "ccf.catalog/source-repository") }}
+Source repository:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/home-url") }}
+Project home:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/release-notes-url") }}
+Release notes:
+  {{ . }}
+{{- end }}

@@ -1,0 +1,29 @@
+{{- $annotations := .Chart.Annotations | default dict -}}
+Thank you for installing {{ .Chart.Name }}.
+
+Release name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Chart version: {{ .Chart.Version }}
+App version: {{ .Chart.AppVersion }}
+
+This standalone chart is maintained directly in this repository to avoid upstream Bitnami-backed subcharts.
+Standalone in-repo chart used to probe how CCF transports each Rancher-style questions.yaml type into Helm values. It keeps prompts for string, enum, boolean, and int, plus indexed string slots for list values because CCF currently does not preserve native list questions. Validation manifests now inject string, enum, boolean, and int app parameters automatically, while indexed list slots remain UI-only/manual overrides.
+
+Useful commands:
+  helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  helm get all {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
+  kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp
+
+{{- with (index $annotations "ccf.catalog/source-repository") }}
+Source repository:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/home-url") }}
+Project home:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/release-notes-url") }}
+Release notes:
+  {{ . }}
+{{- end }}

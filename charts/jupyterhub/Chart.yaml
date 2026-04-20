@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: jupyterhub
   ccf.catalog/smoke-profile: needs-overrides
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://z2jh.jupyter.org
+  ccf.catalog/release-notes-url: https://z2jh.jupyter.org/en/stable/changelog.html
 dependencies:
 - name: jupyterhub
   repository: https://hub.jupyter.org/helm-chart/

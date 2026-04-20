@@ -41,6 +41,33 @@ def component_app_version(component: dict) -> str:
     return component.get("app_version", component.get("chart_version", DEFAULT_CHART_VERSION))
 
 
+def github_releases_url(url: str) -> str | None:
+    if not url.startswith("https://github.com/"):
+        return None
+    return url.rstrip("/") + "/releases"
+
+
+def component_release_notes_url(component: dict) -> str:
+    if component.get("release_notes"):
+        return component["release_notes"]
+    home = component.get("home", "").strip()
+    if home:
+        github_url = github_releases_url(home)
+        if github_url:
+            return github_url
+    source_repository = component_source_repository(component).strip()
+    if source_repository.startswith("http"):
+        github_url = github_releases_url(source_repository)
+        if github_url:
+            return github_url
+    return home if home.startswith("http") else ""
+
+
+def component_access_url(component: dict) -> dict | None:
+    config = INGRESS_CAPABILITIES.get(component["id"])
+    return deepcopy(config) if config else None
+
+
 def parse_path(path: str) -> list[str]:
     parts = []
     for chunk in path.split("."):
@@ -64,12 +91,15 @@ def set_path_default(data: dict, path: str, value) -> None:
         if isinstance(cur, list):
             list_index = int(part)
             while len(cur) <= list_index:
-                cur.append({} if next_part and not next_part.isdigit() else [])
+                if is_last:
+                    cur.append(None)
+                else:
+                    cur.append({} if next_part and not next_part.isdigit() else [])
             if is_last:
-                if cur[list_index] in ({}, None, ""):
+                if cur[list_index] in ({}, None, "", []):
                     cur[list_index] = value
                 return
-            if cur[list_index] in ({}, None, ""):
+            if cur[list_index] in ({}, None, "", []):
                 cur[list_index] = {} if next_part and not next_part.isdigit() else []
             cur = cur[list_index]
             continue
@@ -206,70 +236,99 @@ CHART_MEDIA = {
     "cert-manager": {
         "icon": "https://raw.githubusercontent.com/cert-manager/community/4d35a69437d21b76322157e6284be4cd64e6d2b7/logo/logo-small.png",
         "home": "https://cert-manager.io",
+        "release_notes": "https://cert-manager.io/docs/releases/release-notes/",
     },
     "external-dns": {
         "icon": "https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/external-dns.png",
         "home": "https://github.com/kubernetes-sigs/external-dns/",
+        "release_notes": "https://github.com/kubernetes-sigs/external-dns/releases",
     },
     "istio": {
         "icon": "https://istio.io/latest/favicons/android-192x192.png",
         "home": "https://istio.io",
+        "release_notes": "https://istio.io/latest/news/releases/",
     },
     "harbor": {
         "icon": "https://raw.githubusercontent.com/goharbor/website/main/static/img/logos/harbor-icon-color.png",
         "home": "https://goharbor.io",
+        "release_notes": "https://github.com/goharbor/harbor/releases",
     },
     "cloudnative-pg": {
         "icon": "https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg",
         "home": "https://cloudnative-pg.io",
+        "release_notes": "https://github.com/cloudnative-pg/cloudnative-pg/releases",
+    },
+    "mysql": {
+        "home": "https://www.mysql.com/",
+        "release_notes": "https://dev.mysql.com/doc/relnotes/mysql/8.4/en/",
     },
     "eck-operator": {
         "icon": "https://helm.elastic.co/icons/eck.png",
         "home": "https://github.com/elastic/cloud-on-k8s",
+        "release_notes": "https://github.com/elastic/cloud-on-k8s/releases",
     },
     "eck-stack": {
         "icon": "https://helm.elastic.co/icons/eck.png",
         "home": "https://github.com/elastic/cloud-on-k8s",
+        "release_notes": "https://github.com/elastic/cloud-on-k8s/releases",
     },
     "grafana": {
         "icon": "https://artifacthub.io/image/b4fed1a7-6c8f-4945-b99d-096efa3e4116",
         "home": "https://grafana.com",
+        "release_notes": "https://grafana.com/docs/grafana/latest/release-notes/",
     },
     "jupyterhub": {
         "icon": "https://hub.jupyter.org/helm-chart/images/hublogo.svg",
         "home": "https://z2jh.jupyter.org",
+        "release_notes": "https://z2jh.jupyter.org/en/stable/changelog.html",
     },
     "ollama": {
         "icon": "https://ollama.ai/public/ollama.png",
         "home": "https://ollama.ai/",
+        "release_notes": "https://github.com/ollama/ollama/releases",
     },
     "backstage": {
         "icon": "https://raw.githubusercontent.com/cncf/artwork/master/projects/backstage/icon/color/backstage-icon-color.svg",
         "home": "https://backstage.io",
+        "release_notes": "https://github.com/backstage/backstage/releases",
     },
     "trino": {
         "icon": "https://trino.io/assets/trino.png",
         "home": "https://trino.io/",
+        "release_notes": "https://trino.io/docs/current/release.html",
     },
     "clickhouse-operator": {
         "icon": "https://clickhouse.com/docs/img/clickhouse-operator-logo.svg",
         "home": "https://github.com/ClickHouse/clickhouse-operator",
+        "release_notes": "https://github.com/ClickHouse/clickhouse-operator/releases",
     },
     "valkey": {
         "icon": "https://dyltqmyl993wv.cloudfront.net/assets/stacks/valkey/img/valkey-stack-220x234.png",
         "home": "https://valkey.io/valkey-helm/",
+        "release_notes": "https://github.com/valkey-io/valkey/releases",
     },
     "openmetadata": {
         "icon": "https://open-metadata.org/assets/favicon.png",
         "home": "https://open-metadata.org/",
+        "release_notes": "https://github.com/open-metadata/OpenMetadata/releases",
+    },
+    "opensearch": {
+        "home": "https://opensearch.org/",
+        "release_notes": "https://github.com/opensearch-project/OpenSearch/releases",
     },
     "netbox": {
         "icon": "https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo_light.svg",
         "home": "https://netbox.dev/",
+        "release_notes": "https://github.com/netbox-community/netbox/releases",
     },
     "chaos-mesh": {
         "icon": "https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/static/logo.svg",
         "home": "https://chaos-mesh.org",
+        "release_notes": "https://github.com/chaos-mesh/chaos-mesh/releases",
+    },
+    "question-types-smoke": {
+        "home": "https://github.com/skotnicky/components",
+        "release_notes": "https://github.com/skotnicky/components/releases",
     },
 }
 
@@ -399,19 +458,36 @@ CURATED_COMPONENTS = [
                 required=True,
             ),
             q(
-                "external-dns.sources",
-                "Watched sources",
-                "listofstrings",
-                ["service", "ingress"],
-                "Resource sources external-dns should watch.",
+                "external-dns.sources[0]",
+                "Primary watched source",
+                "string",
+                "service",
+                "First resource source external-dns should watch.",
+                "Application",
+                required=True,
+            ),
+            q(
+                "external-dns.sources[1]",
+                "Secondary watched source",
+                "string",
+                "ingress",
+                "Second resource source external-dns should watch when dual-source reconciliation is needed.",
                 "Application",
             ),
             q(
-                "external-dns.domainFilters",
-                "Domain filters",
-                "listofstrings",
-                [],
-                "Optional list of DNS zones to scope the controller to.",
+                "external-dns.domainFilters[0]",
+                "Domain filter 1",
+                "string",
+                "",
+                "Optional DNS zone to scope the controller to. Leave blank to keep the default empty list.",
+                "Provider",
+            ),
+            q(
+                "external-dns.domainFilters[1]",
+                "Domain filter 2",
+                "string",
+                "",
+                "Optional second DNS zone to scope the controller to. Leave blank to keep the default empty list.",
                 "Provider",
             ),
             q(
@@ -666,6 +742,98 @@ CURATED_COMPONENTS = [
                 "Container image repository for the CloudNativePG operator.",
                 "Images",
                 required=True,
+            ),
+        ],
+    },
+    {
+        "id": "mysql",
+        "display_name": "MySQL",
+        "package_name": "ccf-mysql",
+        "namespace": "mysql",
+        "source_classification": "community",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "manual-only",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Standalone MySQL service chart used as a non-Bitnami backend option for applications "
+            "such as OpenMetadata. Defaults stay single-instance and internal-only for CCF projects."
+        ),
+        "dependencies": [
+            {
+                "name": "mysql",
+                "repository": "https://repo.helmforge.dev",
+                "version": "1.8.5",
+                "app_version": "8.4",
+            }
+        ],
+        "values": {
+            "mysql": {
+                "architecture": "standalone",
+                "auth": {
+                    "database": "openmetadata_db",
+                    "username": "openmetadata_user",
+                    "existingSecret": "",
+                },
+                "primary": {
+                    "persistence": {"enabled": True, "size": "20Gi"},
+                    "service": {"type": "ClusterIP"},
+                },
+                "metrics": {"enabled": False},
+            }
+        },
+        "questions": [
+            q(
+                "mysql.auth.database",
+                "Database name",
+                "string",
+                "openmetadata_db",
+                "Initial application database name created by the MySQL chart.",
+                "Application",
+                required=True,
+            ),
+            q(
+                "mysql.auth.username",
+                "Application username",
+                "string",
+                "openmetadata_user",
+                "Initial application username created by the MySQL chart.",
+                "Application",
+                required=True,
+            ),
+            q(
+                "mysql.auth.existingSecret",
+                "Existing auth secret",
+                "string",
+                "",
+                "Optional existing Secret containing MySQL root and user credentials expected by the chart.",
+                "Security",
+            ),
+            q(
+                "mysql.primary.persistence.size",
+                "Primary PVC size",
+                "string",
+                "20Gi",
+                "Persistent volume size for the MySQL primary pod.",
+                "Storage",
+                required=True,
+            ),
+            q(
+                "mysql.primary.service.type",
+                "Service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for MySQL.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
+            q(
+                "mysql.metrics.enabled",
+                "Enable metrics",
+                "boolean",
+                False,
+                "Expose MySQL metrics resources when a compatible monitoring stack is present.",
+                "Observability",
             ),
         ],
     },
@@ -1010,28 +1178,47 @@ CURATED_COMPONENTS = [
         "package_name": "ccf-backstage",
         "namespace": "backstage",
         "source_classification": "official",
-        "packaging_mode": "curated-wrapper",
+        "packaging_mode": "standalone-curated-app",
         "questions_support": True,
         "smoke_profile": "manual-only",
         "image_source_choice": "upstream-official",
-        "notes": (
-            "The official chart currently depends on Bitnami common/postgresql artifacts. "
-            "This wrapper keeps postgresql disabled by default and marks validation manual-only."
+        "standalone_purpose": (
+            "This chart is maintained directly in this repository so Backstage can be installed "
+            "without depending on upstream Bitnami-backed PostgreSQL chart packaging."
         ),
-        "dependencies": [
-            {
-                "name": "backstage",
-                "repository": "https://backstage.github.io/charts",
-                "version": "2.6.3",
-                "app_version": "",
-            }
-        ],
+        "notes": (
+            "Standalone curated chart that removes the upstream Bitnami-backed dependency path and "
+            "expects an external PostgreSQL service such as a CloudNativePG-managed database."
+        ),
+        "source_repository": "local://components/backstage",
+        "app_version": "latest",
+        "dependencies": [],
         "values": {
             "backstage": {
-                "ingress": {"enabled": False, "className": "", "host": ""},
-                "service": {"type": "ClusterIP"},
-                "backstage": {"replicas": 1},
-                "postgresql": {"enabled": False},
+                "image": {
+                    "repository": "ghcr.io/backstage/backstage",
+                    "tag": "latest",
+                    "pullPolicy": "IfNotPresent",
+                },
+                "serviceAccount": {"create": True, "name": ""},
+                "service": {"type": "ClusterIP", "port": 7007},
+                "ingress": {
+                    "enabled": False,
+                    "className": "",
+                    "host": "backstage.local",
+                    "path": "/",
+                    "tls": {"enabled": False, "secretName": ""},
+                },
+                "app": {"replicas": 1},
+                "database": {
+                    "host": "postgres-rw.backstage.svc.cluster.local",
+                    "port": 5432,
+                    "name": "backstage",
+                    "user": "backstage",
+                    "existingSecretName": "backstage-postgresql",
+                    "existingSecretKey": "password",
+                    "sslEnabled": False,
+                },
             }
         },
         "questions": [
@@ -1047,7 +1234,7 @@ CURATED_COMPONENTS = [
                 "backstage.ingress.host",
                 "Ingress hostname",
                 "string",
-                "",
+                "backstage.local",
                 "Hostname used when ingress is enabled.",
                 "Networking",
             ),
@@ -1061,12 +1248,66 @@ CURATED_COMPONENTS = [
                 options=SERVICE_TYPE_OPTIONS,
             ),
             q(
-                "backstage.backstage.replicas",
+                "backstage.app.replicas",
                 "Replica count",
                 "int",
                 1,
                 "Number of Backstage application replicas.",
                 "Application",
+                required=True,
+            ),
+            q(
+                "backstage.database.host",
+                "PostgreSQL host",
+                "string",
+                "postgres-rw.backstage.svc.cluster.local",
+                "Hostname of the external PostgreSQL service used by Backstage.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "backstage.database.port",
+                "PostgreSQL port",
+                "int",
+                5432,
+                "Port exposed by the external PostgreSQL service.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "backstage.database.name",
+                "PostgreSQL database",
+                "string",
+                "backstage",
+                "Database name used by Backstage.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "backstage.database.user",
+                "PostgreSQL username",
+                "string",
+                "backstage",
+                "Username used by Backstage when connecting to PostgreSQL.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "backstage.database.existingSecretName",
+                "Database secret name",
+                "string",
+                "backstage-postgresql",
+                "Secret containing the Backstage PostgreSQL password.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "backstage.database.existingSecretKey",
+                "Database secret key",
+                "string",
+                "password",
+                "Key inside the database Secret that stores the Backstage PostgreSQL password.",
+                "Database",
                 required=True,
             ),
         ],
@@ -1270,6 +1511,84 @@ CURATED_COMPONENTS = [
         ],
     },
     {
+        "id": "opensearch",
+        "display_name": "OpenSearch",
+        "package_name": "ccf-opensearch",
+        "namespace": "opensearch",
+        "source_classification": "official",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "manual-only",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Official OpenSearch chart packaged as a non-Bitnami backend option for applications "
+            "such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects."
+        ),
+        "dependencies": [
+            {
+                "name": "opensearch",
+                "repository": "https://opensearch-project.github.io/helm-charts/",
+                "version": "3.1.0",
+                "app_version": "3.1.0",
+            }
+        ],
+        "values": {
+            "opensearch": {
+                "singleNode": True,
+                "replicas": 1,
+                "persistence": {"enabled": True, "size": "20Gi"},
+                "service": {"type": "ClusterIP"},
+                "opensearchJavaOpts": "-Xms512m -Xmx512m",
+            }
+        },
+        "questions": [
+            q(
+                "opensearch.singleNode",
+                "Single-node mode",
+                "boolean",
+                True,
+                "Run OpenSearch as a single-node cluster for lighter CCF project footprints.",
+                "Application",
+            ),
+            q(
+                "opensearch.replicas",
+                "Replica count",
+                "int",
+                1,
+                "Number of OpenSearch nodes to schedule.",
+                "Application",
+                required=True,
+            ),
+            q(
+                "opensearch.persistence.size",
+                "PVC size",
+                "string",
+                "20Gi",
+                "Persistent volume size for each OpenSearch data pod.",
+                "Storage",
+                required=True,
+            ),
+            q(
+                "opensearch.service.type",
+                "Service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for OpenSearch.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
+            q(
+                "opensearch.opensearchJavaOpts",
+                "Java options",
+                "string",
+                "-Xms512m -Xmx512m",
+                "JVM sizing flags for the OpenSearch nodes.",
+                "Resources",
+                required=True,
+            ),
+        ],
+    },
+    {
         "id": "openmetadata",
         "display_name": "OpenMetadata",
         "package_name": "ccf-openmetadata",
@@ -1280,8 +1599,10 @@ CURATED_COMPONENTS = [
         "smoke_profile": "manual-only",
         "image_source_choice": "upstream-official",
         "notes": (
-            "The application chart expects external database and search services for a clean "
-            "non-Bitnami setup. Validation remains manual-only until those overrides are supplied."
+            "The application chart expects external MySQL and OpenSearch services for a clean "
+            "non-Bitnami setup. Curated companion backend charts are available in this catalog, "
+            "but application wiring remains manual-only until project-specific hostnames and "
+            "credentials are supplied."
         ),
         "dependencies": [
             {
@@ -1294,11 +1615,37 @@ CURATED_COMPONENTS = [
         "values": {
             "openmetadata": {
                 "replicaCount": 1,
-                "ingress": {"enabled": False, "className": ""},
+                "ingress": {
+                    "enabled": False,
+                    "className": "",
+                    "hosts": [
+                        {
+                            "host": "open-metadata.local",
+                            "paths": [{"path": "/", "pathType": "ImplementationSpecific"}],
+                        }
+                    ],
+                    "tls": [],
+                },
                 "openmetadata": {
                     "config": {
-                        "database": {"host": "mysql"},
-                        "elasticsearch": {"host": "opensearch"},
+                        "database": {
+                            "host": "mysql.mysql.svc.cluster.local",
+                            "port": 3306,
+                            "databaseName": "openmetadata_db",
+                            "auth": {
+                                "username": "openmetadata_user",
+                                "password": {
+                                    "secretRef": "mysql-secrets",
+                                    "secretKey": "openmetadata-mysql-password",
+                                },
+                            },
+                        },
+                        "elasticsearch": {
+                            "host": "opensearch-cluster-master.opensearch.svc.cluster.local",
+                            "port": 9200,
+                            "scheme": "http",
+                            "searchType": "opensearch",
+                        },
                         "pipelineServiceClientConfig": {
                             "enabled": False,
                             "k8s": {"namespace": ""},
@@ -1317,6 +1664,14 @@ CURATED_COMPONENTS = [
                 "Networking",
             ),
             q(
+                "openmetadata.ingress.hosts[0].host",
+                "Ingress hostname",
+                "string",
+                "open-metadata.local",
+                "Primary hostname used when ingress is enabled.",
+                "Networking",
+            ),
+            q(
                 "openmetadata.replicaCount",
                 "Replica count",
                 "int",
@@ -1332,6 +1687,69 @@ CURATED_COMPONENTS = [
                 False,
                 "Enable the built-in pipeline client integration when an orchestration backend is available.",
                 "Integrations",
+            ),
+            q(
+                "openmetadata.openmetadata.config.database.host",
+                "MySQL host",
+                "string",
+                "mysql.mysql.svc.cluster.local",
+                "Hostname of the external MySQL service used by OpenMetadata.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "openmetadata.openmetadata.config.database.port",
+                "MySQL port",
+                "int",
+                3306,
+                "Port exposed by the external MySQL service.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "openmetadata.openmetadata.config.database.databaseName",
+                "MySQL database",
+                "string",
+                "openmetadata_db",
+                "Database name used by OpenMetadata.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "openmetadata.openmetadata.config.database.auth.username",
+                "MySQL username",
+                "string",
+                "openmetadata_user",
+                "Username used by OpenMetadata when connecting to MySQL.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "openmetadata.openmetadata.config.database.auth.password.secretRef",
+                "MySQL password secret",
+                "string",
+                "mysql-secrets",
+                "Secret containing the OpenMetadata MySQL password.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "openmetadata.openmetadata.config.elasticsearch.host",
+                "OpenSearch host",
+                "string",
+                "opensearch-cluster-master.opensearch.svc.cluster.local",
+                "Hostname of the external OpenSearch service used by OpenMetadata.",
+                "Search",
+                required=True,
+            ),
+            q(
+                "openmetadata.openmetadata.config.elasticsearch.port",
+                "OpenSearch port",
+                "int",
+                9200,
+                "Port exposed by the external OpenSearch service.",
+                "Search",
+                required=True,
             ),
             q(
                 "openmetadata.openmetadata.config.pipelineServiceClientConfig.k8s.namespace",
@@ -1353,13 +1771,17 @@ CURATED_COMPONENTS = [
         "questions_support": True,
         "smoke_profile": "default",
         "image_source_choice": "upstream-official",
+        "standalone_purpose": (
+            "This chart is maintained directly in this repository so CCF question transport can be "
+            "tested against a small typed workload with a local `values.schema.json`."
+        ),
         "notes": (
             "Standalone in-repo chart used to probe how CCF transports each Rancher-style "
-            "questions.yaml type into Helm values. It keeps one prompt each for string, enum, "
-            "boolean, int, and listofstrings while a values schema enforces their expected types. "
-            "Validation manifests still only inject string and enum app parameters automatically, "
-            "so the typed prompts can be exercised through the CCF MCP runner or manually through "
-            "the CCF UI."
+            "questions.yaml type into Helm values. It keeps prompts for string, enum, boolean, "
+            "and int, plus indexed string slots for list values because CCF currently does not "
+            "preserve native list questions. Validation manifests now inject string, enum, "
+            "boolean, and int app parameters automatically, while indexed list slots remain "
+            "UI-only/manual overrides."
         ),
         "source_repository": "local://components/question-types-smoke",
         "app_version": "0.1.0",
@@ -1417,11 +1839,20 @@ CURATED_COMPONENTS = [
                 required=True,
             ),
             q(
-                "questionTypesSmoke.listValue",
-                "List of strings value",
-                "listofstrings",
-                ["one", "two"],
-                "List transport probe. Schema validation should fail if CCF flattens the array.",
+                "questionTypesSmoke.listValue[0]",
+                "List value 1",
+                "string",
+                "one",
+                "First indexed string slot for the list transport probe.",
+                "Transport",
+                required=True,
+            ),
+            q(
+                "questionTypesSmoke.listValue[1]",
+                "List value 2",
+                "string",
+                "two",
+                "Second indexed string slot for the list transport probe.",
                 "Transport",
                 required=True,
             ),
@@ -1433,36 +1864,101 @@ CURATED_COMPONENTS = [
         "package_name": "ccf-netbox",
         "namespace": "netbox",
         "source_classification": "community",
-        "packaging_mode": "curated-wrapper",
+        "packaging_mode": "standalone-curated-app",
         "questions_support": True,
         "smoke_profile": "manual-only",
         "image_source_choice": "upstream-official",
-        "notes": (
-            "The community chart currently depends on Bitnami common/postgresql/valkey artifacts. "
-            "Validation remains manual-only while external service wiring is supplied."
+        "standalone_purpose": (
+            "This chart is maintained directly in this repository so NetBox can be installed "
+            "without depending on upstream Bitnami-backed PostgreSQL and Valkey chart packaging."
         ),
-        "dependencies": [
-            {
-                "name": "netbox",
-                "repository": "https://charts.netbox.oss.netboxlabs.com/",
-                "version": "8.1.1",
-                "app_version": "v4.5.8",
-            }
-        ],
+        "notes": (
+            "Standalone curated chart that removes the upstream Bitnami-backed PostgreSQL and "
+            "Valkey dependency path. It expects external PostgreSQL and Valkey services, keeping "
+            "validation manual-only until project-specific credentials and service DNS are supplied."
+        ),
+        "source_repository": "local://components/netbox",
+        "app_version": "v4.5.8",
+        "dependencies": [],
         "values": {
             "netbox": {
-                "service": {"type": "ClusterIP"},
-                "ingress": {"enabled": False, "className": ""},
+                "image": {
+                    "repository": "ghcr.io/netbox-community/netbox",
+                    "tag": "v4.5.8",
+                    "pullPolicy": "IfNotPresent",
+                },
+                "initImage": {
+                    "repository": "busybox",
+                    "tag": "1.37.0",
+                    "pullPolicy": "IfNotPresent",
+                },
+                "replicaCount": 1,
+                "worker": {
+                    "enabled": True,
+                    "replicaCount": 1,
+                    "command": [
+                        "/opt/netbox/venv/bin/python",
+                        "/opt/netbox/netbox/manage.py",
+                        "rqworker",
+                    ],
+                    "args": [],
+                },
+                "service": {"type": "ClusterIP", "port": 80},
+                "ingress": {
+                    "enabled": False,
+                    "className": "",
+                    "hosts": [{"host": "netbox.local", "paths": ["/"]}],
+                    "tls": [],
+                },
                 "persistence": {
                     "enabled": True,
                     "storageClass": "",
                     "size": "5Gi",
                 },
-                "postgresql": {"enabled": False},
-                "valkey": {"enabled": False},
+                "secretKey": "change-me-netbox-secret-key",
+                "superuser": {
+                    "name": "admin",
+                    "email": "admin@example.com",
+                    "password": "admin",
+                    "apiToken": "replace-me-netbox-token",
+                    "existingSecretName": "",
+                },
+                "allowedHosts": ["netbox.local"],
+                "allowedHostsIncludesPodIP": True,
+                "externalDatabase": {
+                    "host": "postgres-rw.netbox.svc.cluster.local",
+                    "port": 5432,
+                    "database": "netbox",
+                    "username": "netbox",
+                    "existingSecretName": "netbox-postgresql",
+                    "existingSecretKey": "password",
+                },
+                "tasksDatabase": {
+                    "host": "valkey-primary.valkey.svc.cluster.local",
+                    "port": 6379,
+                    "database": 0,
+                    "existingSecretName": "netbox-valkey",
+                    "existingSecretKey": "tasks-password",
+                },
+                "cachingDatabase": {
+                    "host": "valkey-primary.valkey.svc.cluster.local",
+                    "port": 6379,
+                    "database": 1,
+                    "existingSecretName": "netbox-valkey",
+                    "existingSecretKey": "cache-password",
+                },
             }
         },
         "questions": [
+            q(
+                "netbox.service.type",
+                "Service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for the NetBox web service.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
             q(
                 "netbox.ingress.enabled",
                 "Enable ingress",
@@ -1472,12 +1968,94 @@ CURATED_COMPONENTS = [
                 "Networking",
             ),
             q(
-                "netbox.ingress.className",
-                "Ingress class",
+                "netbox.ingress.hosts[0].host",
+                "Ingress hostname",
                 "string",
-                "",
-                "Ingress class used for the NetBox UI.",
+                "netbox.local",
+                "Primary hostname used when ingress is enabled.",
                 "Networking",
+                required=True,
+            ),
+            q(
+                "netbox.replicaCount",
+                "Web replica count",
+                "int",
+                1,
+                "Number of NetBox web replicas.",
+                "Application",
+                required=True,
+            ),
+            q(
+                "netbox.worker.replicaCount",
+                "Worker replica count",
+                "int",
+                1,
+                "Number of NetBox worker replicas.",
+                "Application",
+                required=True,
+            ),
+            q(
+                "netbox.externalDatabase.host",
+                "PostgreSQL host",
+                "string",
+                "postgres-rw.netbox.svc.cluster.local",
+                "Hostname of the external PostgreSQL service used by NetBox.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "netbox.externalDatabase.port",
+                "PostgreSQL port",
+                "int",
+                5432,
+                "Port exposed by the external PostgreSQL service.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "netbox.externalDatabase.database",
+                "PostgreSQL database",
+                "string",
+                "netbox",
+                "Database name used by NetBox.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "netbox.externalDatabase.username",
+                "PostgreSQL username",
+                "string",
+                "netbox",
+                "Username used by NetBox when connecting to PostgreSQL.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "netbox.externalDatabase.existingSecretName",
+                "PostgreSQL secret name",
+                "string",
+                "netbox-postgresql",
+                "Secret containing the NetBox PostgreSQL password.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "netbox.tasksDatabase.host",
+                "Tasks Valkey host",
+                "string",
+                "valkey-primary.valkey.svc.cluster.local",
+                "Hostname of the Valkey service used for asynchronous task queues.",
+                "Cache",
+                required=True,
+            ),
+            q(
+                "netbox.cachingDatabase.host",
+                "Cache Valkey host",
+                "string",
+                "valkey-primary.valkey.svc.cluster.local",
+                "Hostname of the Valkey service used for caching.",
+                "Cache",
+                required=True,
             ),
             q(
                 "netbox.persistence.storageClass",
@@ -1599,46 +2177,101 @@ INGRESS_CAPABILITIES = {
         "enable_path": None,
         "class_path": "harbor.expose.ingress.className",
         "host_path": "harbor.expose.ingress.hosts.core",
+        "explicit_url_path": "harbor.externalURL",
+        "add_host_question": False,
     },
     "grafana": {
         "enable_path": "grafana.ingress.enabled",
-        "class_path": "grafana.ingress.className",
-        "host_path": None,
+        "class_path": "grafana.ingress.ingressClassName",
+        "host_path": "grafana.ingress.hosts[0]",
+        "host_default": "grafana.local",
+        "path_path": "grafana.ingress.path",
+        "path_default": "/",
+        "tls_path": "grafana.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": True,
     },
     "jupyterhub": {
         "enable_path": "jupyterhub.ingress.enabled",
         "class_path": "jupyterhub.ingress.ingressClassName",
-        "host_path": None,
+        "host_path": "jupyterhub.ingress.hosts[0]",
+        "host_default": "jupyterhub.local",
+        "tls_path": "jupyterhub.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": True,
     },
     "ollama": {
         "enable_path": "ollama.ingress.enabled",
         "class_path": "ollama.ingress.className",
         "host_path": "ollama.ingress.hosts[0].host",
+        "path_path": "ollama.ingress.hosts[0].paths[0].path",
+        "path_default": "/",
+        "extra_defaults": {
+            "ollama.ingress.hosts[0].paths[0].pathType": "Prefix",
+        },
+        "tls_path": "ollama.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": False,
     },
     "backstage": {
         "enable_path": "backstage.ingress.enabled",
         "class_path": "backstage.ingress.className",
         "host_path": "backstage.ingress.host",
+        "host_default": "backstage.local",
+        "path_path": "backstage.ingress.path",
+        "path_default": "/",
+        "tls_path": "backstage.ingress.tls.enabled",
+        "tls_mode": "bool",
+        "add_host_question": False,
     },
     "trino": {
         "enable_path": "trino.ingress.enabled",
         "class_path": "trino.ingress.className",
-        "host_path": None,
+        "host_path": "trino.ingress.hosts[0].host",
+        "host_default": "trino.local",
+        "path_path": "trino.ingress.hosts[0].paths[0].path",
+        "path_default": "/",
+        "extra_defaults": {
+            "trino.ingress.hosts[0].paths[0].pathType": "ImplementationSpecific",
+        },
+        "tls_path": "trino.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": True,
     },
     "openmetadata": {
         "enable_path": "openmetadata.ingress.enabled",
         "class_path": "openmetadata.ingress.className",
-        "host_path": None,
+        "host_path": "openmetadata.ingress.hosts[0].host",
+        "host_default": "open-metadata.local",
+        "path_path": "openmetadata.ingress.hosts[0].paths[0].path",
+        "path_default": "/",
+        "extra_defaults": {
+            "openmetadata.ingress.hosts[0].paths[0].pathType": "ImplementationSpecific",
+        },
+        "tls_path": "openmetadata.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": False,
     },
     "netbox": {
         "enable_path": "netbox.ingress.enabled",
         "class_path": "netbox.ingress.className",
-        "host_path": None,
+        "host_path": "netbox.ingress.hosts[0].host",
+        "host_default": "netbox.local",
+        "path_path": "netbox.ingress.hosts[0].paths[0]",
+        "path_default": "/",
+        "tls_path": "netbox.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": False,
     },
     "chaos-mesh": {
         "enable_path": "chaos-mesh.dashboard.ingress.enabled",
-        "class_path": "chaos-mesh.dashboard.ingress.className",
-        "host_path": None,
+        "class_path": "chaos-mesh.dashboard.ingress.ingressClassName",
+        "host_path": "chaos-mesh.dashboard.ingress.hosts[0].name",
+        "host_default": "chaos-dashboard.local",
+        "tls_path": "chaos-mesh.dashboard.ingress.hosts[0].tls",
+        "tls_mode": "bool",
+        "add_host_question": True,
+        "host_question_label": "Dashboard hostname",
     },
 }
 
@@ -1657,17 +2290,46 @@ def ingress_class_question(component: dict, variable: str) -> dict:
     )
 
 
+def ingress_host_question(component: dict, variable: str, default: str, label: str = "Ingress hostname") -> dict:
+    return q(
+        variable,
+        label,
+        "string",
+        default,
+        f"Primary hostname used when exposing {component['display_name']} through ingress.",
+        "Networking",
+    )
+
+
 def apply_ingress_metadata() -> None:
     for component in CURATED_COMPONENTS:
         ingress = INGRESS_CAPABILITIES.get(component["id"])
         if not ingress:
             continue
-        set_path_default(component["values"], ingress["class_path"], INGRESS_CLASS_DEFAULT)
-        replace_or_insert_question(
-            component,
-            ingress_class_question(component, ingress["class_path"]),
-            after_variable=ingress["enable_path"],
-        )
+        if ingress.get("class_path"):
+            set_path_default(component["values"], ingress["class_path"], INGRESS_CLASS_DEFAULT)
+            replace_or_insert_question(
+                component,
+                ingress_class_question(component, ingress["class_path"]),
+                after_variable=ingress["enable_path"],
+            )
+        if ingress.get("host_path") and ingress.get("host_default") is not None:
+            set_path_default(component["values"], ingress["host_path"], ingress["host_default"])
+        if ingress.get("path_path") and ingress.get("path_default") is not None:
+            set_path_default(component["values"], ingress["path_path"], ingress["path_default"])
+        for path, value in ingress.get("extra_defaults", {}).items():
+            set_path_default(component["values"], path, value)
+        if ingress.get("add_host_question") and ingress.get("host_path"):
+            replace_or_insert_question(
+                component,
+                ingress_host_question(
+                    component,
+                    ingress["host_path"],
+                    ingress["host_default"],
+                    label=ingress.get("host_question_label", "Ingress hostname"),
+                ),
+                after_variable=ingress.get("class_path") or ingress["enable_path"],
+            )
 
 
 def component_matrix():

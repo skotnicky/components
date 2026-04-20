@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: elastic-stack
   ccf.catalog/smoke-profile: needs-overrides
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://github.com/elastic/cloud-on-k8s
+  ccf.catalog/release-notes-url: https://github.com/elastic/cloud-on-k8s/releases
 dependencies:
 - name: eck-stack
   repository: https://helm.elastic.co

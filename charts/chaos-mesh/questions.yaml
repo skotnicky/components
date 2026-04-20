@@ -27,13 +27,20 @@ questions:
   description: Create an ingress in front of the Chaos Mesh dashboard.
   group: Networking
   required: false
-- variable: chaos-mesh.dashboard.ingress.className
+- variable: chaos-mesh.dashboard.ingress.ingressClassName
   label: Ingress class
   type: string
   default: taikun
   description: Optional ingressClassName used when exposing Chaos Mesh through the
     cluster ingress controller. Leave blank to rely on the cluster default ingress
     class.
+  group: Networking
+  required: false
+- variable: chaos-mesh.dashboard.ingress.hosts[0].name
+  label: Dashboard hostname
+  type: string
+  default: chaos-dashboard.local
+  description: Primary hostname used when exposing Chaos Mesh through ingress.
   group: Networking
   required: false
 - variable: chaos-mesh.dashboard.persistentVolume.size

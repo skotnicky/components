@@ -44,6 +44,17 @@ def has_path(data, path: str) -> bool:
     return True
 
 
+def has_indexed_parent_path(data, path: str) -> bool:
+    cur = data
+    for part in parse_path(path):
+        if part.isdigit():
+            return isinstance(cur, list)
+        if not isinstance(cur, dict) or part not in cur:
+            return False
+        cur = cur[part]
+    return False
+
+
 def main() -> int:
     failed = False
     for chart_dir in sorted(p for p in CHARTS_DIR.iterdir() if p.is_dir()):
@@ -55,7 +66,7 @@ def main() -> int:
         questions = yaml.safe_load(questions_path.read_text(encoding="utf-8")) or {}
         for item in questions.get("questions", []):
             variable = item["variable"]
-            if not has_path(values, variable):
+            if not has_path(values, variable) and not has_indexed_parent_path(values, variable):
                 failed = True
                 print(f"{chart_dir.name}: missing values path for question variable '{variable}'", file=sys.stderr)
     return 1 if failed else 0

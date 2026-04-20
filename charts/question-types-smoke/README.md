@@ -20,14 +20,17 @@ This chart has no external Helm dependencies.
 
 ## Notes
 
-Standalone in-repo chart used to probe how CCF transports each Rancher-style questions.yaml type into Helm values. It keeps one prompt each for string, enum, boolean, int, and listofstrings while a values schema enforces their expected types. Validation manifests still only inject string and enum app parameters automatically, so the typed prompts can be exercised through the CCF MCP runner or manually through the CCF UI.
+Standalone in-repo chart used to probe how CCF transports each Rancher-style questions.yaml type into Helm values. It keeps prompts for string, enum, boolean, and int, plus indexed string slots for list values because CCF currently does not preserve native list questions. Validation manifests now inject string, enum, boolean, and int app parameters automatically, while indexed list slots remain UI-only/manual overrides.
 
 ## Files
 
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `local://components/question-types-smoke`
+- Project home: https://github.com/skotnicky/components
+- Release notes: https://github.com/skotnicky/components/releases

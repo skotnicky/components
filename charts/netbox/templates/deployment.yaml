@@ -1,0 +1,137 @@
+{{- $v := .Values.netbox -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ccf.netbox.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.netbox.labels" . | nindent 4 }}
+    app.kubernetes.io/component: netbox
+spec:
+  replicas: {{ $v.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ccf.netbox.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: netbox
+  template:
+    metadata:
+      labels:
+        {{- include "ccf.netbox.labels" . | nindent 8 }}
+        app.kubernetes.io/component: netbox
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      initContainers:
+        - name: init-dirs
+          image: "{{ $v.initImage.repository }}:{{ $v.initImage.tag }}"
+          imagePullPolicy: {{ $v.initImage.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - mkdir -p /opt/unit/state /opt/unit/tmp
+          volumeMounts:
+            - name: optunit
+              mountPath: /opt/unit
+      containers:
+        - name: netbox
+          image: "{{ $v.image.repository }}:{{ $v.image.tag }}"
+          imagePullPolicy: {{ $v.image.pullPolicy }}
+          env:
+            - name: SUPERUSER_NAME
+              value: {{ $v.superuser.name | quote }}
+            - name: SUPERUSER_EMAIL
+              value: {{ $v.superuser.email | quote }}
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /login/
+              port: http
+          livenessProbe:
+            tcpSocket:
+              port: http
+          startupProbe:
+            httpGet:
+              path: /login/
+              port: http
+          volumeMounts:
+            - name: config
+              mountPath: /etc/netbox/config/configuration.py
+              subPath: configuration.py
+              readOnly: true
+            - name: config
+              mountPath: /run/config/netbox
+              readOnly: true
+            - name: secrets
+              mountPath: /run/secrets/netbox
+              readOnly: true
+            - name: secrets
+              mountPath: /run/secrets/superuser_password
+              subPath: superuser_password
+              readOnly: true
+            - name: secrets
+              mountPath: /run/secrets/superuser_api_token
+              subPath: superuser_api_token
+              readOnly: true
+            - name: media
+              mountPath: /opt/netbox/netbox/media
+            - name: optunit
+              mountPath: /opt/unit
+            - name: netbox-tmp
+              mountPath: /tmp
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "ccf.netbox.fullname" . }}
+        - name: secrets
+          projected:
+            sources:
+              - secret:
+                  name: {{ include "ccf.netbox.authSecretName" . }}
+                  items:
+                    - key: secret_key
+                      path: secret_key
+                    - key: email_password
+                      path: email_password
+              - secret:
+                  name: {{ include "ccf.netbox.superuserSecretName" . }}
+                  items:
+                    - key: superuser_password
+                      path: superuser_password
+                    - key: superuser_api_token
+                      path: superuser_api_token
+              - secret:
+                  name: {{ include "ccf.netbox.dbSecretName" . }}
+                  items:
+                    - key: {{ include "ccf.netbox.dbSecretKey" . }}
+                      path: db_password
+              - secret:
+                  name: {{ include "ccf.netbox.tasksSecretName" . }}
+                  items:
+                    - key: {{ include "ccf.netbox.tasksSecretKey" . }}
+                      path: tasks_password
+              - secret:
+                  name: {{ include "ccf.netbox.cacheSecretName" . }}
+                  items:
+                    - key: {{ include "ccf.netbox.cacheSecretKey" . }}
+                      path: cache_password
+        - name: media
+          {{- if $v.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-media" (include "ccf.netbox.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        - name: netbox-tmp
+          emptyDir:
+            medium: Memory
+        - name: optunit
+          emptyDir:
+            medium: Memory

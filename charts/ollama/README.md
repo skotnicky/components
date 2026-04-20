@@ -27,9 +27,11 @@ Community chart. Default profile keeps networking internal and persistence enabl
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://helm.otwld.com/`
 - Project home: https://ollama.ai/
+- Release notes: https://github.com/ollama/ollama/releases
 - Icon: https://ollama.ai/public/ollama.png

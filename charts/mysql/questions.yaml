@@ -1,0 +1,52 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: mysql.auth.database
+  label: Database name
+  type: string
+  default: openmetadata_db
+  description: Initial application database name created by the MySQL chart.
+  group: Application
+  required: true
+- variable: mysql.auth.username
+  label: Application username
+  type: string
+  default: openmetadata_user
+  description: Initial application username created by the MySQL chart.
+  group: Application
+  required: true
+- variable: mysql.auth.existingSecret
+  label: Existing auth secret
+  type: string
+  default: ''
+  description: Optional existing Secret containing MySQL root and user credentials
+    expected by the chart.
+  group: Security
+  required: false
+- variable: mysql.primary.persistence.size
+  label: Primary PVC size
+  type: string
+  default: 20Gi
+  description: Persistent volume size for the MySQL primary pod.
+  group: Storage
+  required: true
+- variable: mysql.primary.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for MySQL.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: mysql.metrics.enabled
+  label: Enable metrics
+  type: boolean
+  default: false
+  description: Expose MySQL metrics resources when a compatible monitoring stack is
+    present.
+  group: Observability
+  required: false

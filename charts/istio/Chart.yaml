@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: istio-system
   ccf.catalog/smoke-profile: default
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://istio.io
+  ccf.catalog/release-notes-url: https://istio.io/latest/news/releases/
 dependencies:
 - name: base
   repository: https://istio-release.storage.googleapis.com/charts

@@ -4,12 +4,28 @@ openmetadata:
   ingress:
     enabled: false
     className: ''
+    hosts:
+    - host: open-metadata.local
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+    tls: []
   openmetadata:
     config:
       database:
-        host: mysql
+        host: mysql.mysql.svc.cluster.local
+        port: 3306
+        databaseName: openmetadata_db
+        auth:
+          username: openmetadata_user
+          password:
+            secretRef: mysql-secrets
+            secretKey: openmetadata-mysql-password
       elasticsearch:
-        host: opensearch
+        host: opensearch-cluster-master.opensearch.svc.cluster.local
+        port: 9200
+        scheme: http
+        searchType: opensearch
       pipelineServiceClientConfig:
         enabled: false
         k8s:

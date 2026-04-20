@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: cert-manager
   ccf.catalog/smoke-profile: default
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://cert-manager.io
+  ccf.catalog/release-notes-url: https://cert-manager.io/docs/releases/release-notes/
 dependencies:
 - name: cert-manager
   repository: https://charts.jetstack.io

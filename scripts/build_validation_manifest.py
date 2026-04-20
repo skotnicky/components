@@ -25,7 +25,7 @@ VALIDATION_HINTS = {
     "jupyterhub": {"waitTimeout": 1200},
     "openmetadata": {"waitTimeout": 1200},
 }
-SUPPORTED_CCF_PARAMETER_TYPES = {"string", "enum"}
+SUPPORTED_CCF_PARAMETER_TYPES = {"string", "enum", "boolean", "int"}
 KUBERNETES_READY_KINDS = ["deployments", "statefulsets", "daemonsets", "jobs"]
 KUBERNETES_OBSERVED_KINDS = ["pods", "services", "endpoints", "ingresses", "persistentvolumeclaims"]
 KUBERNETES_CLEANUP_KINDS = [

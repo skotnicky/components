@@ -1,0 +1,19 @@
+{{- $v := .Values.netbox -}}
+{{- if $v.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ printf "%s-media" (include "ccf.netbox.fullname" .) }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.netbox.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $v.persistence.size | quote }}
+  {{- if $v.persistence.storageClass }}
+  storageClassName: {{ $v.persistence.storageClass | quote }}
+  {{- end }}
+{{- end }}

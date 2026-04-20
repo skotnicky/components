@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: external-dns
   ccf.catalog/smoke-profile: needs-overrides
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://github.com/kubernetes-sigs/external-dns/
+  ccf.catalog/release-notes-url: https://github.com/kubernetes-sigs/external-dns/releases
 dependencies:
 - name: external-dns
   repository: https://kubernetes-sigs.github.io/external-dns/

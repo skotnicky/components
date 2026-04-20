@@ -1,0 +1,35 @@
+{{- $v := .Values.backstage -}}
+{{- $publicScheme := ternary "https" "http" $v.ingress.tls.enabled -}}
+{{- $publicUrl := printf "%s://%s%s" $publicScheme $v.ingress.host $v.ingress.path -}}
+{{- $internalUrl := printf "http://%s.%s.svc.cluster.local:%v" (include "ccf.backstage.fullname" .) .Release.Namespace $v.service.port -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ccf.backstage.fullname" . }}-app-config
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.backstage.labels" . | nindent 4 }}
+data:
+  app-config.yaml: |
+    app:
+      title: Backstage
+      baseUrl: {{ ternary $publicUrl $internalUrl (and $v.ingress.enabled (not (empty $v.ingress.host))) | quote }}
+    backend:
+      baseUrl: {{ ternary $publicUrl $internalUrl (and $v.ingress.enabled (not (empty $v.ingress.host))) | quote }}
+      listen:
+        port: {{ $v.service.port }}
+      database:
+        client: pg
+        connection:
+          host: {{ $v.database.host | quote }}
+          port: {{ $v.database.port }}
+          user: {{ $v.database.user | quote }}
+          password:
+            $env: POSTGRES_PASSWORD
+          database: {{ $v.database.name | quote }}
+{{- if $v.database.sslEnabled }}
+          ssl:
+            rejectUnauthorized: false
+{{- else }}
+          ssl: false
+{{- end }}

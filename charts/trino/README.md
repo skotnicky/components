@@ -27,9 +27,11 @@ Internal-only service defaults keep Trino easy to validate inside a project.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://trinodb.github.io/charts/`
 - Project home: https://trino.io/
+- Release notes: https://trino.io/docs/current/release.html
 - Icon: https://trino.io/assets/trino.png

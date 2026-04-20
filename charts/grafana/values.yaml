@@ -4,7 +4,10 @@ grafana:
     type: ClusterIP
   ingress:
     enabled: false
-    className: taikun
+    ingressClassName: taikun
+    hosts:
+    - grafana.local
+    path: /
   persistence:
     enabled: true
     size: 10Gi

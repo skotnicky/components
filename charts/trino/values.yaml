@@ -5,7 +5,11 @@ trino:
   ingress:
     enabled: false
     className: ''
-    hosts: []
+    hosts:
+    - host: trino.local
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
     tls: []
   server:
     workers: 2

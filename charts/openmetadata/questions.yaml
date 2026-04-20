@@ -18,6 +18,13 @@ questions:
     class.
   group: Networking
   required: false
+- variable: openmetadata.ingress.hosts[0].host
+  label: Ingress hostname
+  type: string
+  default: open-metadata.local
+  description: Primary hostname used when ingress is enabled.
+  group: Networking
+  required: false
 - variable: openmetadata.replicaCount
   label: Replica count
   type: int
@@ -33,6 +40,55 @@ questions:
     backend is available.
   group: Integrations
   required: false
+- variable: openmetadata.openmetadata.config.database.host
+  label: MySQL host
+  type: string
+  default: mysql.mysql.svc.cluster.local
+  description: Hostname of the external MySQL service used by OpenMetadata.
+  group: Database
+  required: true
+- variable: openmetadata.openmetadata.config.database.port
+  label: MySQL port
+  type: int
+  default: 3306
+  description: Port exposed by the external MySQL service.
+  group: Database
+  required: true
+- variable: openmetadata.openmetadata.config.database.databaseName
+  label: MySQL database
+  type: string
+  default: openmetadata_db
+  description: Database name used by OpenMetadata.
+  group: Database
+  required: true
+- variable: openmetadata.openmetadata.config.database.auth.username
+  label: MySQL username
+  type: string
+  default: openmetadata_user
+  description: Username used by OpenMetadata when connecting to MySQL.
+  group: Database
+  required: true
+- variable: openmetadata.openmetadata.config.database.auth.password.secretRef
+  label: MySQL password secret
+  type: string
+  default: mysql-secrets
+  description: Secret containing the OpenMetadata MySQL password.
+  group: Database
+  required: true
+- variable: openmetadata.openmetadata.config.elasticsearch.host
+  label: OpenSearch host
+  type: string
+  default: opensearch-cluster-master.opensearch.svc.cluster.local
+  description: Hostname of the external OpenSearch service used by OpenMetadata.
+  group: Search
+  required: true
+- variable: openmetadata.openmetadata.config.elasticsearch.port
+  label: OpenSearch port
+  type: int
+  default: 9200
+  description: Port exposed by the external OpenSearch service.
+  group: Search
+  required: true
 - variable: openmetadata.openmetadata.config.pipelineServiceClientConfig.k8s.namespace
   label: Ingestion namespace
   type: string

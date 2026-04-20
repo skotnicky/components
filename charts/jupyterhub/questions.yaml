@@ -29,6 +29,13 @@ questions:
     class.
   group: Networking
   required: false
+- variable: jupyterhub.ingress.hosts[0]
+  label: Ingress hostname
+  type: string
+  default: jupyterhub.local
+  description: Primary hostname used when exposing JupyterHub through ingress.
+  group: Networking
+  required: false
 - variable: jupyterhub.singleuser.storage.capacity
   label: Singleuser storage size
   type: string

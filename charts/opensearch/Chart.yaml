@@ -1,0 +1,21 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-opensearch
+description: Curated OpenSearch wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 3.1.0
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://opensearch-project.github.io/helm-charts/
+  ccf.catalog/default-namespace: opensearch
+  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://opensearch.org/
+  ccf.catalog/release-notes-url: https://github.com/opensearch-project/OpenSearch/releases
+dependencies:
+- name: opensearch
+  repository: https://opensearch-project.github.io/helm-charts/
+  version: 3.1.0
+home: https://opensearch.org/

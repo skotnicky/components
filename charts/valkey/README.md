@@ -27,9 +27,11 @@ Official Valkey chart with conservative single-primary defaults.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://valkey.io/valkey-helm/`
 - Project home: https://valkey.io/valkey-helm/
+- Release notes: https://github.com/valkey-io/valkey/releases
 - Icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/valkey/img/valkey-stack-220x234.png

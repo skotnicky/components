@@ -20,16 +20,18 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Notes
 
-The application chart expects external database and search services for a clean non-Bitnami setup. Validation remains manual-only until those overrides are supplied.
+The application chart expects external MySQL and OpenSearch services for a clean non-Bitnami setup. Curated companion backend charts are available in this catalog, but application wiring remains manual-only until project-specific hostnames and credentials are supplied.
 
 ## Files
 
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://helm.open-metadata.org/`
 - Project home: https://open-metadata.org/
+- Release notes: https://github.com/open-metadata/OpenMetadata/releases
 - Icon: https://open-metadata.org/assets/favicon.png

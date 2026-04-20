@@ -27,9 +27,11 @@ Official Kubernetes SIGs chart. Live validation usually needs provider-specific 
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://kubernetes-sigs.github.io/external-dns/`
 - Project home: https://github.com/kubernetes-sigs/external-dns/
+- Release notes: https://github.com/kubernetes-sigs/external-dns/releases
 - Icon: https://github.com/kubernetes-sigs/external-dns/raw/master/docs/img/external-dns.png

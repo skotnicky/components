@@ -36,13 +36,17 @@ questions:
     a quoted string.
   group: Transport
   required: true
-- variable: questionTypesSmoke.listValue
-  label: List of strings value
-  type: listofstrings
-  default:
-  - one
-  - two
-  description: List transport probe. Schema validation should fail if CCF flattens
-    the array.
+- variable: questionTypesSmoke.listValue[0]
+  label: List value 1
+  type: string
+  default: one
+  description: First indexed string slot for the list transport probe.
+  group: Transport
+  required: true
+- variable: questionTypesSmoke.listValue[1]
+  label: List value 2
+  type: string
+  default: two
+  description: Second indexed string slot for the list transport probe.
   group: Transport
   required: true

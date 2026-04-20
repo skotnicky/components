@@ -14,12 +14,15 @@ ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from catalog_data import (
+    component_access_url,
     CURATED_COMPONENTS,
     DEFAULT_CHART_VERSION,
     EXCLUDED_COMPONENTS,
     component_app_version,
     component_matrix,
+    component_release_notes_url,
     component_source_repository,
+    parse_path,
 )
 
 
@@ -60,6 +63,11 @@ def render_chart_yaml(component: dict) -> str:
             "ccf.catalog/image-source-choice": component["image_source_choice"],
         },
     }
+    if component.get("home"):
+        chart["annotations"]["ccf.catalog/home-url"] = component["home"]
+    release_notes_url = component_release_notes_url(component)
+    if release_notes_url:
+        chart["annotations"]["ccf.catalog/release-notes-url"] = release_notes_url
     if dependency_items:
         chart["dependencies"] = dependency_items
     if component.get("home"):
@@ -112,14 +120,18 @@ def render_chart_readme(component: dict) -> str:
     )
     notes = component.get("notes", "").strip()
     home = component.get("home", "").strip()
+    release_notes_url = component_release_notes_url(component).strip()
     icon = component.get("icon", "").strip()
     has_dependencies = bool(dependencies)
     purpose = (
         "This chart packages upstream Helm dependencies with curated default values and a "
         "Rancher-style `questions.yaml` so it can be imported and installed more easily in CCF."
         if has_dependencies
-        else "This chart is maintained directly in this repository so CCF question transport can "
-        "be tested against a small typed workload with a local `values.schema.json`."
+        else component.get(
+            "standalone_purpose",
+            "This chart is maintained directly in this repository so the application can be "
+            "installed without depending on upstream Bitnami-backed subcharts.",
+        )
     )
     lines = [
         f"# {component['package_name']}",
@@ -154,6 +166,7 @@ def render_chart_readme(component: dict) -> str:
         "- `Chart.yaml`: chart metadata and any pinned upstream dependencies",
         "- `values.yaml`: curated default values for CCF environments",
         "- `questions.yaml`: catalog prompts exposed to operators",
+        "- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade",
         "",
         "## References",
         "",
@@ -161,8 +174,135 @@ def render_chart_readme(component: dict) -> str:
     ]
     if home:
         lines.append(f"- Project home: {home}")
+    if release_notes_url:
+        lines.append(f"- Release notes: {release_notes_url}")
     if icon:
         lines.append(f"- Icon: {icon}")
+    return "\n".join(lines) + "\n"
+
+
+def helm_index_expression(path: str) -> str:
+    parts = []
+    for part in parse_path(path):
+        if part.isdigit():
+            parts.append(part)
+        else:
+            parts.append(f'"{part}"')
+    return "(index .Values " + " ".join(parts) + ")"
+
+
+def helm_and_expression(parts: list[str]) -> str:
+    if not parts:
+        return "true"
+    if len(parts) == 1:
+        return parts[0]
+    return f'(and {" ".join(parts)})'
+
+
+def render_access_url_snippet(component: dict) -> str:
+    config = component_access_url(component)
+    if not config:
+        return ""
+
+    enabled_expr = helm_index_expression(config["enable_path"]) if config.get("enable_path") else ""
+    explicit_expr = helm_index_expression(config["explicit_url_path"]) if config.get("explicit_url_path") else ""
+    host_expr = helm_index_expression(config["host_path"]) if config.get("host_path") else ""
+    path_expr = helm_index_expression(config["path_path"]) if config.get("path_path") else ""
+    path_default = config.get("path_default", "/")
+    tls_expr = helm_index_expression(config["tls_path"]) if config.get("tls_path") else ""
+
+    if explicit_expr:
+        guard_parts = [f"(not (empty ({explicit_expr})))"]
+        if enabled_expr:
+            guard_parts.insert(0, enabled_expr)
+        guard = helm_and_expression(guard_parts)
+        return dedent(
+            f"""\
+            {{{{- $accessUrl := "" -}}}}
+            {{{{- if {guard} -}}}}
+            {{{{- $accessUrl = {explicit_expr} -}}}}
+            {{{{- end -}}}}
+            {{{{- if $accessUrl }}}}
+            Access URL:
+              {{{{ $accessUrl }}}}
+            {{{{- end }}}}
+            """
+        )
+
+    if not host_expr:
+        return ""
+
+    if config.get("tls_mode") == "bool":
+        scheme_expr = f'(ternary "https" "http" {tls_expr})' if tls_expr else '"http"'
+    elif config.get("tls_mode") == "list":
+        scheme_expr = f'(ternary "https" "http" (gt (len (default (list) {tls_expr})) 0))' if tls_expr else '"http"'
+    else:
+        scheme_expr = '"http"'
+
+    path_value_expr = f'(default "{path_default}" {path_expr})' if path_expr else f'"{path_default}"'
+    guard_parts = [f"(not (empty ({host_expr})))"]
+    if enabled_expr:
+        guard_parts.insert(0, enabled_expr)
+    guard = helm_and_expression(guard_parts)
+    return dedent(
+        f"""\
+        {{{{- $accessUrl := "" -}}}}
+        {{{{- if {guard} -}}}}
+        {{{{- $accessUrl = printf "%s://%s%s" {scheme_expr} {host_expr} {path_value_expr} -}}}}
+        {{{{- end -}}}}
+        {{{{- if $accessUrl }}}}
+        Access URL:
+          {{{{ $accessUrl }}}}
+        {{{{- end }}}}
+        """
+    )
+
+
+def render_notes_txt(component: dict) -> str:
+    packaging_hint = (
+        "This curated wrapper chart pins upstream Helm dependencies for easier import into CCF."
+        if component["dependencies"]
+        else "This standalone chart is maintained directly in this repository to avoid upstream Bitnami-backed subcharts."
+    )
+    component_note = component.get("notes", "").strip()
+    access_url_snippet = render_access_url_snippet(component).strip()
+    lines = [
+        "{{- $annotations := .Chart.Annotations | default dict -}}",
+        "Thank you for installing {{ .Chart.Name }}.",
+        "",
+        "Release name: {{ .Release.Name }}",
+        "Namespace: {{ .Release.Namespace }}",
+        "Chart version: {{ .Chart.Version }}",
+        "App version: {{ .Chart.AppVersion }}",
+        "",
+        packaging_hint,
+        component_note,
+        "",
+        "Useful commands:",
+        "  helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}",
+        "  helm get all {{ .Release.Name }} --namespace {{ .Release.Namespace }}",
+        "  kubectl get pods,svc,ingress -n {{ .Release.Namespace }}",
+        "  kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp",
+    ]
+    if access_url_snippet:
+        lines.extend(["", access_url_snippet])
+    lines.extend(
+        [
+            "",
+            '{{- with (index $annotations "ccf.catalog/source-repository") }}',
+            "Source repository:",
+            "  {{ . }}",
+            "{{- end }}",
+            '{{- with (index $annotations "ccf.catalog/home-url") }}',
+            "Project home:",
+            "  {{ . }}",
+            "{{- end }}",
+            '{{- with (index $annotations "ccf.catalog/release-notes-url") }}',
+            "Release notes:",
+            "  {{ . }}",
+            "{{- end }}",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -212,6 +352,7 @@ def main() -> None:
         write_text(chart_dir / "values.yaml", render_values_yaml(component))
         write_text(chart_dir / "questions.yaml", render_questions_yaml(component))
         write_text(chart_dir / "README.md", render_chart_readme(component))
+        write_text(chart_dir / "templates" / "NOTES.txt", render_notes_txt(component))
     write_text(DOCS_DIR / "catalog-matrix.md", render_catalog_matrix())
     print(
         dedent(

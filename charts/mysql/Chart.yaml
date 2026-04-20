@@ -1,0 +1,21 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-mysql
+description: Curated MySQL wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: '8.4'
+annotations:
+  ccf.catalog/source-classification: community
+  ccf.catalog/source-repository: https://repo.helmforge.dev
+  ccf.catalog/default-namespace: mysql
+  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://www.mysql.com/
+  ccf.catalog/release-notes-url: https://dev.mysql.com/doc/relnotes/mysql/8.4/en/
+dependencies:
+- name: mysql
+  repository: https://repo.helmforge.dev
+  version: 1.8.5
+home: https://www.mysql.com/

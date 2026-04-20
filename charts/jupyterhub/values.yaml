@@ -6,6 +6,8 @@ jupyterhub:
   ingress:
     enabled: false
     ingressClassName: taikun
+    hosts:
+    - jupyterhub.local
   singleuser:
     storage:
       capacity: 10Gi

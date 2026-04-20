@@ -1,0 +1,34 @@
+{{- $v := .Values.netbox -}}
+{{- if and $v.ingress.enabled (gt (len $v.ingress.hosts) 0) }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "ccf.netbox.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.netbox.labels" . | nindent 4 }}
+    app.kubernetes.io/component: netbox
+spec:
+  {{- if $v.ingress.className }}
+  ingressClassName: {{ $v.ingress.className | quote }}
+  {{- end }}
+  {{- if $v.ingress.tls }}
+  tls:
+    {{- toYaml $v.ingress.tls | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range $host := $v.ingress.hosts }}
+    - host: {{ $host.host | quote }}
+      http:
+        paths:
+          {{- range $path := $host.paths }}
+          - path: {{ $path | quote }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "ccf.netbox.fullname" $ }}
+                port:
+                  number: {{ $v.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}

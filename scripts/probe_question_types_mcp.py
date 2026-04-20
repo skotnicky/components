@@ -38,6 +38,24 @@ def sanitize_slug(value: str) -> str:
     return "".join(chars).strip("-")
 
 
+def parse_path(path: str) -> list[str]:
+    parts = []
+    for chunk in path.split("."):
+        while "[" in chunk:
+            prefix, rest = chunk.split("[", 1)
+            if prefix:
+                parts.append(prefix)
+            index, chunk = rest.split("]", 1)
+            parts.append(index)
+        if chunk:
+            parts.append(chunk)
+    return parts
+
+
+def has_indexed_path(path: str) -> bool:
+    return any(part.isdigit() for part in parse_path(path))
+
+
 def load_questions() -> list[dict[str, Any]]:
     payload = yaml.safe_load(QUESTIONS_PATH.read_text(encoding="utf-8")) or {}
     questions = payload.get("questions", [])
@@ -84,16 +102,18 @@ def build_cases(questions: list[dict[str, Any]]) -> list[dict[str, Any]]:
         }
     ]
     for question in questions:
+        if has_indexed_path(question["variable"]):
+            continue
         native_value, serialized_value = probe_value(question)
         cases.append(
             {
-                "caseId": question["type"],
+                "caseId": sanitize_slug(question["variable"]),
                 "label": question["label"],
                 "questionType": question["type"],
                 "variable": question["variable"],
                 "expectedNativeValue": native_value,
                 "serializedValue": serialized_value,
-                "notes": f"Override only `{question['variable']}` through the normal question-parameter path.",
+                "notes": f"Override only `{question['variable']}` through the safe non-indexed question-parameter path.",
             }
         )
     return cases

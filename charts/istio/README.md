@@ -28,9 +28,11 @@ Official Istio control-plane wrapper combining the base and istiod charts.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://istio-release.storage.googleapis.com/charts`
 - Project home: https://istio.io
+- Release notes: https://istio.io/latest/news/releases/
 - Icon: https://istio.io/latest/favicons/android-192x192.png

@@ -1,0 +1,38 @@
+{{- $annotations := .Chart.Annotations | default dict -}}
+Thank you for installing {{ .Chart.Name }}.
+
+Release name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Chart version: {{ .Chart.Version }}
+App version: {{ .Chart.AppVersion }}
+
+This standalone chart is maintained directly in this repository to avoid upstream Bitnami-backed subcharts.
+Standalone curated chart that removes the upstream Bitnami-backed dependency path and expects an external PostgreSQL service such as a CloudNativePG-managed database.
+
+Useful commands:
+  helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  helm get all {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
+  kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp
+
+{{- $accessUrl := "" -}}
+{{- if (and (index .Values "backstage" "ingress" "enabled") (not (empty ((index .Values "backstage" "ingress" "host"))))) -}}
+{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (index .Values "backstage" "ingress" "tls" "enabled")) (index .Values "backstage" "ingress" "host") (default "/" (index .Values "backstage" "ingress" "path")) -}}
+{{- end -}}
+{{- if $accessUrl }}
+Access URL:
+  {{ $accessUrl }}
+{{- end }}
+
+{{- with (index $annotations "ccf.catalog/source-repository") }}
+Source repository:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/home-url") }}
+Project home:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/release-notes-url") }}
+Release notes:
+  {{ . }}
+{{- end }}

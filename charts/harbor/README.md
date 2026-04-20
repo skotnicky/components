@@ -27,9 +27,11 @@ Official Harbor chart. Initial defaults keep upstream images because Harbor ship
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://helm.goharbor.io`
 - Project home: https://goharbor.io
+- Release notes: https://github.com/goharbor/harbor/releases
 - Icon: https://raw.githubusercontent.com/goharbor/website/main/static/img/logos/harbor-icon-color.png

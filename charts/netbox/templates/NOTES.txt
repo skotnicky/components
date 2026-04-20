@@ -1,0 +1,38 @@
+{{- $annotations := .Chart.Annotations | default dict -}}
+Thank you for installing {{ .Chart.Name }}.
+
+Release name: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+Chart version: {{ .Chart.Version }}
+App version: {{ .Chart.AppVersion }}
+
+This standalone chart is maintained directly in this repository to avoid upstream Bitnami-backed subcharts.
+Standalone curated chart that removes the upstream Bitnami-backed PostgreSQL and Valkey dependency path. It expects external PostgreSQL and Valkey services, keeping validation manual-only until project-specific credentials and service DNS are supplied.
+
+Useful commands:
+  helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  helm get all {{ .Release.Name }} --namespace {{ .Release.Namespace }}
+  kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
+  kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp
+
+{{- $accessUrl := "" -}}
+{{- if (and (index .Values "netbox" "ingress" "enabled") (not (empty ((index .Values "netbox" "ingress" "hosts" 0 "host"))))) -}}
+{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "netbox" "ingress" "tls"))) 0)) (index .Values "netbox" "ingress" "hosts" 0 "host") (default "/" (index .Values "netbox" "ingress" "hosts" 0 "paths" 0)) -}}
+{{- end -}}
+{{- if $accessUrl }}
+Access URL:
+  {{ $accessUrl }}
+{{- end }}
+
+{{- with (index $annotations "ccf.catalog/source-repository") }}
+Source repository:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/home-url") }}
+Project home:
+  {{ . }}
+{{- end }}
+{{- with (index $annotations "ccf.catalog/release-notes-url") }}
+Release notes:
+  {{ . }}
+{{- end }}

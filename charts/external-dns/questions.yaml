@@ -16,20 +16,35 @@ questions:
   description: Identifier used for TXT registry ownership records.
   group: Provider
   required: true
-- variable: external-dns.sources
-  label: Watched sources
-  type: listofstrings
-  default:
-  - service
-  - ingress
-  description: Resource sources external-dns should watch.
+- variable: external-dns.sources[0]
+  label: Primary watched source
+  type: string
+  default: service
+  description: First resource source external-dns should watch.
+  group: Application
+  required: true
+- variable: external-dns.sources[1]
+  label: Secondary watched source
+  type: string
+  default: ingress
+  description: Second resource source external-dns should watch when dual-source reconciliation
+    is needed.
   group: Application
   required: false
-- variable: external-dns.domainFilters
-  label: Domain filters
-  type: listofstrings
-  default: []
-  description: Optional list of DNS zones to scope the controller to.
+- variable: external-dns.domainFilters[0]
+  label: Domain filter 1
+  type: string
+  default: ''
+  description: Optional DNS zone to scope the controller to. Leave blank to keep the
+    default empty list.
+  group: Provider
+  required: false
+- variable: external-dns.domainFilters[1]
+  label: Domain filter 2
+  type: string
+  default: ''
+  description: Optional second DNS zone to scope the controller to. Leave blank to
+    keep the default empty list.
   group: Provider
   required: false
 - variable: external-dns.policy

@@ -27,9 +27,11 @@ Proxy service is normalized to ClusterIP to fit most CCF projects.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://hub.jupyter.org/helm-chart/`
 - Project home: https://z2jh.jupyter.org
+- Release notes: https://z2jh.jupyter.org/en/stable/changelog.html
 - Icon: https://hub.jupyter.org/helm-chart/images/hublogo.svg

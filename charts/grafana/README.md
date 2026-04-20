@@ -27,9 +27,11 @@ Initial defaults remain close to upstream and keep ingress off by default.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://grafana.github.io/helm-charts`
 - Project home: https://grafana.com
+- Release notes: https://grafana.com/docs/grafana/latest/release-notes/
 - Icon: https://artifacthub.io/image/b4fed1a7-6c8f-4945-b99d-096efa3e4116

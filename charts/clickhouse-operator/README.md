@@ -27,9 +27,11 @@ Official ClickHouse operator chart from GHCR OCI.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `oci://ghcr.io/clickhouse`
 - Project home: https://github.com/ClickHouse/clickhouse-operator
+- Release notes: https://github.com/ClickHouse/clickhouse-operator/releases
 - Icon: https://clickhouse.com/docs/img/clickhouse-operator-logo.svg

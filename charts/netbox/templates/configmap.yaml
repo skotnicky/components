@@ -1,0 +1,58 @@
+{{- $v := .Values.netbox -}}
+{{- $primaryHost := "" -}}
+{{- if gt (len $v.ingress.hosts) 0 -}}
+{{- $primaryHost = index $v.ingress.hosts 0 "host" -}}
+{{- end -}}
+{{- $csrfOrigins := list -}}
+{{- if not (empty $primaryHost) -}}
+{{- $csrfOrigins = list (printf "http://%s" $primaryHost) (printf "https://%s" $primaryHost) -}}
+{{- end -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ccf.netbox.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.netbox.labels" . | nindent 4 }}
+data:
+  configuration.py: |-
+    {{ .Files.Get "files/configuration.py" | nindent 4 }}
+
+  netbox.yaml: |-
+    ALLOWED_HOSTS: {{ ternary (list $primaryHost) $v.allowedHosts (not (empty $primaryHost)) | toJson }}
+    ALLOWED_HOSTS_INCLUDES_POD_ID: {{ $v.allowedHostsIncludesPodIP }}
+    CSRF_TRUSTED_ORIGINS: {{ toJson $csrfOrigins }}
+
+    DATABASES:
+      default:
+        HOST: {{ $v.externalDatabase.host | quote }}
+        USER: {{ $v.externalDatabase.username | quote }}
+        NAME: {{ $v.externalDatabase.database | quote }}
+        PORT: {{ $v.externalDatabase.port }}
+        ENGINE: django.db.backends.postgresql
+        OPTIONS:
+          sslmode: disable
+        CONN_MAX_AGE: 300
+        DISABLE_SERVER_SIDE_CURSORS: false
+
+    REDIS:
+      tasks:
+        HOST: {{ $v.tasksDatabase.host | quote }}
+        PORT: {{ $v.tasksDatabase.port }}
+        DATABASE: {{ $v.tasksDatabase.database }}
+        USERNAME: ""
+        SSL: false
+        INSECURE_SKIP_TLS_VERIFY: false
+        CA_CERT_PATH: ""
+      caching:
+        HOST: {{ $v.cachingDatabase.host | quote }}
+        PORT: {{ $v.cachingDatabase.port }}
+        DATABASE: {{ $v.cachingDatabase.database }}
+        USERNAME: ""
+        SSL: false
+        INSECURE_SKIP_TLS_VERIFY: false
+        CA_CERT_PATH: ""
+
+    MEDIA_ROOT: /opt/netbox/netbox/media
+    REPORTS_ROOT: /opt/netbox/netbox/reports
+    SCRIPTS_ROOT: /opt/netbox/netbox/scripts

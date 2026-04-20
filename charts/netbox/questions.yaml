@@ -2,6 +2,17 @@
 # This file follows the common Rancher-style questions.yaml shape so catalog UIs can
 # present CCF-friendly prompts.
 questions:
+- variable: netbox.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the NetBox web service.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
 - variable: netbox.ingress.enabled
   label: Enable ingress
   type: boolean
@@ -17,6 +28,76 @@ questions:
     ingress controller. Leave blank to rely on the cluster default ingress class.
   group: Networking
   required: false
+- variable: netbox.ingress.hosts[0].host
+  label: Ingress hostname
+  type: string
+  default: netbox.local
+  description: Primary hostname used when ingress is enabled.
+  group: Networking
+  required: true
+- variable: netbox.replicaCount
+  label: Web replica count
+  type: int
+  default: 1
+  description: Number of NetBox web replicas.
+  group: Application
+  required: true
+- variable: netbox.worker.replicaCount
+  label: Worker replica count
+  type: int
+  default: 1
+  description: Number of NetBox worker replicas.
+  group: Application
+  required: true
+- variable: netbox.externalDatabase.host
+  label: PostgreSQL host
+  type: string
+  default: postgres-rw.netbox.svc.cluster.local
+  description: Hostname of the external PostgreSQL service used by NetBox.
+  group: Database
+  required: true
+- variable: netbox.externalDatabase.port
+  label: PostgreSQL port
+  type: int
+  default: 5432
+  description: Port exposed by the external PostgreSQL service.
+  group: Database
+  required: true
+- variable: netbox.externalDatabase.database
+  label: PostgreSQL database
+  type: string
+  default: netbox
+  description: Database name used by NetBox.
+  group: Database
+  required: true
+- variable: netbox.externalDatabase.username
+  label: PostgreSQL username
+  type: string
+  default: netbox
+  description: Username used by NetBox when connecting to PostgreSQL.
+  group: Database
+  required: true
+- variable: netbox.externalDatabase.existingSecretName
+  label: PostgreSQL secret name
+  type: string
+  default: netbox-postgresql
+  description: Secret containing the NetBox PostgreSQL password.
+  group: Database
+  required: true
+- variable: netbox.tasksDatabase.host
+  label: Tasks Valkey host
+  type: string
+  default: valkey-primary.valkey.svc.cluster.local
+  description: Hostname of the Valkey service used for asynchronous task queues.
+  group: Cache
+  required: true
+- variable: netbox.cachingDatabase.host
+  label: Cache Valkey host
+  type: string
+  default: valkey-primary.valkey.svc.cluster.local
+  description: Hostname of the Valkey service used for caching.
+  group: Cache
+  required: true
 - variable: netbox.persistence.storageClass
   label: Storage class
   type: string

@@ -27,9 +27,11 @@ Dashboard is normalized to ClusterIP instead of the upstream NodePort default.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://charts.chaos-mesh.org`
 - Project home: https://chaos-mesh.org
+- Release notes: https://github.com/chaos-mesh/chaos-mesh/releases
 - Icon: https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/static/logo.svg

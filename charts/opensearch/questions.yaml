@@ -1,0 +1,43 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: opensearch.singleNode
+  label: Single-node mode
+  type: boolean
+  default: true
+  description: Run OpenSearch as a single-node cluster for lighter CCF project footprints.
+  group: Application
+  required: false
+- variable: opensearch.replicas
+  label: Replica count
+  type: int
+  default: 1
+  description: Number of OpenSearch nodes to schedule.
+  group: Application
+  required: true
+- variable: opensearch.persistence.size
+  label: PVC size
+  type: string
+  default: 20Gi
+  description: Persistent volume size for each OpenSearch data pod.
+  group: Storage
+  required: true
+- variable: opensearch.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for OpenSearch.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: opensearch.opensearchJavaOpts
+  label: Java options
+  type: string
+  default: -Xms512m -Xmx512m
+  description: JVM sizing flags for the OpenSearch nodes.
+  group: Resources
+  required: true

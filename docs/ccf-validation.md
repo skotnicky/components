@@ -123,6 +123,8 @@ Basic functionality means:
 - pods become healthy
 - services and endpoints are present
 - ingress objects exist when enabled
+- generated Helm NOTES show a concrete access URL when the chart exposes `externalURL` or ingress
+  hostname data
 - known bootstrap endpoints respond when the chart exposes them
 
 Smoke tests intentionally stop short of deep product-specific workflows.
@@ -138,26 +140,30 @@ The kubeconfig helper currently focuses on:
 ## Question Transport
 
 Live validation uses CCF application parameters only for question types that reliably survive the
-current transport path. In practice, local validation automation now limits app-parameter injection
-to `string` and `enum` prompts and lets the wrapper chart `values.yaml` carry the defaults for
-boolean, integer, and list-style values.
+current transport path. In practice, local validation automation now treats `string`, `enum`,
+`boolean`, and `int` prompts as safe non-indexed app parameters.
 
 Current reliable transport path:
 
 - strings: passed directly as app parameters
 - enums: passed directly as app parameters
-- booleans, integers, and list of strings: left in chart defaults unless a future CCF path proves
-  they are preserved as typed values end-to-end
+- booleans: passed through CCF app parameters as typed values
+- integers: passed through CCF app parameters as typed values
+- list-like values: modeled as indexed `string` prompts where practical because native
+  `listofstrings` questions are not preserved by CCF; indexed paths stay out of generated
+  `questionParameters`
 
 Observed live behavior:
 
+- the live question probe confirmed that `string`, `enum`, `boolean`, and `int` survive the CCF
+  app-parameter path
+- the same probe confirmed native `listofstrings` questions are not preserved, so the curated
+  catalog now uses indexed `string` prompts for list-style operator input where practical
 - `grafana` installed successfully with string/enum-style defaults applied through app parameters
-- `cloudnative-pg` and similar charts can keep their boolean/integer defaults in chart values while
-  only safe string/enum parameters are injected through CCF
-- `cert-manager` still fails when boolean/integer question defaults are pushed through CCF app
-  parameters because Helm receives them as strings; with those typed parameters removed from the
-  install path, the remaining blocker becomes the pre-existing CRDs owned by an older Helm release
-  in the target cluster
+- `cloudnative-pg` and similar charts can now keep boolean/integer prompts in the safe
+  app-parameter set
+- `cert-manager` may still fail in clusters with pre-existing CRDs owned by an older Helm release,
+  but that is now separate from question-type transport
 - `grafana` installed successfully, reached `Ready`, uninstalled, and its leftover namespace could
   be removed through the Kubernetes resource MCP tools
 - a project kubeconfig could be created through MCP and used successfully for cluster-wide reads,
@@ -176,18 +182,19 @@ Observed live behavior:
   points
 - the repo now carries observability hints, but local automation still needs to decide exactly when
   to query logs and metrics during install failures or post-ready smoke checks
-- typed CCF app-parameter transport remains a platform limitation for schema-validated charts, so
-  boolean/integer/list prompts cannot yet be treated as safe install-time overrides
+- native list-question transport remains a platform limitation, so list-style prompts still cannot
+  be treated as safe direct install-time overrides through generated `questionParameters`
 
 ## MCP Question Probe
 
 The repository now includes `scripts/probe_question_types_mcp.py` for question-transport checks
 against the standalone `ccf-question-types-smoke` chart using the same MCP-runner path as the rest
-of local CCF validation.
+of local CCF validation. Indexed list-slot questions are skipped because the generated validation
+manifest intentionally excludes indexed paths from automatic app-parameter injection.
 
 The probe:
 
-1. builds one single-app manifest per question type plus a baseline manifest
+1. builds one single-app manifest per supported non-indexed question plus a baseline manifest
 2. overrides exactly one parameter in each manifest
 3. writes the case manifests under `reports/question-types-mcp-cases/`
 4. optionally runs `scripts/validate-ccf-app.sh` for each case when `--run` is supplied
@@ -217,10 +224,19 @@ Recommended approach:
 
 ## Manual-Only Profiles
 
-Some curated charts are currently marked `manual-only` in the catalog matrix because their upstream chart ecosystems still require manual overrides or non-trivial external services:
+Some curated charts are still marked `manual-only` in the catalog matrix because they depend on
+project-specific external services or heavier stateful tuning that the default automation does not
+yet provide:
 
-- `backstage`
-- `openmetadata`
-- `netbox`
+- `backstage`: now packaged as a standalone in-repo chart, but still expects an external PostgreSQL
+  service such as a CloudNativePG-managed database
+- `mysql`: stateful backend chart intended as a companion service for apps such as OpenMetadata
+- `netbox`: now packaged as a standalone in-repo chart, but still expects external PostgreSQL and
+  Valkey services
+- `openmetadata`: still expects external MySQL and OpenSearch wiring even though the app chart
+  itself no longer inherits Bitnami dependencies
+- `opensearch`: stateful backend chart intended as a companion service for apps such as
+  OpenMetadata
 
-Those charts should remain visible in the catalog, but automated CCF smoke validation should treat them as exceptions until a clean non-Bitnami dependency path is available.
+Those charts should remain visible in the catalog, but automated CCF smoke validation should still
+treat them as exceptions until the external-service provisioning story is automated further.

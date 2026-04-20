@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: ollama
   ccf.catalog/smoke-profile: needs-overrides
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://ollama.ai/
+  ccf.catalog/release-notes-url: https://github.com/ollama/ollama/releases
 dependencies:
 - name: ollama
   repository: https://helm.otwld.com/

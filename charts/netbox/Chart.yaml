@@ -1,20 +1,18 @@
 # Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
 apiVersion: v2
 name: ccf-netbox
-description: Curated NetBox wrapper chart for the Cloudera Cloud Factory components
+description: Curated NetBox standalone chart for the Cloudera Cloud Factory components
   catalog.
 type: application
 version: 0.1.2
 appVersion: v4.5.8
 annotations:
   ccf.catalog/source-classification: community
-  ccf.catalog/source-repository: https://charts.netbox.oss.netboxlabs.com/
+  ccf.catalog/source-repository: local://components/netbox
   ccf.catalog/default-namespace: netbox
   ccf.catalog/smoke-profile: manual-only
   ccf.catalog/image-source-choice: upstream-official
-dependencies:
-- name: netbox
-  repository: https://charts.netbox.oss.netboxlabs.com/
-  version: 8.1.1
+  ccf.catalog/home-url: https://netbox.dev/
+  ccf.catalog/release-notes-url: https://github.com/netbox-community/netbox/releases
 home: https://netbox.dev/
 icon: https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo_light.svg

@@ -2,8 +2,9 @@
 
 Public Helm OCI catalog source for Cloudera Cloud Factory.
 
-This repository builds curated wrapper charts under `charts/` with CCF-oriented `values.yaml`
-and `questions.yaml`.
+This repository builds curated wrapper and standalone charts under `charts/` with CCF-oriented
+`values.yaml` and `questions.yaml`, annotated `Chart.yaml` metadata, and generated Helm
+`templates/NOTES.txt` guidance.
 
 ## Curated Components
 
@@ -14,6 +15,7 @@ The curated catalog currently packages these components:
 - `istio`
 - `harbor`
 - `cloudnative-pg`
+- `mysql`
 - `eck-operator`
 - `eck-stack`
 - `grafana`
@@ -23,15 +25,21 @@ The curated catalog currently packages these components:
 - `trino`
 - `clickhouse-operator`
 - `valkey`
+- `opensearch`
 - `openmetadata`
 - `netbox`
 - `chaos-mesh`
 
 The generated compatibility matrix lives in `docs/catalog-matrix.md`.
 
+Most catalog entries still wrap pinned upstream charts. `backstage` and `netbox` are now maintained
+as standalone in-repo charts so they no longer inherit upstream Bitnami-backed PostgreSQL/Valkey
+subcharts, while `mysql` and `opensearch` are curated non-Bitnami backend companions for external
+service flows such as OpenMetadata.
+
 ## Repository Layout
 
-- `charts/`: generated curated wrapper charts
+- `charts/`: generated curated charts plus any in-repo templates/files for standalone entries
 - `scripts/catalog_data.py`: single source of truth for curated chart metadata
 - `scripts/catalog_state.json`: machine-managed pinned upstream versions and curated chart versions
 - `scripts/render_catalog.py`: regenerates charts and the catalog matrix
@@ -118,15 +126,21 @@ itself after the required checks succeed.
 
 ## Question Parameters
 
-Generated `questions.yaml` files remain the source of truth for operator prompts, but live CCF
-validation only injects `string` and `enum` values through app parameters. Boolean, integer, and
-list-style defaults stay in the wrapper chart `values.yaml` until CCF preserves those types
-end-to-end for schema-validated charts.
+Generated `questions.yaml` files remain the source of truth for operator prompts. Live CCF
+validation now injects `string`, `enum`, `boolean`, and `int` values through app parameters for
+non-indexed question paths. Native list questions are still not preserved by CCF, so curated charts
+model list-like operator input as indexed `string` prompts where practical.
 
 Current live-validation normalization uses:
 
 - direct strings for string questions
 - direct strings for enum questions
+- typed boolean parameters for boolean questions
+- typed integer parameters for int questions
+- indexed string prompts for list-like values when a chart needs operator-visible list slots
+
+Indexed list prompts remain excluded from automated app-parameter injection and are intended for UI
+or manual override flows instead.
 
 Current live validation in CCF also supports:
 
@@ -156,6 +170,18 @@ VALIDATION_KUBECONFIG_PATH=/absolute/path/to/kubeconfig.yaml
 ```
 
 The kubeconfig itself can be created through the CCF MCP `create-kubeconfig` tool and then retrieved with `get-kubeconfig`.
+
+## NOTES And Access URLs
+
+Generated `templates/NOTES.txt` files now do two things:
+
+- surface source, home, and release-notes links from shared chart metadata
+- print a concrete access URL when a chart exposes enough data to derive one from `externalURL` or
+  ingress host values
+
+The shared ingress metadata in `scripts/catalog_data.py` is the source of truth for those NOTES URL
+snippets. When adding a new ingress-capable chart, update that metadata rather than hand-editing a
+chart-specific NOTES template.
 
 External community repositories that are not curated here can be added directly to CCF from
 their upstream sources.

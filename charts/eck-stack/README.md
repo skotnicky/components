@@ -27,9 +27,11 @@ Validated only after the ECK operator is installed. The default profile keeps th
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://helm.elastic.co`
 - Project home: https://github.com/elastic/cloud-on-k8s
+- Release notes: https://github.com/elastic/cloud-on-k8s/releases
 - Icon: https://helm.elastic.co/icons/eck.png

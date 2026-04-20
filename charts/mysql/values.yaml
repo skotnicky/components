@@ -1,0 +1,15 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+mysql:
+  architecture: standalone
+  auth:
+    database: openmetadata_db
+    username: openmetadata_user
+    existingSecret: ''
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+    service:
+      type: ClusterIP
+  metrics:
+    enabled: false

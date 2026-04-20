@@ -27,9 +27,11 @@ Official Jetstack chart with lightweight monitoring defaults for CCF projects.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://charts.jetstack.io`
 - Project home: https://cert-manager.io
+- Release notes: https://cert-manager.io/docs/releases/release-notes/
 - Icon: https://raw.githubusercontent.com/cert-manager/community/4d35a69437d21b76322157e6284be4cd64e6d2b7/logo/logo-small.png

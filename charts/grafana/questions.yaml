@@ -20,12 +20,19 @@ questions:
   description: Create an ingress for Grafana.
   group: Networking
   required: false
-- variable: grafana.ingress.className
+- variable: grafana.ingress.ingressClassName
   label: Ingress class
   type: string
   default: taikun
   description: Optional ingressClassName used when exposing Grafana through the cluster
     ingress controller. Leave blank to rely on the cluster default ingress class.
+  group: Networking
+  required: false
+- variable: grafana.ingress.hosts[0]
+  label: Ingress hostname
+  type: string
+  default: grafana.local
+  description: Primary hostname used when exposing Grafana through ingress.
   group: Networking
   required: false
 - variable: grafana.persistence.enabled

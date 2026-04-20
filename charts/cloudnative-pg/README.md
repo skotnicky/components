@@ -27,9 +27,11 @@ Namespace-scoped operator defaults are used for safer CCF project installs.
 - `Chart.yaml`: chart metadata and any pinned upstream dependencies
 - `values.yaml`: curated default values for CCF environments
 - `questions.yaml`: catalog prompts exposed to operators
+- `templates/NOTES.txt`: post-install guidance shown by Helm after install or upgrade
 
 ## References
 
 - Source repository: `https://cloudnative-pg.github.io/charts`
 - Project home: https://cloudnative-pg.io
+- Release notes: https://github.com/cloudnative-pg/cloudnative-pg/releases
 - Icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg

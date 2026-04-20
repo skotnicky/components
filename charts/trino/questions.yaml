@@ -28,6 +28,13 @@ questions:
     ingress controller. Leave blank to rely on the cluster default ingress class.
   group: Networking
   required: false
+- variable: trino.ingress.hosts[0].host
+  label: Ingress hostname
+  type: string
+  default: trino.local
+  description: Primary hostname used when exposing Trino through ingress.
+  group: Networking
+  required: false
 - variable: trino.server.workers
   label: Worker count
   type: int

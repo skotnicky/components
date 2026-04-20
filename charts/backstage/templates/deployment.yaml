@@ -1,0 +1,64 @@
+{{- $v := .Values.backstage -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ccf.backstage.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.backstage.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backstage
+spec:
+  replicas: {{ $v.app.replicas }}
+  selector:
+    matchLabels:
+      {{- include "ccf.backstage.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backstage
+  template:
+    metadata:
+      labels:
+        {{- include "ccf.backstage.labels" . | nindent 8 }}
+        app.kubernetes.io/component: backstage
+      annotations:
+        checksum/app-config: {{ include (print $.Template.BasePath "/app-config-configmap.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "ccf.backstage.serviceAccountName" . }}
+      containers:
+        - name: backstage
+          image: "{{ $v.image.repository }}:{{ $v.image.tag }}"
+          imagePullPolicy: {{ $v.image.pullPolicy }}
+          command:
+            - node
+            - packages/backend
+          args:
+            - --config
+            - /app/app-config-from-values.yaml
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $v.database.existingSecretName }}
+                  key: {{ $v.database.existingSecretKey }}
+          ports:
+            - name: http
+              containerPort: {{ $v.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /.backstage/health/v1/readiness
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /.backstage/health/v1/liveness
+              port: http
+          startupProbe:
+            httpGet:
+              path: /.backstage/health/v1/liveness
+              port: http
+          volumeMounts:
+            - name: app-config
+              mountPath: /app/app-config-from-values.yaml
+              subPath: app-config.yaml
+      volumes:
+        - name: app-config
+          configMap:
+            name: {{ include "ccf.backstage.fullname" . }}-app-config

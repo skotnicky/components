@@ -21,7 +21,7 @@ questions:
 - variable: backstage.ingress.host
   label: Ingress hostname
   type: string
-  default: ''
+  default: backstage.local
   description: Hostname used when ingress is enabled.
   group: Networking
   required: false
@@ -36,10 +36,53 @@ questions:
   - ClusterIP
   - LoadBalancer
   - NodePort
-- variable: backstage.backstage.replicas
+- variable: backstage.app.replicas
   label: Replica count
   type: int
   default: 1
   description: Number of Backstage application replicas.
   group: Application
+  required: true
+- variable: backstage.database.host
+  label: PostgreSQL host
+  type: string
+  default: postgres-rw.backstage.svc.cluster.local
+  description: Hostname of the external PostgreSQL service used by Backstage.
+  group: Database
+  required: true
+- variable: backstage.database.port
+  label: PostgreSQL port
+  type: int
+  default: 5432
+  description: Port exposed by the external PostgreSQL service.
+  group: Database
+  required: true
+- variable: backstage.database.name
+  label: PostgreSQL database
+  type: string
+  default: backstage
+  description: Database name used by Backstage.
+  group: Database
+  required: true
+- variable: backstage.database.user
+  label: PostgreSQL username
+  type: string
+  default: backstage
+  description: Username used by Backstage when connecting to PostgreSQL.
+  group: Database
+  required: true
+- variable: backstage.database.existingSecretName
+  label: Database secret name
+  type: string
+  default: backstage-postgresql
+  description: Secret containing the Backstage PostgreSQL password.
+  group: Database
+  required: true
+- variable: backstage.database.existingSecretKey
+  label: Database secret key
+  type: string
+  default: password
+  description: Key inside the database Secret that stores the Backstage PostgreSQL
+    password.
+  group: Database
   required: true

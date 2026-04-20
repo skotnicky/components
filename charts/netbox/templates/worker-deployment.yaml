@@ -1,0 +1,85 @@
+{{- $v := .Values.netbox -}}
+{{- if $v.worker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-worker" (include "ccf.netbox.fullname" .) | trunc 63 | trimSuffix "-" }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "ccf.netbox.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: {{ $v.worker.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ccf.netbox.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      labels:
+        {{- include "ccf.netbox.labels" . | nindent 8 }}
+        app.kubernetes.io/component: worker
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: netbox-worker
+          image: "{{ $v.image.repository }}:{{ $v.image.tag }}"
+          imagePullPolicy: {{ $v.image.pullPolicy }}
+          command:
+            {{- toYaml $v.worker.command | nindent 12 }}
+          {{- if $v.worker.args }}
+          args:
+            {{- toYaml $v.worker.args | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/netbox/config/configuration.py
+              subPath: configuration.py
+              readOnly: true
+            - name: config
+              mountPath: /run/config/netbox
+              readOnly: true
+            - name: secrets
+              mountPath: /run/secrets/netbox
+              readOnly: true
+            - name: media
+              mountPath: /opt/netbox/netbox/media
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "ccf.netbox.fullname" . }}
+        - name: secrets
+          projected:
+            sources:
+              - secret:
+                  name: {{ include "ccf.netbox.authSecretName" . }}
+                  items:
+                    - key: secret_key
+                      path: secret_key
+                    - key: email_password
+                      path: email_password
+              - secret:
+                  name: {{ include "ccf.netbox.dbSecretName" . }}
+                  items:
+                    - key: {{ include "ccf.netbox.dbSecretKey" . }}
+                      path: db_password
+              - secret:
+                  name: {{ include "ccf.netbox.tasksSecretName" . }}
+                  items:
+                    - key: {{ include "ccf.netbox.tasksSecretKey" . }}
+                      path: tasks_password
+              - secret:
+                  name: {{ include "ccf.netbox.cacheSecretName" . }}
+                  items:
+                    - key: {{ include "ccf.netbox.cacheSecretKey" . }}
+                      path: cache_password
+        - name: media
+          {{- if $v.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ printf "%s-media" (include "ccf.netbox.fullname" .) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+{{- end }}

@@ -12,6 +12,8 @@ annotations:
   ccf.catalog/default-namespace: grafana
   ccf.catalog/smoke-profile: default
   ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://grafana.com
+  ccf.catalog/release-notes-url: https://grafana.com/docs/grafana/latest/release-notes/
 dependencies:
 - name: grafana
   repository: https://grafana.github.io/helm-charts
