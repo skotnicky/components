@@ -16,8 +16,8 @@ Useful commands:
   kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp
 
 {{- $accessUrl := "" -}}
-{{- if (and (index .Values "netbox" "ingress" "enabled") (not (empty ((index .Values "netbox" "ingress" "hosts" 0 "host"))))) -}}
-{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "netbox" "ingress" "tls"))) 0)) (index .Values "netbox" "ingress" "hosts" 0 "host") (default "/" (index .Values "netbox" "ingress" "hosts" 0 "paths" 0)) -}}
+{{- if (and (index .Values "netbox" "ingress" "enabled") (not (empty ((default "" (get (index (default (list (dict)) (index .Values "netbox" "ingress" "hosts")) 0) "host")))))) -}}
+{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "netbox" "ingress" "tls"))) 0)) (default "" (get (index (default (list (dict)) (index .Values "netbox" "ingress" "hosts")) 0) "host")) (default "/" (index (default (list "/") (default (list) (get (index (default (list (dict)) (index .Values "netbox" "ingress" "hosts")) 0) "paths"))) 0)) -}}
 {{- end -}}
 {{- if $accessUrl }}
 Access URL:

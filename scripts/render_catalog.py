@@ -181,14 +181,18 @@ def render_chart_readme(component: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def helm_index_expression(path: str) -> str:
-    parts = []
-    for part in parse_path(path):
+def helm_index_expression_from_parts(parts: list[str]) -> str:
+    rendered_parts = []
+    for part in parts:
         if part.isdigit():
-            parts.append(part)
+            rendered_parts.append(part)
         else:
-            parts.append(f'"{part}"')
-    return "(index .Values " + " ".join(parts) + ")"
+            rendered_parts.append(f'"{part}"')
+    return "(index .Values " + " ".join(rendered_parts) + ")"
+
+
+def helm_index_expression(path: str) -> str:
+    return helm_index_expression_from_parts(parse_path(path))
 
 
 def helm_and_expression(parts: list[str]) -> str:
@@ -210,6 +214,29 @@ def render_access_url_snippet(component: dict) -> str:
     path_expr = helm_index_expression(config["path_path"]) if config.get("path_path") else ""
     path_default = config.get("path_default", "/")
     tls_expr = helm_index_expression(config["tls_path"]) if config.get("tls_path") else ""
+
+    host_path = config.get("host_path")
+    path_path = config.get("path_path")
+    if host_path:
+        host_parts = parse_path(host_path)
+        if len(host_parts) >= 2 and host_parts[-2] == "0" and not host_parts[-1].isdigit():
+            host_list_expr = helm_index_expression_from_parts(host_parts[:-2])
+            host_item_expr = f'(index (default (list (dict)) {host_list_expr}) 0)'
+            host_expr = f'(default "" (get {host_item_expr} "{host_parts[-1]}"))'
+
+            if path_path:
+                path_parts = parse_path(path_path)
+                shared_prefix = host_parts[:-1]
+                if path_parts[: len(shared_prefix)] == shared_prefix and len(path_parts) > len(shared_prefix):
+                    paths_expr = f'(default (list) (get {host_item_expr} "paths"))'
+                    relative_parts = path_parts[len(shared_prefix) :]
+                    if relative_parts == ["paths", "0"]:
+                        path_expr = f'(index (default (list "{path_default}") {paths_expr}) 0)'
+                    elif relative_parts == ["paths", "0", "path"]:
+                        path_item_expr = (
+                            f'(index (default (list (dict "path" "{path_default}")) {paths_expr}) 0)'
+                        )
+                        path_expr = f'(default "{path_default}" (get {path_item_expr} "path"))'
 
     if explicit_expr:
         guard_parts = [f"(not (empty ({explicit_expr})))"]
