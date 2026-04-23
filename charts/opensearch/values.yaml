@@ -8,3 +8,6 @@ opensearch:
   service:
     type: ClusterIP
   opensearchJavaOpts: -Xms512m -Xmx512m
+  extraEnvs:
+  - name: OPENSEARCH_INITIAL_ADMIN_PASSWORD
+    value: ChangeMeOpenSearchAdmin123

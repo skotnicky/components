@@ -20,7 +20,7 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Notes
 
-Official OpenSearch chart packaged as a non-Bitnami backend option for applications such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects.
+Official OpenSearch chart packaged as a non-Bitnami backend option for applications such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects. OpenSearch 3.x also requires an initial admin password during security bootstrap.
 
 ## Files
 

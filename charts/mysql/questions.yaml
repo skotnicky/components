@@ -20,8 +20,8 @@ questions:
   label: Existing auth secret
   type: string
   default: ''
-  description: Optional existing Secret containing MySQL root and user credentials
-    expected by the chart.
+  description: Optional existing Secret containing `mysql-root-password`, `mysql-user-password`,
+    and `mysql-replication-password` keys expected by the chart.
   group: Security
   required: false
 - variable: mysql.primary.persistence.size

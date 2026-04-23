@@ -41,3 +41,11 @@ questions:
   description: JVM sizing flags for the OpenSearch nodes.
   group: Resources
   required: true
+- variable: opensearch.extraEnvs[0].value
+  label: Initial admin password
+  type: string
+  default: ChangeMeOpenSearchAdmin123
+  description: Initial admin password required by the OpenSearch 3.x security bootstrap.
+    Replace it before exposing the cluster.
+  group: Security
+  required: true

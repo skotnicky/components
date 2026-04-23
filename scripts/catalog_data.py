@@ -757,7 +757,9 @@ CURATED_COMPONENTS = [
         "image_source_choice": "upstream-official",
         "notes": (
             "Standalone MySQL service chart used as a non-Bitnami backend option for applications "
-            "such as OpenMetadata. Defaults stay single-instance and internal-only for CCF projects."
+            "such as OpenMetadata. Defaults stay single-instance and internal-only for CCF projects. "
+            "When `mysql.auth.existingSecret` is used, the upstream chart expects "
+            "`mysql-root-password`, `mysql-user-password`, and `mysql-replication-password` keys."
         ),
         "dependencies": [
             {
@@ -806,7 +808,8 @@ CURATED_COMPONENTS = [
                 "Existing auth secret",
                 "string",
                 "",
-                "Optional existing Secret containing MySQL root and user credentials expected by the chart.",
+                "Optional existing Secret containing `mysql-root-password`, `mysql-user-password`, "
+                "and `mysql-replication-password` keys expected by the chart.",
                 "Security",
             ),
             q(
@@ -1522,7 +1525,8 @@ CURATED_COMPONENTS = [
         "image_source_choice": "upstream-official",
         "notes": (
             "Official OpenSearch chart packaged as a non-Bitnami backend option for applications "
-            "such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects."
+            "such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects. "
+            "OpenSearch 3.x also requires an initial admin password during security bootstrap."
         ),
         "dependencies": [
             {
@@ -1539,6 +1543,12 @@ CURATED_COMPONENTS = [
                 "persistence": {"enabled": True, "size": "20Gi"},
                 "service": {"type": "ClusterIP"},
                 "opensearchJavaOpts": "-Xms512m -Xmx512m",
+                "extraEnvs": [
+                    {
+                        "name": "OPENSEARCH_INITIAL_ADMIN_PASSWORD",
+                        "value": "ChangeMeOpenSearchAdmin123",
+                    }
+                ],
             }
         },
         "questions": [
@@ -1586,6 +1596,16 @@ CURATED_COMPONENTS = [
                 "Resources",
                 required=True,
             ),
+            q(
+                "opensearch.extraEnvs[0].value",
+                "Initial admin password",
+                "string",
+                "ChangeMeOpenSearchAdmin123",
+                "Initial admin password required by the OpenSearch 3.x security bootstrap. "
+                "Replace it before exposing the cluster.",
+                "Security",
+                required=True,
+            ),
         ],
     },
     {
@@ -1602,7 +1622,9 @@ CURATED_COMPONENTS = [
             "The application chart expects external MySQL and OpenSearch services for a clean "
             "non-Bitnami setup. Curated companion backend charts are available in this catalog, "
             "but application wiring remains manual-only until project-specific hostnames and "
-            "credentials are supplied."
+            "credentials are supplied. The default pipeline client type is Kubernetes so disabled "
+            "installs do not require an Airflow secret; switch back to Airflow only when the "
+            "`airflow-secrets` Secret is present."
         ),
         "dependencies": [
             {
@@ -1647,6 +1669,7 @@ CURATED_COMPONENTS = [
                             "searchType": "opensearch",
                         },
                         "pipelineServiceClientConfig": {
+                            "type": "k8s",
                             "enabled": False,
                             "k8s": {"namespace": ""},
                         },
@@ -1687,6 +1710,15 @@ CURATED_COMPONENTS = [
                 False,
                 "Enable the built-in pipeline client integration when an orchestration backend is available.",
                 "Integrations",
+            ),
+            q(
+                "openmetadata.openmetadata.config.pipelineServiceClientConfig.type",
+                "Pipeline client type",
+                "enum",
+                "k8s",
+                "Execution backend used when the pipeline client integration is enabled.",
+                "Integrations",
+                options=["k8s", "airflow"],
             ),
             q(
                 "openmetadata.openmetadata.config.database.host",

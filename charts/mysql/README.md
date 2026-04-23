@@ -20,7 +20,7 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Notes
 
-Standalone MySQL service chart used as a non-Bitnami backend option for applications such as OpenMetadata. Defaults stay single-instance and internal-only for CCF projects.
+Standalone MySQL service chart used as a non-Bitnami backend option for applications such as OpenMetadata. Defaults stay single-instance and internal-only for CCF projects. When `mysql.auth.existingSecret` is used, the upstream chart expects `mysql-root-password`, `mysql-user-password`, and `mysql-replication-password` keys.
 
 ## Files
 

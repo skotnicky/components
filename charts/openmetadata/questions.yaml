@@ -40,6 +40,16 @@ questions:
     backend is available.
   group: Integrations
   required: false
+- variable: openmetadata.openmetadata.config.pipelineServiceClientConfig.type
+  label: Pipeline client type
+  type: enum
+  default: k8s
+  description: Execution backend used when the pipeline client integration is enabled.
+  group: Integrations
+  required: false
+  options:
+  - k8s
+  - airflow
 - variable: openmetadata.openmetadata.config.database.host
   label: MySQL host
   type: string

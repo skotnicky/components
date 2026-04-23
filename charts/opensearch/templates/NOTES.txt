@@ -7,7 +7,7 @@ Chart version: {{ .Chart.Version }}
 App version: {{ .Chart.AppVersion }}
 
 This curated wrapper chart pins upstream Helm dependencies for easier import into CCF.
-Official OpenSearch chart packaged as a non-Bitnami backend option for applications such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects.
+Official OpenSearch chart packaged as a non-Bitnami backend option for applications such as OpenMetadata. Defaults stay internal-only and single-node for CCF projects. OpenSearch 3.x also requires an initial admin password during security bootstrap.
 
 Useful commands:
   helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}

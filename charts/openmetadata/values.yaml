@@ -27,6 +27,7 @@ openmetadata:
         scheme: http
         searchType: opensearch
       pipelineServiceClientConfig:
+        type: k8s
         enabled: false
         k8s:
           namespace: ''
