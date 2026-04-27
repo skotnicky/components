@@ -4,8 +4,8 @@ name: ccf-opensearch
 description: Curated OpenSearch wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
-appVersion: 3.1.0
+version: 0.1.1
+appVersion: 3.6.0
 annotations:
   ccf.catalog/source-classification: official
   ccf.catalog/source-repository: https://opensearch-project.github.io/helm-charts/
@@ -17,5 +17,5 @@ annotations:
 dependencies:
 - name: opensearch
   repository: https://opensearch-project.github.io/helm-charts/
-  version: 3.1.0
+  version: 3.6.0
 home: https://opensearch.org/

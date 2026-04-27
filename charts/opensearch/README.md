@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `opensearch` from `https://opensearch-project.github.io/helm-charts/` at `3.1.0`
+- `opensearch` from `https://opensearch-project.github.io/helm-charts/` at `3.6.0`
 
 ## Defaults
 
 - Namespace: `opensearch`
 - Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.0`
-- App version: `3.1.0`
+- Chart version: `0.1.1`
+- App version: `3.6.0`
 
 ## Notes
 

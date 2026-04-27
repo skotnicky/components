@@ -8,14 +8,14 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `mysql` from `https://repo.helmforge.dev` at `1.8.5`
+- `mysql` from `https://repo.helmforge.dev` at `1.8.6`
 
 ## Defaults
 
 - Namespace: `mysql`
 - Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.0`
+- Chart version: `0.1.1`
 - App version: `8.4`
 
 ## Notes

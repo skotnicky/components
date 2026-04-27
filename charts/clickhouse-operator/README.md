@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `clickhouse-operator-helm` from `oci://ghcr.io/clickhouse` at `0.0.3`
+- `clickhouse-operator-helm` from `oci://ghcr.io/clickhouse` at `0.0.4`
 
 ## Defaults
 
 - Namespace: `clickhouse-operator`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `v0.0.3`
+- Chart version: `0.1.3`
+- App version: `v0.0.4`
 
 ## Notes
 

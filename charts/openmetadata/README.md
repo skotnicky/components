@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `openmetadata` from `https://helm.open-metadata.org/` at `1.12.5`
+- `openmetadata` from `https://helm.open-metadata.org/` at `1.12.6`
 
 ## Defaults
 
 - Namespace: `openmetadata`
 - Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `1.12.5`
+- Chart version: `0.1.3`
+- App version: `1.12.6`
 
 ## Notes
 

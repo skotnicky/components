@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `ollama` from `https://helm.otwld.com/` at `1.54.0`
+- `ollama` from `https://helm.otwld.com/` at `1.55.0`
 
 ## Defaults
 
 - Namespace: `ollama`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `0.19.0`
+- Chart version: `0.1.3`
+- App version: `0.21.0`
 
 ## Notes
 

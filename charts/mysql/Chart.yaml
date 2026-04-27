@@ -4,7 +4,7 @@ name: ccf-mysql
 description: Curated MySQL wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: '8.4'
 annotations:
   ccf.catalog/source-classification: community
@@ -17,5 +17,5 @@ annotations:
 dependencies:
 - name: mysql
   repository: https://repo.helmforge.dev
-  version: 1.8.5
+  version: 1.8.6
 home: https://www.mysql.com/
