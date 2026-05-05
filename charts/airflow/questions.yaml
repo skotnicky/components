@@ -1,0 +1,46 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: airflow.apiServer.service.type
+  label: API server service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Airflow API server.
+  group: Networking
+  required: false
+  options: &id001
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: airflow.webserver.service.type
+  label: Webserver service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Airflow webserver compatibility endpoint.
+  group: Networking
+  required: false
+  options: *id001
+- variable: airflow.ingress.apiServer.enabled
+  label: Enable API server ingress
+  type: boolean
+  default: false
+  description: Create an ingress in front of the Airflow API server.
+  group: Networking
+  required: false
+- variable: airflow.ingress.apiServer.ingressClassName
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Apache Airflow through
+    the cluster ingress controller. Leave blank to rely on the cluster default ingress
+    class.
+  group: Networking
+  required: false
+- variable: airflow.ingress.apiServer.hosts[0].name
+  label: Ingress hostname
+  type: string
+  default: airflow.local
+  description: Primary hostname used when exposing Apache Airflow through ingress.
+  group: Networking
+  required: false

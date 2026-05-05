@@ -1,0 +1,28 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+airflow:
+  executor: CeleryExecutor
+  apiServer:
+    service:
+      type: ClusterIP
+  webserver:
+    service:
+      type: ClusterIP
+  ingress:
+    apiServer:
+      enabled: false
+      ingressClassName: taikun
+      hosts:
+      - name: airflow.local
+      path: /
+      tls:
+        enabled: false
+    web:
+      enabled: false
+  migrateDatabaseJob:
+    useHelmHooks: false
+  createUserJob:
+    useHelmHooks: false
+  postgresql:
+    enabled: true
+  redis:
+    enabled: true

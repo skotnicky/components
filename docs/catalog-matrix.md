@@ -6,6 +6,7 @@ Generated from `scripts/catalog_data.py` to keep the curated catalog, validation
 
 | Component | Packaged Chart | Upstream Source | Version | Namespace | Classification | Packaging | Questions | Smoke Profile | Images | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| airflow | ccf-airflow | `https://airflow.apache.org` | 1.21.0 | `airflow` | official | curated-wrapper | yes | manual-only | upstream-official | Official Apache Airflow chart with conservative defaults for CCF projects. |
 | cert-manager | ccf-cert-manager | `https://charts.jetstack.io` | v1.20.2 | `cert-manager` | official | curated-wrapper | yes | default | upstream-official | Official Jetstack chart with lightweight monitoring defaults for CCF projects. |
 | external-dns | ccf-external-dns | `https://kubernetes-sigs.github.io/external-dns/` | 1.20.0 | `external-dns` | official | curated-wrapper | yes | needs-overrides | upstream-official | Official Kubernetes SIGs chart. Live validation usually needs provider-specific credentials and domain filters. |
 | istio | ccf-istio | `https://istio-release.storage.googleapis.com/charts` | 1.29.2 | `istio-system` | official | curated-wrapper | yes | default | upstream-official | Official Istio control-plane wrapper combining the base and istiod charts. |

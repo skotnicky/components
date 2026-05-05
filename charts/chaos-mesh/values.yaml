@@ -10,5 +10,6 @@ chaos-mesh:
       ingressClassName: taikun
       hosts:
       - name: chaos-dashboard.local
+        tls: false
     persistentVolume:
       size: 5Gi

@@ -233,6 +233,11 @@ SERVICE_TYPE_OPTIONS = ["ClusterIP", "LoadBalancer", "NodePort"]
 DEFAULT_CHART_VERSION = "0.1.0"
 STATE_PATH = pathlib.Path(__file__).with_name("catalog_state.json")
 CHART_MEDIA = {
+    "airflow": {
+        "icon": "https://airflow.apache.org/images/feature-image.png",
+        "home": "https://airflow.apache.org/",
+        "release_notes": "https://airflow.apache.org/docs/apache-airflow/stable/release_notes.html",
+    },
     "cert-manager": {
         "icon": "https://raw.githubusercontent.com/cert-manager/community/4d35a69437d21b76322157e6284be4cd64e6d2b7/logo/logo-small.png",
         "home": "https://cert-manager.io",
@@ -334,6 +339,73 @@ CHART_MEDIA = {
 
 
 CURATED_COMPONENTS = [
+    {
+        "id": "airflow",
+        "display_name": "Apache Airflow",
+        "package_name": "ccf-airflow",
+        "namespace": "airflow",
+        "source_classification": "official",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "manual-only",
+        "image_source_choice": "upstream-official",
+        "notes": "Official Apache Airflow chart with conservative defaults for CCF projects.",
+        "dependencies": [
+            {
+                "name": "airflow",
+                "repository": "https://airflow.apache.org",
+                "version": "1.21.0",
+                "app_version": "3.2.0",
+            }
+        ],
+        "values": {
+            "airflow": {
+                "executor": "CeleryExecutor",
+                "apiServer": {
+                    "service": {"type": "ClusterIP"},
+                },
+                "webserver": {
+                    "service": {"type": "ClusterIP"},
+                },
+                "ingress": {
+                    "apiServer": {"enabled": False},
+                    "web": {"enabled": False},
+                },
+                "migrateDatabaseJob": {"useHelmHooks": False},
+                "createUserJob": {"useHelmHooks": False},
+                "postgresql": {"enabled": True},
+                "redis": {"enabled": True},
+            }
+        },
+        "questions": [
+            q(
+                "airflow.apiServer.service.type",
+                "API server service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for the Airflow API server.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
+            q(
+                "airflow.webserver.service.type",
+                "Webserver service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for the Airflow webserver compatibility endpoint.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
+            q(
+                "airflow.ingress.apiServer.enabled",
+                "Enable API server ingress",
+                "boolean",
+                False,
+                "Create an ingress in front of the Airflow API server.",
+                "Networking",
+            ),
+        ],
+    },
     {
         "id": "cert-manager",
         "display_name": "cert-manager",
@@ -2205,6 +2277,17 @@ EXCLUDED_COMPONENTS = [
 
 INGRESS_CLASS_DEFAULT = detect_ingress_class_default()
 INGRESS_CAPABILITIES = {
+    "airflow": {
+        "enable_path": "airflow.ingress.apiServer.enabled",
+        "class_path": "airflow.ingress.apiServer.ingressClassName",
+        "host_path": "airflow.ingress.apiServer.hosts[0].name",
+        "host_default": "airflow.local",
+        "path_path": "airflow.ingress.apiServer.path",
+        "path_default": "/",
+        "tls_path": "airflow.ingress.apiServer.tls.enabled",
+        "tls_mode": "bool",
+        "add_host_question": True,
+    },
     "harbor": {
         "enable_path": None,
         "class_path": "harbor.expose.ingress.className",
@@ -2349,6 +2432,8 @@ def apply_ingress_metadata() -> None:
             set_path_default(component["values"], ingress["host_path"], ingress["host_default"])
         if ingress.get("path_path") and ingress.get("path_default") is not None:
             set_path_default(component["values"], ingress["path_path"], ingress["path_default"])
+        if ingress.get("tls_mode") == "bool" and ingress.get("tls_path"):
+            set_path_default(component["values"], ingress["tls_path"], False)
         for path, value in ingress.get("extra_defaults", {}).items():
             set_path_default(component["values"], path, value)
         if ingress.get("add_host_question") and ingress.get("host_path"):

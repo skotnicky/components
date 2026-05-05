@@ -1,0 +1,22 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-airflow
+description: Curated Apache Airflow wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 3.2.0
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://airflow.apache.org
+  ccf.catalog/default-namespace: airflow
+  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://airflow.apache.org/
+  ccf.catalog/release-notes-url: https://airflow.apache.org/docs/apache-airflow/stable/release_notes.html
+dependencies:
+- name: airflow
+  repository: https://airflow.apache.org
+  version: 1.21.0
+home: https://airflow.apache.org/
+icon: https://airflow.apache.org/images/feature-image.png
