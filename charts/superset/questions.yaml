@@ -1,0 +1,73 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: superset.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Superset web UI.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: superset.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose Superset through an ingress resource.
+  group: Networking
+  required: false
+- variable: superset.ingress.ingressClassName
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Apache Superset through
+    the cluster ingress controller. Leave blank to rely on the cluster default ingress
+    class.
+  group: Networking
+  required: false
+- variable: superset.ingress.hosts[0]
+  label: Ingress hostname
+  type: string
+  default: superset.local
+  description: Primary hostname used when exposing Apache Superset through ingress.
+  group: Networking
+  required: false
+- variable: superset.database.host
+  label: PostgreSQL host
+  type: string
+  default: postgres-rw.superset.svc.cluster.local
+  description: Hostname for the external PostgreSQL metadata database.
+  group: Database
+  required: true
+- variable: superset.database.user
+  label: PostgreSQL user
+  type: string
+  default: superset
+  description: Username for the external PostgreSQL metadata database.
+  group: Database
+  required: true
+- variable: superset.database.name
+  label: PostgreSQL database
+  type: string
+  default: superset
+  description: Database name for the external PostgreSQL metadata store.
+  group: Database
+  required: true
+- variable: superset.cache.host
+  label: Valkey host
+  type: string
+  default: valkey.superset.svc.cluster.local
+  description: Hostname for the external Valkey cache and Celery broker.
+  group: Cache
+  required: true
+- variable: superset.supersetNode.replicas.replicaCount
+  label: Web replica count
+  type: int
+  default: 1
+  description: Number of Superset web pods.
+  group: Application
+  required: true

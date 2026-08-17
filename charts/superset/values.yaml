@@ -1,0 +1,38 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+superset:
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    ingressClassName: ''
+    hosts:
+    - superset.local
+    tls: []
+    path: /
+  postgresql:
+    enabled: false
+  redis:
+    enabled: false
+  database:
+    host: postgres-rw.superset.svc.cluster.local
+    port: 5432
+    user: superset
+    password: superset
+    name: superset
+    ssl:
+      enabled: false
+      mode: require
+  cache:
+    enabled: true
+    host: valkey.superset.svc.cluster.local
+    port: 6379
+    password: ''
+    user: ''
+  supersetNode:
+    replicas:
+      enabled: true
+      replicaCount: 1
+  supersetWorker:
+    replicas:
+      enabled: true
+      replicaCount: 1
