@@ -10,8 +10,6 @@ This repository builds curated wrapper and standalone charts under `charts/` wit
 
 The curated catalog currently packages these components:
 
-- `cert-manager`
-- `external-dns`
 - `istio`
 - `harbor`
 - `cloudnative-pg`

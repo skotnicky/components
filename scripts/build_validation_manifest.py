@@ -16,7 +16,6 @@ from catalog_data import CURATED_COMPONENTS, component_app_version
 
 
 VALIDATION_HINTS = {
-    "cert-manager": {"waitTimeout": 900},
     "cloudnative-pg": {"waitTimeout": 900},
     "eck-operator": {"waitTimeout": 900},
     "eck-stack": {"prerequisites": ["eck-operator"], "waitTimeout": 900},
