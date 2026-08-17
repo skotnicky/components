@@ -162,8 +162,6 @@ Observed live behavior:
 - `grafana` installed successfully with string/enum-style defaults applied through app parameters
 - `cloudnative-pg` and similar charts can now keep boolean/integer prompts in the safe
   app-parameter set
-- `cert-manager` may still fail in clusters with pre-existing CRDs owned by an older Helm release,
-  but that is now separate from question-type transport
 - `grafana` installed successfully, reached `Ready`, uninstalled, and its leftover namespace could
   be removed through the Kubernetes resource MCP tools
 - a project kubeconfig could be created through MCP and used successfully for cluster-wide reads,
