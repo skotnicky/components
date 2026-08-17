@@ -1,0 +1,8 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+operator:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: 256Mi

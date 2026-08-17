@@ -29,6 +29,9 @@
   "jupyterhub": {
     "chart_version": "0.1.2"
   },
+  "minio-operator": {
+    "chart_version": "0.1.0"
+  },
   "netbox": {
     "chart_version": "0.1.2"
   },
@@ -37,6 +40,9 @@
   },
   "openmetadata": {
     "chart_version": "0.1.2"
+  },
+  "superset": {
+    "chart_version": "0.1.0"
   },
   "trino": {
     "chart_version": "0.1.2"

@@ -14,6 +14,7 @@ The curated catalog currently packages these components:
 - `harbor`
 - `cloudnative-pg`
 - `mysql`
+- `minio-operator`
 - `eck-operator`
 - `eck-stack`
 - `grafana`
@@ -21,6 +22,7 @@ The curated catalog currently packages these components:
 - `ollama`
 - `backstage`
 - `trino`
+- `superset`
 - `clickhouse-operator`
 - `valkey`
 - `opensearch`

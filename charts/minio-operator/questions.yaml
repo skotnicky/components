@@ -1,0 +1,25 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: operator.replicaCount
+  label: Operator replicas
+  type: int
+  default: 1
+  description: Number of MinIO operator replicas.
+  group: Operator
+  required: true
+- variable: operator.resources.requests.cpu
+  label: CPU request
+  type: string
+  default: 100m
+  description: CPU request for the MinIO operator.
+  group: Resources
+  required: true
+- variable: operator.resources.requests.memory
+  label: Memory request
+  type: string
+  default: 128Mi
+  description: Memory request for the MinIO operator.
+  group: Resources
+  required: true

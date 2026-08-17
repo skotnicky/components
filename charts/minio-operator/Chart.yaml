@@ -1,0 +1,22 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-minio-operator
+description: Curated MinIO Operator wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: v7.1.1
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://operator.min.io/
+  ccf.catalog/default-namespace: minio-operator
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://min.io
+  ccf.catalog/release-notes-url: https://github.com/minio/operator/releases
+dependencies:
+- name: operator
+  repository: https://operator.min.io/
+  version: 7.1.1
+home: https://min.io
+icon: https://min.io/resources/img/logo/MINIO_wordmark.png

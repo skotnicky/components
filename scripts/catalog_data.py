@@ -257,6 +257,11 @@ CHART_MEDIA = {
         "home": "https://www.mysql.com/",
         "release_notes": "https://dev.mysql.com/doc/relnotes/mysql/8.4/en/",
     },
+    "minio-operator": {
+        "icon": "https://min.io/resources/img/logo/MINIO_wordmark.png",
+        "home": "https://min.io",
+        "release_notes": "https://github.com/minio/operator/releases",
+    },
     "eck-operator": {
         "icon": "https://helm.elastic.co/icons/eck.png",
         "home": "https://github.com/elastic/cloud-on-k8s",
@@ -291,6 +296,11 @@ CHART_MEDIA = {
         "icon": "https://trino.io/assets/trino.png",
         "home": "https://trino.io/",
         "release_notes": "https://trino.io/docs/current/release.html",
+    },
+    "superset": {
+        "icon": "https://superset.apache.org/img/superset-logo-horiz.svg",
+        "home": "https://superset.apache.org/",
+        "release_notes": "https://github.com/apache/superset/releases",
     },
     "clickhouse-operator": {
         "icon": "https://clickhouse.com/docs/img/clickhouse-operator-logo.svg",
@@ -732,6 +742,70 @@ CURATED_COMPONENTS = [
                 False,
                 "Expose MySQL metrics resources when a compatible monitoring stack is present.",
                 "Observability",
+            ),
+        ],
+    },
+    {
+        "id": "minio-operator",
+        "display_name": "MinIO Operator",
+        "package_name": "ccf-minio-operator",
+        "namespace": "minio-operator",
+        "source_classification": "official",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "default",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Official MinIO operator chart for S3-compatible object storage. Defaults keep a "
+            "single operator replica for easier CCF project validation."
+        ),
+        "dependencies": [
+            {
+                "name": "operator",
+                "repository": "https://operator.min.io/",
+                "version": "7.1.1",
+                "app_version": "v7.1.1",
+            }
+        ],
+        "values": {
+            "operator": {
+                "replicaCount": 1,
+                "resources": {
+                    "requests": {
+                        "cpu": "100m",
+                        "memory": "128Mi",
+                        "ephemeral-storage": "256Mi",
+                    }
+                },
+            }
+        },
+        "questions": [
+            q(
+                "operator.replicaCount",
+                "Operator replicas",
+                "int",
+                1,
+                "Number of MinIO operator replicas.",
+                "Operator",
+                required=True,
+            ),
+            q(
+                "operator.resources.requests.cpu",
+                "CPU request",
+                "string",
+                "100m",
+                "CPU request for the MinIO operator.",
+                "Resources",
+                required=True,
+            ),
+            q(
+                "operator.resources.requests.memory",
+                "Memory request",
+                "string",
+                "128Mi",
+                "Memory request for the MinIO operator.",
+                "Resources",
+                required=True,
             ),
         ],
     },
@@ -1272,6 +1346,135 @@ CURATED_COMPONENTS = [
                 "2G",
                 "Heap size for the Trino coordinator JVM.",
                 "Resources",
+                required=True,
+            ),
+        ],
+    },
+    {
+        "id": "superset",
+        "display_name": "Apache Superset",
+        "package_name": "ccf-superset",
+        "namespace": "superset",
+        "source_classification": "official",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "manual-only",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Official Apache Superset chart with Bitnami PostgreSQL and Redis dependencies "
+            "disabled. Defaults expect external PostgreSQL and Valkey services, such as "
+            "CloudNativePG and the curated Valkey chart, and remain manual-only until "
+            "project-specific credentials and service DNS are supplied."
+        ),
+        "dependencies": [
+            {
+                "name": "superset",
+                "repository": "https://apache.github.io/superset",
+                "version": "0.22.4",
+                "app_version": "6.1.0",
+            }
+        ],
+        "values": {
+            "superset": {
+                "service": {"type": "ClusterIP"},
+                "ingress": {
+                    "enabled": False,
+                    "ingressClassName": "",
+                    "hosts": ["superset.local"],
+                    "tls": [],
+                },
+                "postgresql": {"enabled": False},
+                "redis": {"enabled": False},
+                "database": {
+                    "host": "postgres-rw.superset.svc.cluster.local",
+                    "port": 5432,
+                    "user": "superset",
+                    "password": "superset",
+                    "name": "superset",
+                    "ssl": {"enabled": False, "mode": "require"},
+                },
+                "cache": {
+                    "enabled": True,
+                    "host": "valkey.superset.svc.cluster.local",
+                    "port": 6379,
+                    "password": "",
+                    "user": "",
+                },
+                "supersetNode": {
+                    "replicas": {
+                        "enabled": True,
+                        "replicaCount": 1,
+                    }
+                },
+                "supersetWorker": {
+                    "replicas": {
+                        "enabled": True,
+                        "replicaCount": 1,
+                    }
+                },
+            }
+        },
+        "questions": [
+            q(
+                "superset.service.type",
+                "Service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for the Superset web UI.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
+            q(
+                "superset.ingress.enabled",
+                "Enable ingress",
+                "boolean",
+                False,
+                "Expose Superset through an ingress resource.",
+                "Networking",
+            ),
+            q(
+                "superset.database.host",
+                "PostgreSQL host",
+                "string",
+                "postgres-rw.superset.svc.cluster.local",
+                "Hostname for the external PostgreSQL metadata database.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "superset.database.user",
+                "PostgreSQL user",
+                "string",
+                "superset",
+                "Username for the external PostgreSQL metadata database.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "superset.database.name",
+                "PostgreSQL database",
+                "string",
+                "superset",
+                "Database name for the external PostgreSQL metadata store.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "superset.cache.host",
+                "Valkey host",
+                "string",
+                "valkey.superset.svc.cluster.local",
+                "Hostname for the external Valkey cache and Celery broker.",
+                "Cache",
+                required=True,
+            ),
+            q(
+                "superset.supersetNode.replicas.replicaCount",
+                "Web replica count",
+                "int",
+                1,
+                "Number of Superset web pods.",
+                "Application",
                 required=True,
             ),
         ],
@@ -2173,6 +2376,17 @@ INGRESS_CAPABILITIES = {
             "trino.ingress.hosts[0].paths[0].pathType": "ImplementationSpecific",
         },
         "tls_path": "trino.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": True,
+    },
+    "superset": {
+        "enable_path": "superset.ingress.enabled",
+        "class_path": "superset.ingress.ingressClassName",
+        "host_path": "superset.ingress.hosts[0]",
+        "host_default": "superset.local",
+        "path_path": "superset.ingress.path",
+        "path_default": "/",
+        "tls_path": "superset.ingress.tls",
         "tls_mode": "list",
         "add_host_question": True,
     },
