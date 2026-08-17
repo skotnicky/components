@@ -11,6 +11,15 @@ rm -f "$DIST_DIR"/*.tgz
 
 python3 "$ROOT_DIR/scripts/ensure_helm_repos.py"
 
+chart_already_published() {
+  local archive="$1"
+  local chart_name version
+
+  chart_name="$(helm show chart "$archive" | awk '/^name:/ {print $2; exit}')"
+  version="$(helm show chart "$archive" | awk '/^version:/ {print $2; exit}')"
+  helm show chart "${OCI_PREFIX}/${chart_name}" --version "$version" >/dev/null 2>&1
+}
+
 for chart_dir in "$ROOT_DIR"/charts/*; do
   [[ -d "$chart_dir" ]] || continue
   [[ -f "$chart_dir/Chart.yaml" ]] || continue
@@ -24,6 +33,10 @@ if [[ "$PUSH" == "1" ]]; then
     exit 1
   fi
   for archive in "$DIST_DIR"/*.tgz; do
+    if chart_already_published "$archive"; then
+      echo "Skipping already published chart: $(basename "$archive")"
+      continue
+    fi
     helm push "$archive" "$OCI_PREFIX"
   done
 fi
