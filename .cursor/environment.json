@@ -1,0 +1,5 @@
+{
+  "name": "Public CCF Helm OCI Catalog",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh"
+}
