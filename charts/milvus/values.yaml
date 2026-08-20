@@ -1,0 +1,48 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+milvus:
+  cluster:
+    enabled: false
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    ingressClassName: ''
+    rules:
+    - host: milvus.local
+      path: /
+      pathType: Prefix
+    tls:
+    - secretName: milvus-tls
+      hosts:
+      - milvus.local
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
+  pulsarv3:
+    enabled: false
+  pulsar:
+    enabled: false
+  kafka:
+    enabled: false
+  etcd:
+    enabled: false
+  externalEtcd:
+    enabled: true
+    endpoints:
+    - etcd.etcd.svc.cluster.local:2379
+  minio:
+    enabled: true
+    mode: standalone
+    persistence:
+      size: 50Gi
+    resources:
+      requests:
+        memory: 512Mi
+  standalone:
+    persistence:
+      enabled: true
+      persistentVolumeClaim:
+        size: 20Gi
+  metrics:
+    serviceMonitor:
+      enabled: false

@@ -1,0 +1,48 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+dify:
+  global:
+    edition: SELF_HOSTED
+  ingress:
+    enabled: false
+    className: ''
+    hosts:
+    - host: dify.local
+      paths:
+      - path: /
+        pathType: Prefix
+    tls:
+    - secretName: dify-tls
+      hosts:
+      - dify.local
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
+  postgresql:
+    enabled: false
+    image:
+      registry: docker.io
+      repository: postgres
+      tag: 16-alpine
+  redis:
+    enabled: false
+    image:
+      registry: docker.io
+      repository: redis
+      tag: 7-alpine
+  weaviate:
+    enabled: true
+  externalPostgres:
+    enabled: true
+    username: dify
+    password: dify
+    address: postgres-rw.dify.svc.cluster.local
+    port: 5432
+    database:
+      api: dify
+      pluginDaemon: dify_plugin
+  externalRedis:
+    enabled: true
+    host: valkey.dify.svc.cluster.local
+    port: 6379
+    username: ''
+    password: ''

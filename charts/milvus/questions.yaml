@@ -1,0 +1,67 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: milvus.cluster.enabled
+  label: Cluster mode
+  type: boolean
+  default: false
+  description: Enable Milvus cluster mode. Keep disabled for the curated standalone
+    profile.
+  group: Application
+  required: false
+- variable: milvus.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the Milvus gRPC endpoint.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: milvus.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose Milvus through an ingress resource.
+  group: Networking
+  required: false
+- variable: milvus.ingress.ingressClassName
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Milvus through the cluster
+    ingress controller. Leave blank to rely on the cluster default ingress class.
+  group: Networking
+  required: false
+- variable: milvus.ingress.rules[0].host
+  label: Ingress hostname
+  type: string
+  default: milvus.local
+  description: Primary hostname used when exposing Milvus through ingress.
+  group: Networking
+  required: false
+- variable: milvus.externalEtcd.endpoints[0]
+  label: External etcd endpoint
+  type: string
+  default: etcd.etcd.svc.cluster.local:2379
+  description: Endpoint for the external (non-Bitnami) etcd metadata store, such as
+    the curated etcd chart.
+  group: Storage
+  required: true
+- variable: milvus.minio.persistence.size
+  label: MinIO PVC size
+  type: string
+  default: 50Gi
+  description: Persistent volume size for the bundled non-Bitnami MinIO object store.
+  group: Storage
+  required: true
+- variable: milvus.standalone.persistence.persistentVolumeClaim.size
+  label: Standalone PVC size
+  type: string
+  default: 20Gi
+  description: Persistent volume size for standalone Milvus data.
+  group: Storage
+  required: true

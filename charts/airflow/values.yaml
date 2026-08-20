@@ -30,6 +30,15 @@ airflow:
   createUserJob:
     useHelmHooks: false
   postgresql:
-    enabled: true
+    enabled: false
   redis:
     enabled: true
+  data:
+    metadataConnection:
+      user: airflow
+      pass: airflow
+      protocol: postgresql
+      host: postgres-rw.airflow.svc.cluster.local
+      port: 5432
+      db: airflow
+      sslmode: disable

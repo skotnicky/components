@@ -8,11 +8,17 @@
   "clickhouse-operator": {
     "chart_version": "0.1.2"
   },
+  "dify": {
+    "chart_version": "0.1.0"
+  },
   "cloudnative-pg": {
     "chart_version": "0.1.2"
   },
   "eck-operator": {
     "chart_version": "0.1.2"
+  },
+  "etcd": {
+    "chart_version": "0.1.0"
   },
   "eck-stack": {
     "chart_version": "0.1.2"
@@ -30,6 +36,9 @@
     "chart_version": "0.1.2"
   },
   "minio-operator": {
+    "chart_version": "0.1.0"
+  },
+  "milvus": {
     "chart_version": "0.1.0"
   },
   "netbox": {

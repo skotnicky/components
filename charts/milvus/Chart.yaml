@@ -1,0 +1,22 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-milvus
+description: Curated Milvus wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: 2.6.21
+annotations:
+  ccf.catalog/source-classification: official
+  ccf.catalog/source-repository: https://zilliztech.github.io/milvus-helm/
+  ccf.catalog/default-namespace: milvus
+  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://milvus.io/
+  ccf.catalog/release-notes-url: https://github.com/milvus-io/milvus/releases
+dependencies:
+- name: milvus
+  repository: https://zilliztech.github.io/milvus-helm/
+  version: 5.0.25
+home: https://milvus.io/
+icon: https://raw.githubusercontent.com/milvus-io/docs/master/v1.0.0/assets/milvus_logo.png

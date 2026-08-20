@@ -1,0 +1,22 @@
+# Generated from scripts/catalog_data.py. Edit metadata there and re-run scripts/render_catalog.py.
+apiVersion: v2
+name: ccf-etcd
+description: Curated etcd wrapper chart for the Cloudera Cloud Factory components
+  catalog.
+type: application
+version: 0.1.0
+appVersion: v3.7.1
+annotations:
+  ccf.catalog/source-classification: community
+  ccf.catalog/source-repository: https://groundhog2k.github.io/helm-charts/
+  ccf.catalog/default-namespace: etcd
+  ccf.catalog/smoke-profile: default
+  ccf.catalog/image-source-choice: upstream-official
+  ccf.catalog/home-url: https://etcd.io/
+  ccf.catalog/release-notes-url: https://github.com/etcd-io/etcd/releases
+dependencies:
+- name: etcd
+  repository: https://groundhog2k.github.io/helm-charts/
+  version: 1.1.12
+home: https://etcd.io/
+icon: https://raw.githubusercontent.com/cncf/artwork/master/projects/etcd/icon/color/etcd-icon-color.svg
