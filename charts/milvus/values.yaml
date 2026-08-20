@@ -1,0 +1,41 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+milvus:
+  cluster:
+    enabled: false
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false
+    ingressClassName: ''
+    rules:
+    - host: milvus.local
+      path: /
+      pathType: Prefix
+    tls: []
+  pulsarv3:
+    enabled: false
+  pulsar:
+    enabled: false
+  kafka:
+    enabled: false
+  minio:
+    enabled: true
+    mode: standalone
+    persistence:
+      size: 50Gi
+    resources:
+      requests:
+        memory: 512Mi
+  etcd:
+    enabled: true
+    replicaCount: 1
+    persistence:
+      size: 10Gi
+  standalone:
+    persistence:
+      enabled: true
+      persistentVolumeClaim:
+        size: 20Gi
+  metrics:
+    serviceMonitor:
+      enabled: false

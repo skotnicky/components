@@ -358,6 +358,11 @@ CHART_MEDIA = {
         "home": "https://min.io",
         "release_notes": "https://github.com/minio/operator/releases",
     },
+    "milvus": {
+        "icon": "https://raw.githubusercontent.com/milvus-io/docs/master/v1.0.0/assets/milvus_logo.png",
+        "home": "https://milvus.io/",
+        "release_notes": "https://github.com/milvus-io/milvus/releases",
+    },
     "eck-operator": {
         "icon": "https://helm.elastic.co/icons/eck.png",
         "home": "https://github.com/elastic/cloud-on-k8s",
@@ -901,6 +906,124 @@ CURATED_COMPONENTS = [
                 "128Mi",
                 "Memory request for the MinIO operator.",
                 "Resources",
+                required=True,
+            ),
+        ],
+    },
+    {
+        "id": "milvus",
+        "display_name": "Milvus",
+        "package_name": "ccf-milvus",
+        "namespace": "milvus",
+        "source_classification": "official",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "needs-overrides",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Official Zilliztech Milvus chart with standalone defaults for CCF projects. "
+            "Bundled Pulsar and Kafka are disabled, etcd and MinIO stay enabled with "
+            "single-replica sizing, and live validation usually needs storage-class "
+            "and resource overrides."
+        ),
+        "dependencies": [
+            {
+                "name": "milvus",
+                "repository": "https://zilliztech.github.io/milvus-helm/",
+                "version": "5.0.25",
+                "app_version": "2.6.21",
+            }
+        ],
+        "values": {
+            "milvus": {
+                "cluster": {"enabled": False},
+                "service": {"type": "ClusterIP"},
+                "ingress": {
+                    "enabled": False,
+                    "ingressClassName": "",
+                    "rules": [
+                        {
+                            "host": "milvus.local",
+                            "path": "/",
+                            "pathType": "Prefix",
+                        }
+                    ],
+                    "tls": [],
+                },
+                "pulsarv3": {"enabled": False},
+                "pulsar": {"enabled": False},
+                "kafka": {"enabled": False},
+                "minio": {
+                    "enabled": True,
+                    "mode": "standalone",
+                    "persistence": {"size": "50Gi"},
+                    "resources": {"requests": {"memory": "512Mi"}},
+                },
+                "etcd": {
+                    "enabled": True,
+                    "replicaCount": 1,
+                    "persistence": {"size": "10Gi"},
+                },
+                "standalone": {
+                    "persistence": {
+                        "enabled": True,
+                        "persistentVolumeClaim": {"size": "20Gi"},
+                    }
+                },
+                "metrics": {"serviceMonitor": {"enabled": False}},
+            }
+        },
+        "questions": [
+            q(
+                "milvus.cluster.enabled",
+                "Cluster mode",
+                "boolean",
+                False,
+                "Enable Milvus cluster mode. Keep disabled for the curated standalone profile.",
+                "Application",
+            ),
+            q(
+                "milvus.service.type",
+                "Service type",
+                "enum",
+                "ClusterIP",
+                "Service exposure mode for the Milvus gRPC endpoint.",
+                "Networking",
+                options=SERVICE_TYPE_OPTIONS,
+            ),
+            q(
+                "milvus.ingress.enabled",
+                "Enable ingress",
+                "boolean",
+                False,
+                "Expose Milvus through an ingress resource.",
+                "Networking",
+            ),
+            q(
+                "milvus.etcd.replicaCount",
+                "Etcd replicas",
+                "int",
+                1,
+                "Number of bundled etcd replicas used by Milvus metadata storage.",
+                "Storage",
+                required=True,
+            ),
+            q(
+                "milvus.minio.persistence.size",
+                "MinIO PVC size",
+                "string",
+                "50Gi",
+                "Persistent volume size for the bundled MinIO object store.",
+                "Storage",
+                required=True,
+            ),
+            q(
+                "milvus.standalone.persistence.persistentVolumeClaim.size",
+                "Standalone PVC size",
+                "string",
+                "20Gi",
+                "Persistent volume size for standalone Milvus data.",
+                "Storage",
                 required=True,
             ),
         ],
@@ -2499,6 +2622,20 @@ INGRESS_CAPABILITIES = {
         "path_path": "superset.ingress.path",
         "path_default": "/",
         "tls_path": "superset.ingress.tls",
+        "tls_mode": "list",
+        "add_host_question": True,
+    },
+    "milvus": {
+        "enable_path": "milvus.ingress.enabled",
+        "class_path": "milvus.ingress.ingressClassName",
+        "host_path": "milvus.ingress.rules[0].host",
+        "host_default": "milvus.local",
+        "path_path": "milvus.ingress.rules[0].path",
+        "path_default": "/",
+        "extra_defaults": {
+            "milvus.ingress.rules[0].pathType": "Prefix",
+        },
+        "tls_path": "milvus.ingress.tls",
         "tls_mode": "list",
         "add_host_question": True,
     },
