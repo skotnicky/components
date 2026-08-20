@@ -22,6 +22,7 @@ VALIDATION_HINTS = {
     "harbor": {"waitTimeout": 1200},
     "istio": {"waitTimeout": 900},
     "jupyterhub": {"waitTimeout": 1200},
+    "milvus": {"waitTimeout": 1200},
     "openmetadata": {"waitTimeout": 1200},
 }
 SUPPORTED_CCF_PARAMETER_TYPES = {"string", "enum", "boolean", "int"}

@@ -32,6 +32,9 @@
   "minio-operator": {
     "chart_version": "0.1.0"
   },
+  "milvus": {
+    "chart_version": "0.1.0"
+  },
   "netbox": {
     "chart_version": "0.1.2"
   },
