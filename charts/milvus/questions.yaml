@@ -43,18 +43,19 @@ questions:
   description: Primary hostname used when exposing Milvus through ingress.
   group: Networking
   required: false
-- variable: milvus.etcd.replicaCount
-  label: Etcd replicas
-  type: int
-  default: 1
-  description: Number of bundled etcd replicas used by Milvus metadata storage.
+- variable: milvus.externalEtcd.endpoints[0]
+  label: External etcd endpoint
+  type: string
+  default: etcd.etcd.svc.cluster.local:2379
+  description: Endpoint for the external (non-Bitnami) etcd metadata store, such as
+    the curated etcd chart.
   group: Storage
   required: true
 - variable: milvus.minio.persistence.size
   label: MinIO PVC size
   type: string
   default: 50Gi
-  description: Persistent volume size for the bundled MinIO object store.
+  description: Persistent volume size for the bundled non-Bitnami MinIO object store.
   group: Storage
   required: true
 - variable: milvus.standalone.persistence.persistentVolumeClaim.size

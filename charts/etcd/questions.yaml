@@ -1,0 +1,29 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: etcd.replicas
+  label: Replica count
+  type: int
+  default: 1
+  description: Number of etcd replicas. Use an odd number for a quorum-based cluster.
+  group: Application
+  required: true
+- variable: etcd.service.type
+  label: Service type
+  type: enum
+  default: ClusterIP
+  description: Service exposure mode for the etcd client port.
+  group: Networking
+  required: false
+  options:
+  - ClusterIP
+  - LoadBalancer
+  - NodePort
+- variable: etcd.storage.requestedSize
+  label: Storage size
+  type: string
+  default: 10Gi
+  description: Requested size for the dynamically provisioned etcd data volume.
+  group: Storage
+  required: true

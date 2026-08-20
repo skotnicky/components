@@ -2,6 +2,20 @@
 # This file follows the common Rancher-style questions.yaml shape so catalog UIs can
 # present CCF-friendly prompts.
 questions:
+- variable: airflow.data.metadataConnection.host
+  label: PostgreSQL host
+  type: string
+  default: postgres-rw.airflow.svc.cluster.local
+  description: Hostname for the external (non-Bitnami) PostgreSQL metadata database.
+  group: Database
+  required: true
+- variable: airflow.data.metadataConnection.user
+  label: PostgreSQL user
+  type: string
+  default: airflow
+  description: Username for the external PostgreSQL metadata database.
+  group: Database
+  required: true
 - variable: airflow.apiServer.service.type
   label: API server service type
   type: enum

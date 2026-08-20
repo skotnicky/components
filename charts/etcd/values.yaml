@@ -1,0 +1,7 @@
+# Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+etcd:
+  replicas: 1
+  service:
+    type: ClusterIP
+  storage:
+    requestedSize: 10Gi

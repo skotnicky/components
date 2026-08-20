@@ -34,26 +34,32 @@ questions:
   description: Primary hostname used when exposing Dify through ingress.
   group: Networking
   required: false
-- variable: dify.postgresql.enabled
-  label: Bundle PostgreSQL
-  type: boolean
-  default: true
-  description: Deploy the bundled PostgreSQL database. Disable to use an external
-    database.
+- variable: dify.externalPostgres.address
+  label: PostgreSQL host
+  type: string
+  default: postgres-rw.dify.svc.cluster.local
+  description: Hostname for the external (non-Bitnami) PostgreSQL database.
   group: Database
-  required: false
-- variable: dify.redis.enabled
-  label: Bundle Redis
-  type: boolean
-  default: true
-  description: Deploy the bundled Redis instance. Disable to use an external Redis.
+  required: true
+- variable: dify.externalPostgres.username
+  label: PostgreSQL user
+  type: string
+  default: dify
+  description: Username for the external PostgreSQL database.
+  group: Database
+  required: true
+- variable: dify.externalRedis.host
+  label: Redis host
+  type: string
+  default: valkey.dify.svc.cluster.local
+  description: Hostname for the external (non-Bitnami) Redis or Valkey service.
   group: Cache
-  required: false
+  required: true
 - variable: dify.weaviate.enabled
   label: Bundle Weaviate
   type: boolean
   default: true
-  description: Deploy the bundled Weaviate vector store. Disable to use an external
-    vector database.
+  description: Deploy the bundled non-Bitnami Weaviate vector store. Disable to use
+    an external vector database.
   group: Application
   required: false

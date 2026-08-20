@@ -13,14 +13,14 @@ This chart packages upstream Helm dependencies with curated default values and a
 ## Defaults
 
 - Namespace: `milvus`
-- Smoke profile: `needs-overrides`
+- Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
 - Chart version: `0.1.0`
 - App version: `2.6.21`
 
 ## Notes
 
-Official Zilliztech Milvus chart with standalone defaults for CCF projects. Bundled Pulsar and Kafka are disabled, etcd and MinIO stay enabled with single-replica sizing, and live validation usually needs storage-class and resource overrides.
+Official Zilliztech Milvus chart with standalone defaults for CCF projects. The bundled Bitnami etcd and Kafka subcharts are disabled to keep the catalog free of Bitnami charts, so Milvus points at the curated non-Bitnami etcd chart while the non-Bitnami MinIO object store stays bundled. Validation is manual-only until the external etcd is deployed and storage-class overrides are supplied.
 
 ## Files
 

@@ -7,7 +7,7 @@ Chart version: {{ .Chart.Version }}
 App version: {{ .Chart.AppVersion }}
 
 This curated wrapper chart pins upstream Helm dependencies for easier import into CCF.
-Community BorisPolonsky Dify chart for building LLM applications. The curated profile keeps the bundled PostgreSQL, Redis, and Weaviate quickstart dependencies with single-instance sizing and internal-only networking. Validation stays manual-only until project-specific secret keys and, for production, external datastores are supplied.
+Community BorisPolonsky Dify chart for building LLM applications. The bundled Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free of Bitnami charts; defaults expect external PostgreSQL and Valkey services such as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate vector store stays bundled. Validation remains manual-only until project-specific secret keys and datastore credentials are supplied.
 
 Useful commands:
   helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}

@@ -24,6 +24,12 @@ milvus:
     enabled: false
   kafka:
     enabled: false
+  etcd:
+    enabled: false
+  externalEtcd:
+    enabled: true
+    endpoints:
+    - etcd.etcd.svc.cluster.local:2379
   minio:
     enabled: true
     mode: standalone
@@ -32,11 +38,6 @@ milvus:
     resources:
       requests:
         memory: 512Mi
-  etcd:
-    enabled: true
-    replicaCount: 1
-    persistence:
-      size: 10Gi
   standalone:
     persistence:
       enabled: true

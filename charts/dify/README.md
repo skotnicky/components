@@ -20,7 +20,7 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Notes
 
-Community BorisPolonsky Dify chart for building LLM applications. The curated profile keeps the bundled PostgreSQL, Redis, and Weaviate quickstart dependencies with single-instance sizing and internal-only networking. Validation stays manual-only until project-specific secret keys and, for production, external datastores are supplied.
+Community BorisPolonsky Dify chart for building LLM applications. The bundled Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free of Bitnami charts; defaults expect external PostgreSQL and Valkey services such as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate vector store stays bundled. Validation remains manual-only until project-specific secret keys and datastore credentials are supplied.
 
 ## Files
 

@@ -20,7 +20,7 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Notes
 
-Official Apache Airflow chart with conservative defaults for CCF projects.
+Official Apache Airflow chart with conservative defaults for CCF projects. The bundled Bitnami PostgreSQL dependency is disabled to keep the catalog free of Bitnami charts, so Airflow expects an external PostgreSQL metadata database such as CloudNativePG; the non-Bitnami Redis broker stays bundled. Validation is manual-only until database credentials are supplied.
 
 ## Files
 

@@ -17,6 +17,9 @@
   "eck-operator": {
     "chart_version": "0.1.2"
   },
+  "etcd": {
+    "chart_version": "0.1.0"
+  },
   "eck-stack": {
     "chart_version": "0.1.2"
   },

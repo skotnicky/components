@@ -15,6 +15,7 @@ The curated catalog currently packages these components:
 - `cloudnative-pg`
 - `mysql`
 - `minio-operator`
+- `etcd`
 - `milvus`
 - `eck-operator`
 - `eck-stack`
