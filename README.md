@@ -24,6 +24,7 @@ The curated catalog currently packages these components:
 - `backstage`
 - `trino`
 - `superset`
+- `dify`
 - `clickhouse-operator`
 - `valkey`
 - `opensearch`

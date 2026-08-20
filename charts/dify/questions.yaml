@@ -1,0 +1,59 @@
+# Generated from scripts/catalog_data.py.
+# This file follows the common Rancher-style questions.yaml shape so catalog UIs can
+# present CCF-friendly prompts.
+questions:
+- variable: dify.global.edition
+  label: Edition
+  type: enum
+  default: SELF_HOSTED
+  description: Dify deployment edition.
+  group: Application
+  required: false
+  options:
+  - SELF_HOSTED
+  - CLOUD
+- variable: dify.ingress.enabled
+  label: Enable ingress
+  type: boolean
+  default: false
+  description: Expose the Dify web console through an ingress resource.
+  group: Networking
+  required: false
+- variable: dify.ingress.className
+  label: Ingress class
+  type: string
+  default: taikun
+  description: Optional ingressClassName used when exposing Dify through the cluster
+    ingress controller. Leave blank to rely on the cluster default ingress class.
+  group: Networking
+  required: false
+- variable: dify.ingress.hosts[0].host
+  label: Ingress hostname
+  type: string
+  default: dify.local
+  description: Primary hostname used when exposing Dify through ingress.
+  group: Networking
+  required: false
+- variable: dify.postgresql.enabled
+  label: Bundle PostgreSQL
+  type: boolean
+  default: true
+  description: Deploy the bundled PostgreSQL database. Disable to use an external
+    database.
+  group: Database
+  required: false
+- variable: dify.redis.enabled
+  label: Bundle Redis
+  type: boolean
+  default: true
+  description: Deploy the bundled Redis instance. Disable to use an external Redis.
+  group: Cache
+  required: false
+- variable: dify.weaviate.enabled
+  label: Bundle Weaviate
+  type: boolean
+  default: true
+  description: Deploy the bundled Weaviate vector store. Disable to use an external
+    vector database.
+  group: Application
+  required: false

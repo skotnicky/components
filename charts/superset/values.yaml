@@ -7,8 +7,14 @@ superset:
     ingressClassName: ''
     hosts:
     - superset.local
-    tls: []
+    tls:
+    - secretName: superset-tls
+      hosts:
+      - superset.local
     path: /
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
   postgresql:
     enabled: false
   redis:

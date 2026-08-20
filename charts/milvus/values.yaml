@@ -11,7 +11,13 @@ milvus:
     - host: milvus.local
       path: /
       pathType: Prefix
-    tls: []
+    tls:
+    - secretName: milvus-tls
+      hosts:
+      - milvus.local
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
   pulsarv3:
     enabled: false
   pulsar:

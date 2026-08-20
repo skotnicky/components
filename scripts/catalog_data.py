@@ -363,6 +363,11 @@ CHART_MEDIA = {
         "home": "https://milvus.io/",
         "release_notes": "https://github.com/milvus-io/milvus/releases",
     },
+    "dify": {
+        "icon": "https://avatars.githubusercontent.com/u/127165244",
+        "home": "https://dify.ai/",
+        "release_notes": "https://github.com/langgenius/dify/releases",
+    },
     "eck-operator": {
         "icon": "https://helm.elastic.co/icons/eck.png",
         "home": "https://github.com/elastic/cloud-on-k8s",
@@ -1025,6 +1030,97 @@ CURATED_COMPONENTS = [
                 "Persistent volume size for standalone Milvus data.",
                 "Storage",
                 required=True,
+            ),
+        ],
+    },
+    {
+        "id": "dify",
+        "display_name": "Dify",
+        "package_name": "ccf-dify",
+        "namespace": "dify",
+        "source_classification": "community",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "manual-only",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Community BorisPolonsky Dify chart for building LLM applications. The "
+            "curated profile keeps the bundled PostgreSQL, Redis, and Weaviate quickstart "
+            "dependencies with single-instance sizing and internal-only networking. "
+            "Validation stays manual-only until project-specific secret keys and, for "
+            "production, external datastores are supplied."
+        ),
+        "dependencies": [
+            {
+                "name": "dify",
+                "repository": "https://borispolonsky.github.io/dify-helm",
+                "version": "0.37.0",
+                "app_version": "1.14.2",
+            }
+        ],
+        "values": {
+            "dify": {
+                "global": {"edition": "SELF_HOSTED"},
+                "ingress": {
+                    "enabled": False,
+                    "className": "",
+                    "hosts": [
+                        {
+                            "host": "dify.local",
+                            "paths": [{"path": "/", "pathType": "Prefix"}],
+                        }
+                    ],
+                    "tls": [],
+                },
+                "postgresql": {
+                    "enabled": True,
+                    "architecture": "standalone",
+                },
+                "redis": {"enabled": True},
+                "weaviate": {"enabled": True},
+            }
+        },
+        "questions": [
+            q(
+                "dify.global.edition",
+                "Edition",
+                "enum",
+                "SELF_HOSTED",
+                "Dify deployment edition.",
+                "Application",
+                options=["SELF_HOSTED", "CLOUD"],
+            ),
+            q(
+                "dify.ingress.enabled",
+                "Enable ingress",
+                "boolean",
+                False,
+                "Expose the Dify web console through an ingress resource.",
+                "Networking",
+            ),
+            q(
+                "dify.postgresql.enabled",
+                "Bundle PostgreSQL",
+                "boolean",
+                True,
+                "Deploy the bundled PostgreSQL database. Disable to use an external database.",
+                "Database",
+            ),
+            q(
+                "dify.redis.enabled",
+                "Bundle Redis",
+                "boolean",
+                True,
+                "Deploy the bundled Redis instance. Disable to use an external Redis.",
+                "Cache",
+            ),
+            q(
+                "dify.weaviate.enabled",
+                "Bundle Weaviate",
+                "boolean",
+                True,
+                "Deploy the bundled Weaviate vector store. Disable to use an external vector database.",
+                "Application",
             ),
         ],
     },
@@ -2623,6 +2719,7 @@ INGRESS_CAPABILITIES = {
         "path_default": "/",
         "tls_path": "superset.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "superset.ingress.annotations",
         "add_host_question": True,
     },
     "milvus": {
@@ -2637,6 +2734,22 @@ INGRESS_CAPABILITIES = {
         },
         "tls_path": "milvus.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "milvus.ingress.annotations",
+        "add_host_question": True,
+    },
+    "dify": {
+        "enable_path": "dify.ingress.enabled",
+        "class_path": "dify.ingress.className",
+        "host_path": "dify.ingress.hosts[0].host",
+        "host_default": "dify.local",
+        "path_path": "dify.ingress.hosts[0].paths[0].path",
+        "path_default": "/",
+        "extra_defaults": {
+            "dify.ingress.hosts[0].paths[0].pathType": "Prefix",
+        },
+        "tls_path": "dify.ingress.tls",
+        "tls_mode": "list",
+        "annotations_path": "dify.ingress.annotations",
         "add_host_question": True,
     },
     "openmetadata": {

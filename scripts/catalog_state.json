@@ -8,6 +8,9 @@
   "clickhouse-operator": {
     "chart_version": "0.1.2"
   },
+  "dify": {
+    "chart_version": "0.1.0"
+  },
   "cloudnative-pg": {
     "chart_version": "0.1.2"
   },

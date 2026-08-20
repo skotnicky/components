@@ -7,7 +7,7 @@ Chart version: {{ .Chart.Version }}
 App version: {{ .Chart.AppVersion }}
 
 This curated wrapper chart pins upstream Helm dependencies for easier import into CCF.
-Official Zilliztech Milvus chart with standalone defaults for CCF projects. Bundled Pulsar and Kafka are disabled, etcd and MinIO stay enabled with single-replica sizing, and live validation usually needs storage-class and resource overrides.
+Community BorisPolonsky Dify chart for building LLM applications. The curated profile keeps the bundled PostgreSQL, Redis, and Weaviate quickstart dependencies with single-instance sizing and internal-only networking. Validation stays manual-only until project-specific secret keys and, for production, external datastores are supplied.
 
 Useful commands:
   helm status {{ .Release.Name }} --namespace {{ .Release.Namespace }}
@@ -18,8 +18,8 @@ Useful commands:
 DNS and TLS use the project's CCF DNS/Cert service (external-dns plus cert-manager). When exposed, this chart's ingress requests a certificate from the 'ccf-default' cluster issuer and external-dns publishes the hostname, so set the ingress host inside your project's managed DNS domain.
 
 {{- $accessUrl := "" -}}
-{{- if (and (index .Values "milvus" "ingress" "enabled") (not (empty ((default "" (get (index (default (list (dict)) (index .Values "milvus" "ingress" "rules")) 0) "host")))))) -}}
-{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "milvus" "ingress" "tls"))) 0)) (default "" (get (index (default (list (dict)) (index .Values "milvus" "ingress" "rules")) 0) "host")) (default "/" (index .Values "milvus" "ingress" "rules" 0 "path")) -}}
+{{- if (and (index .Values "dify" "ingress" "enabled") (not (empty ((default "" (get (index (default (list (dict)) (index .Values "dify" "ingress" "hosts")) 0) "host")))))) -}}
+{{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "dify" "ingress" "tls"))) 0)) (default "" (get (index (default (list (dict)) (index .Values "dify" "ingress" "hosts")) 0) "host")) (default "/" (default "/" (get (index (default (list (dict "path" "/")) (default (list) (get (index (default (list (dict)) (index .Values "dify" "ingress" "hosts")) 0) "paths"))) 0) "path"))) -}}
 {{- end -}}
 {{- if $accessUrl }}
 Access URL:
