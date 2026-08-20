@@ -14,6 +14,7 @@ ROOT = SCRIPT_DIR.parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from catalog_data import (
+    CCF_DNS_CERT_CLUSTER_ISSUER,
     component_access_url,
     CURATED_COMPONENTS,
     DEFAULT_CHART_VERSION,
@@ -293,6 +294,14 @@ def render_notes_txt(component: dict) -> str:
     )
     component_note = component.get("notes", "").strip()
     access_url_snippet = render_access_url_snippet(component).strip()
+    dns_cert_hint = (
+        "DNS and TLS use the project's CCF DNS/Cert service (external-dns plus cert-manager). "
+        f"When exposed, this chart's ingress requests a certificate from the '{CCF_DNS_CERT_CLUSTER_ISSUER}' "
+        "cluster issuer and external-dns publishes the hostname, so set the ingress host inside your "
+        "project's managed DNS domain."
+        if component_access_url(component)
+        else ""
+    )
     lines = [
         "{{- $annotations := .Chart.Annotations | default dict -}}",
         "Thank you for installing {{ .Chart.Name }}.",
@@ -311,6 +320,8 @@ def render_notes_txt(component: dict) -> str:
         "  kubectl get pods,svc,ingress -n {{ .Release.Namespace }}",
         "  kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp",
     ]
+    if dns_cert_hint:
+        lines.extend(["", dns_cert_hint])
     if access_url_snippet:
         lines.extend(["", access_url_snippet])
     lines.extend(

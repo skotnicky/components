@@ -13,9 +13,16 @@ airflow:
       ingressClassName: taikun
       hosts:
       - name: airflow.local
+        tls:
+          enabled: true
+          secretName: airflow-tls
       path: /
       tls:
-        enabled: false
+        enabled: true
+        secretName: airflow-tls
+      annotations:
+        cert-manager.io/cluster-issuer: ccf-default
+        external-dns.alpha.kubernetes.io/ttl: '300'
     web:
       enabled: false
   migrateDatabaseJob:

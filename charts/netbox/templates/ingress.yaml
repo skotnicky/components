@@ -8,6 +8,10 @@ metadata:
   labels:
     {{- include "ccf.netbox.labels" . | nindent 4 }}
     app.kubernetes.io/component: netbox
+  {{- with $v.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if $v.ingress.className }}
   ingressClassName: {{ $v.ingress.className | quote }}

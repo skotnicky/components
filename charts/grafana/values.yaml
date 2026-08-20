@@ -8,6 +8,13 @@ grafana:
     hosts:
     - grafana.local
     path: /
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
+    tls:
+    - secretName: grafana-tls
+      hosts:
+      - grafana.local
   persistence:
     enabled: true
     size: 10Gi

@@ -27,7 +27,13 @@ netbox:
     - host: netbox.local
       paths:
       - /
-    tls: []
+    tls:
+    - secretName: netbox-tls
+      hosts:
+      - netbox.local
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
   persistence:
     enabled: true
     storageClass: ''

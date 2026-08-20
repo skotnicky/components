@@ -16,8 +16,11 @@ backstage:
     host: backstage.local
     path: /
     tls:
-      enabled: false
-      secretName: ''
+      enabled: true
+      secretName: backstage-tls
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
   app:
     replicas: 1
   database:

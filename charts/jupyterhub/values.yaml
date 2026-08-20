@@ -8,6 +8,13 @@ jupyterhub:
     ingressClassName: taikun
     hosts:
     - jupyterhub.local
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
+    tls:
+    - secretName: jupyterhub-tls
+      hosts:
+      - jupyterhub.local
   singleuser:
     storage:
       capacity: 10Gi

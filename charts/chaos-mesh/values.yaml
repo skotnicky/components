@@ -10,6 +10,10 @@ chaos-mesh:
       ingressClassName: taikun
       hosts:
       - name: chaos-dashboard.local
-        tls: false
+        tls: true
+        tlsSecret: chaos-mesh-tls
+      annotations:
+        cert-manager.io/cluster-issuer: ccf-default
+        external-dns.alpha.kubernetes.io/ttl: '300'
     persistentVolume:
       size: 5Gi

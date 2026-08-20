@@ -171,6 +171,34 @@ VALIDATION_KUBECONFIG_PATH=/absolute/path/to/kubeconfig.yaml
 
 The kubeconfig itself can be created through the CCF MCP `create-kubeconfig` tool and then retrieved with `get-kubeconfig`.
 
+## Managed DNS And Certificates
+
+CCF projects can enable a managed DNS/Cert service through the platform API
+(`/api/v1/dns-cert/enable`). The service is based on `external-dns` and `cert-manager`:
+when enabled, the platform runs both controllers inside the project and provisions a
+default cluster-scoped issuer named `ccf-default` (Let's Encrypt by default) plus a
+managed DNS domain.
+
+Every ingress-capable curated chart is wired to use that service by default. The shared
+metadata in `scripts/catalog_data.py` (`INGRESS_CAPABILITIES` plus
+`apply_dns_cert_defaults`) adds, for each such chart:
+
+- ingress annotations `cert-manager.io/cluster-issuer: ccf-default` and
+  `external-dns.alpha.kubernetes.io/ttl` so cert-manager's ingress-shim issues a
+  certificate and external-dns publishes the record
+- a curated TLS block that stores the issued certificate in a `<component>-tls` secret
+
+Because `external-dns` reads the ingress hosts directly, exposing a chart with a hostname
+inside the project's managed DNS domain is enough to get a public DNS record and a valid
+TLS certificate with no extra per-chart wiring. Ingress stays disabled by default, so
+these defaults are inert until an operator enables the ingress, and the annotations are
+harmless on projects that do not run the managed service.
+
+When adding a new ingress-capable chart, set its `annotations_path` (and, where the
+upstream TLS shape differs, `tls_secret_path`/`tls_extra`) in `INGRESS_CAPABILITIES`
+rather than hand-editing generated values. The managed issuer name and annotation keys
+are defined once as `CCF_DNS_CERT_CLUSTER_ISSUER` and related constants.
+
 ## NOTES And Access URLs
 
 Generated `templates/NOTES.txt` files now do two things:

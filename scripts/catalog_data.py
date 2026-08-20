@@ -111,6 +111,79 @@ def set_path_default(data: dict, path: str, value) -> None:
         cur = cur[part]
 
 
+def set_path_value(data: dict, path: str, value) -> None:
+    """Set a value at a dotted/indexed path, overwriting any existing value.
+
+    Unlike ``set_path_default`` this always assigns the final value so callers can
+    force curated defaults (for example enabling TLS) even when the target key
+    already exists with a different value.
+    """
+    cur = data
+    parts = parse_path(path)
+    for idx, part in enumerate(parts):
+        is_last = idx == len(parts) - 1
+        next_part = parts[idx + 1] if not is_last else None
+        if isinstance(cur, list):
+            list_index = int(part)
+            while len(cur) <= list_index:
+                cur.append(None)
+            if is_last:
+                cur[list_index] = value
+                return
+            if not isinstance(cur[list_index], (dict, list)):
+                cur[list_index] = {} if next_part and not next_part.isdigit() else []
+            cur = cur[list_index]
+            continue
+        if is_last:
+            cur[part] = value
+            return
+        if part not in cur or not isinstance(cur[part], (dict, list)):
+            cur[part] = {} if next_part and not next_part.isdigit() else []
+        cur = cur[part]
+
+
+def get_path_value(data, path: str):
+    """Return the value stored at ``path`` or ``None`` when any segment is missing."""
+    cur = data
+    for part in parse_path(path):
+        if isinstance(cur, list):
+            index = int(part)
+            if index >= len(cur):
+                return None
+            cur = cur[index]
+        elif isinstance(cur, dict):
+            if part not in cur:
+                return None
+            cur = cur[part]
+        else:
+            return None
+    return cur
+
+
+def merge_path_dict(data: dict, path: str, values: dict) -> None:
+    """Merge a dict of keys into the mapping stored at ``path``.
+
+    Existing keys are preserved so hand-authored annotations win over curated
+    defaults, while any missing curated keys are added.
+    """
+    cur = data
+    parts = parse_path(path)
+    for idx, part in enumerate(parts):
+        is_last = idx == len(parts) - 1
+        if is_last:
+            existing = cur.get(part) if isinstance(cur, dict) else None
+            merged = dict(values)
+            if isinstance(existing, dict):
+                merged.update(existing)
+            if isinstance(cur, dict):
+                cur[part] = merged
+            return
+        next_part = parts[idx + 1]
+        if part not in cur or not isinstance(cur[part], (dict, list)):
+            cur[part] = {} if not next_part.isdigit() else []
+        cur = cur[part]
+
+
 def replace_or_insert_question(component: dict, question: dict, after_variable: str | None = None) -> None:
     for idx, existing in enumerate(component["questions"]):
         if existing["variable"] == question["variable"]:
@@ -230,6 +303,29 @@ def detect_ingress_class_default() -> str:
 
 
 SERVICE_TYPE_OPTIONS = ["ClusterIP", "LoadBalancer", "NodePort"]
+
+# CCF projects can enable a managed DNS/Cert service (based on external-dns plus
+# cert-manager) through the platform API. When enabled, the platform runs
+# external-dns and cert-manager inside the project and creates a default
+# cluster-scoped issuer. Curated charts opt into that service by default so an
+# exposed ingress automatically gets a public DNS record (external-dns reads the
+# ingress host) and a TLS certificate (cert-manager ingress-shim reacts to the
+# cluster-issuer annotation plus the ingress TLS block).
+CCF_DNS_CERT_ISSUER_KIND = "ClusterIssuer"
+CCF_DNS_CERT_CLUSTER_ISSUER = "ccf-default"
+CCF_DNS_CERT_ISSUER_ANNOTATION = "cert-manager.io/cluster-issuer"
+CCF_EXTERNAL_DNS_TTL_ANNOTATION = "external-dns.alpha.kubernetes.io/ttl"
+CCF_EXTERNAL_DNS_TTL = "300"
+
+
+def ccf_ingress_annotations() -> dict:
+    """Return the default annotations that wire an ingress into the CCF DNS/Cert service."""
+    return {
+        CCF_DNS_CERT_ISSUER_ANNOTATION: CCF_DNS_CERT_CLUSTER_ISSUER,
+        CCF_EXTERNAL_DNS_TTL_ANNOTATION: CCF_EXTERNAL_DNS_TTL,
+    }
+
+
 DEFAULT_CHART_VERSION = "0.1.0"
 STATE_PATH = pathlib.Path(__file__).with_name("catalog_state.json")
 CHART_MEDIA = {
@@ -2312,6 +2408,14 @@ INGRESS_CAPABILITIES = {
         "path_default": "/",
         "tls_path": "airflow.ingress.apiServer.tls.enabled",
         "tls_mode": "bool",
+        "tls_secret_path": "airflow.ingress.apiServer.tls.secretName",
+        "annotations_path": "airflow.ingress.apiServer.annotations",
+        # The Apache Airflow chart renders TLS per host when host entries are
+        # objects, so the top-level tls.enabled flag alone is ignored.
+        "tls_extra": {
+            "airflow.ingress.apiServer.hosts[0].tls.enabled": True,
+            "airflow.ingress.apiServer.hosts[0].tls.secretName": "airflow-tls",
+        },
         "add_host_question": True,
     },
     "harbor": {
@@ -2319,6 +2423,8 @@ INGRESS_CAPABILITIES = {
         "class_path": "harbor.expose.ingress.className",
         "host_path": "harbor.expose.ingress.hosts.core",
         "explicit_url_path": "harbor.externalURL",
+        "annotations_path": "harbor.expose.ingress.annotations",
+        "tls_mode": "harbor",
         "add_host_question": False,
     },
     "grafana": {
@@ -2330,6 +2436,7 @@ INGRESS_CAPABILITIES = {
         "path_default": "/",
         "tls_path": "grafana.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "grafana.ingress.annotations",
         "add_host_question": True,
     },
     "jupyterhub": {
@@ -2339,6 +2446,7 @@ INGRESS_CAPABILITIES = {
         "host_default": "jupyterhub.local",
         "tls_path": "jupyterhub.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "jupyterhub.ingress.annotations",
         "add_host_question": True,
     },
     "ollama": {
@@ -2352,6 +2460,7 @@ INGRESS_CAPABILITIES = {
         },
         "tls_path": "ollama.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "ollama.ingress.annotations",
         "add_host_question": False,
     },
     "backstage": {
@@ -2363,6 +2472,8 @@ INGRESS_CAPABILITIES = {
         "path_default": "/",
         "tls_path": "backstage.ingress.tls.enabled",
         "tls_mode": "bool",
+        "tls_secret_path": "backstage.ingress.tls.secretName",
+        "annotations_path": "backstage.ingress.annotations",
         "add_host_question": False,
     },
     "trino": {
@@ -2377,6 +2488,7 @@ INGRESS_CAPABILITIES = {
         },
         "tls_path": "trino.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "trino.ingress.annotations",
         "add_host_question": True,
     },
     "superset": {
@@ -2402,6 +2514,7 @@ INGRESS_CAPABILITIES = {
         },
         "tls_path": "openmetadata.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "openmetadata.ingress.annotations",
         "add_host_question": False,
     },
     "netbox": {
@@ -2413,6 +2526,7 @@ INGRESS_CAPABILITIES = {
         "path_default": "/",
         "tls_path": "netbox.ingress.tls",
         "tls_mode": "list",
+        "annotations_path": "netbox.ingress.annotations",
         "add_host_question": False,
     },
     "chaos-mesh": {
@@ -2422,6 +2536,8 @@ INGRESS_CAPABILITIES = {
         "host_default": "chaos-dashboard.local",
         "tls_path": "chaos-mesh.dashboard.ingress.hosts[0].tls",
         "tls_mode": "bool",
+        "tls_secret_path": "chaos-mesh.dashboard.ingress.hosts[0].tlsSecret",
+        "annotations_path": "chaos-mesh.dashboard.ingress.annotations",
         "add_host_question": True,
         "host_question_label": "Dashboard hostname",
     },
@@ -2484,6 +2600,57 @@ def apply_ingress_metadata() -> None:
                 ),
                 after_variable=ingress.get("class_path") or ingress["enable_path"],
             )
+
+
+def resolve_ingress_host(component: dict, ingress: dict):
+    if ingress.get("host_default") is not None:
+        return ingress["host_default"]
+    if ingress.get("host_path"):
+        return get_path_value(component["values"], ingress["host_path"])
+    return None
+
+
+def apply_dns_cert_defaults() -> None:
+    """Wire every ingress-capable curated chart into the CCF DNS/Cert service by default.
+
+    Adds the cluster-issuer plus external-dns annotations and a curated TLS block so
+    that, once an operator exposes the chart on a project with the managed DNS/Cert
+    service enabled, external-dns publishes the ingress host and cert-manager issues a
+    certificate through the ``ccf-default`` cluster issuer with no extra wiring. The
+    annotations are inert on projects that do not run the service, and ingress stays
+    disabled by default, so these defaults never change a chart's out-of-the-box
+    footprint.
+    """
+    for component in CURATED_COMPONENTS:
+        ingress = INGRESS_CAPABILITIES.get(component["id"])
+        if not ingress or not ingress.get("annotations_path"):
+            continue
+        values = component["values"]
+        merge_path_dict(values, ingress["annotations_path"], ccf_ingress_annotations())
+
+        tls_secret = ingress.get("tls_secret") or f"{component['id']}-tls"
+        tls_mode = ingress.get("tls_mode")
+        tls_path = ingress.get("tls_path")
+        host = resolve_ingress_host(component, ingress)
+
+        if tls_mode == "list" and tls_path:
+            entry = {"secretName": tls_secret}
+            if host:
+                entry["hosts"] = [host]
+            set_path_value(values, tls_path, [entry])
+        elif tls_mode == "bool" and tls_path:
+            set_path_value(values, tls_path, True)
+            if ingress.get("tls_secret_path"):
+                set_path_value(values, ingress["tls_secret_path"], tls_secret)
+        elif tls_mode == "harbor":
+            set_path_value(values, "harbor.expose.tls.enabled", True)
+            set_path_value(values, "harbor.expose.tls.certSource", "secret")
+            set_path_value(values, "harbor.expose.tls.secret.secretName", tls_secret)
+            if host:
+                set_path_value(values, "harbor.externalURL", f"https://{host}")
+
+        for path, value in ingress.get("tls_extra", {}).items():
+            set_path_value(values, path, value)
 
 
 def component_matrix():
@@ -2556,3 +2723,4 @@ def apply_chart_media() -> None:
 apply_chart_media()
 apply_catalog_state()
 apply_ingress_metadata()
+apply_dns_cert_defaults()

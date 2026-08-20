@@ -8,6 +8,10 @@ metadata:
   labels:
     {{- include "ccf.backstage.labels" . | nindent 4 }}
     app.kubernetes.io/component: backstage
+  {{- with $v.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   {{- if $v.ingress.className }}
   ingressClassName: {{ $v.ingress.className | quote }}

@@ -10,7 +10,13 @@ trino:
       paths:
       - path: /
         pathType: ImplementationSpecific
-    tls: []
+    tls:
+    - secretName: trino-tls
+      hosts:
+      - trino.local
+    annotations:
+      cert-manager.io/cluster-issuer: ccf-default
+      external-dns.alpha.kubernetes.io/ttl: '300'
   server:
     workers: 2
   coordinator:

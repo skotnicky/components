@@ -15,6 +15,8 @@ Useful commands:
   kubectl get pods,svc,ingress -n {{ .Release.Namespace }}
   kubectl get events -n {{ .Release.Namespace }} --sort-by=.lastTimestamp
 
+DNS and TLS use the project's CCF DNS/Cert service (external-dns plus cert-manager). When exposed, this chart's ingress requests a certificate from the 'ccf-default' cluster issuer and external-dns publishes the hostname, so set the ingress host inside your project's managed DNS domain.
+
 {{- $accessUrl := "" -}}
 {{- if (and (index .Values "openmetadata" "ingress" "enabled") (not (empty ((default "" (get (index (default (list (dict)) (index .Values "openmetadata" "ingress" "hosts")) 0) "host")))))) -}}
 {{- $accessUrl = printf "%s://%s%s" (ternary "https" "http" (gt (len (default (list) (index .Values "openmetadata" "ingress" "tls"))) 0)) (default "" (get (index (default (list (dict)) (index .Values "openmetadata" "ingress" "hosts")) 0) "host")) (default "/" (default "/" (get (index (default (list (dict "path" "/")) (default (list) (get (index (default (list (dict)) (index .Values "openmetadata" "ingress" "hosts")) 0) "paths"))) 0) "path"))) -}}

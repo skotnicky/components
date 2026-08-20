@@ -3,13 +3,18 @@ harbor:
   expose:
     type: ingress
     tls:
-      enabled: false
-      certSource: none
+      enabled: true
+      certSource: secret
+      secret:
+        secretName: harbor-tls
     ingress:
       className: ''
       hosts:
         core: harbor.local
-  externalURL: http://harbor.local
+      annotations:
+        cert-manager.io/cluster-issuer: ccf-default
+        external-dns.alpha.kubernetes.io/ttl: '300'
+  externalURL: https://harbor.local
   persistence:
     enabled: true
     persistentVolumeClaim:
