@@ -13,6 +13,24 @@ storagePermissionsFix:
   apiClaimName: ''
   pluginClaimName: ''
   ttlSecondsAfterFinished: 300
+bundledPostgres:
+  enabled: true
+  image: postgres:16-alpine
+  storage: 10Gi
+  storageClass: ''
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+bundledValkey:
+  enabled: true
+  image: valkey/valkey:8-alpine
+  storage: 5Gi
+  storageClass: ''
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
 dify:
   global:
     edition: SELF_HOSTED
@@ -82,14 +100,14 @@ dify:
     enabled: true
     username: dify
     password: dify
-    address: postgres-rw.dify.svc.cluster.local
+    address: postgres-rw
     port: 5432
     database:
       api: dify
       pluginDaemon: dify_plugin
   externalRedis:
     enabled: true
-    host: valkey.dify.svc.cluster.local
+    host: valkey
     port: 6379
     username: ''
     password: ''

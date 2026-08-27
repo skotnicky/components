@@ -1,0 +1,115 @@
+{{- if .Values.bundledValkey.enabled }}
+{{- $rd := .Values.bundledValkey }}
+{{- $ext := .Values.dify.externalRedis }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: valkey-data
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-valkey
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-valkey
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if $rd.storageClass }}
+  storageClassName: {{ $rd.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $rd.storage | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: valkey
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-valkey
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-valkey
+spec:
+  type: ClusterIP
+  ports:
+    - name: valkey
+      port: {{ $ext.port | default 6379 }}
+      targetPort: valkey
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: dify-valkey
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: bundled-valkey
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dify-valkey
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-valkey
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-valkey
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dify-valkey
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: bundled-valkey
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dify-valkey
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/component: bundled-valkey
+    spec:
+      securityContext:
+        fsGroup: 999
+        runAsUser: 999
+        runAsGroup: 999
+        runAsNonRoot: true
+      containers:
+        - name: valkey
+          image: {{ $rd.image | quote }}
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--dir"
+            - "/data"
+            - "--save"
+            - "60"
+            - "1"
+            - "--appendonly"
+            - "no"
+          ports:
+            - name: valkey
+              containerPort: 6379
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "valkey-cli ping | grep -q PONG"]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: valkey
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            {{- toYaml $rd.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: valkey-data
+{{- end }}
