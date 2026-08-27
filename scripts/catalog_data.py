@@ -317,6 +317,28 @@ CCF_DNS_CERT_ISSUER_ANNOTATION = "cert-manager.io/cluster-issuer"
 CCF_EXTERNAL_DNS_TTL_ANNOTATION = "external-dns.alpha.kubernetes.io/ttl"
 CCF_EXTERNAL_DNS_TTL = "300"
 
+# Dify API/worker/beat containers run as UID/GID 1001 and write tenant keys under
+# ``privkeys/`` on the shared app-data volume during first-time setup. OpenStack RWX
+# volumes often need an explicit permission fix before those writes succeed.
+DIFY_STORAGE_UID = 1001
+DIFY_STORAGE_GID = 1001
+
+DIFY_STORAGE_PERMISSIONS_FIX_VALUES = {
+    "enabled": True,
+    "image": "busybox:1.36",
+    "uid": DIFY_STORAGE_UID,
+    "gid": DIFY_STORAGE_GID,
+    "pluginDaemonUid": DIFY_STORAGE_UID,
+    "pluginDaemonGid": DIFY_STORAGE_GID,
+    "apiMountPath": "/app/api/storage",
+    "pluginMountPath": "/app/storage",
+    "fixPluginDaemon": True,
+    "runAsRoot": True,
+    "apiClaimName": "",
+    "pluginClaimName": "",
+    "ttlSecondsAfterFinished": 300,
+}
+
 
 def ccf_ingress_annotations() -> dict:
     """Return the default annotations that wire an ingress into the CCF DNS/Cert service."""
@@ -357,21 +379,6 @@ CHART_MEDIA = {
         "icon": "https://min.io/resources/img/logo/MINIO_wordmark.png",
         "home": "https://min.io",
         "release_notes": "https://github.com/minio/operator/releases",
-    },
-    "milvus": {
-        "icon": "https://raw.githubusercontent.com/milvus-io/docs/master/v1.0.0/assets/milvus_logo.png",
-        "home": "https://milvus.io/",
-        "release_notes": "https://github.com/milvus-io/milvus/releases",
-    },
-    "dify": {
-        "icon": "https://avatars.githubusercontent.com/u/127165244",
-        "home": "https://dify.ai/",
-        "release_notes": "https://github.com/langgenius/dify/releases",
-    },
-    "etcd": {
-        "icon": "https://raw.githubusercontent.com/cncf/artwork/master/projects/etcd/icon/color/etcd-icon-color.svg",
-        "home": "https://etcd.io/",
-        "release_notes": "https://github.com/etcd-io/etcd/releases",
     },
     "eck-operator": {
         "icon": "https://helm.elastic.co/icons/eck.png",
@@ -436,6 +443,11 @@ CHART_MEDIA = {
         "icon": "https://raw.githubusercontent.com/netbox-community/netbox/main/docs/netbox_logo_light.svg",
         "home": "https://netbox.dev/",
         "release_notes": "https://github.com/netbox-community/netbox/releases",
+    },
+    "dify": {
+        "icon": "https://avatars.githubusercontent.com/u/127165244",
+        "home": "https://dify.ai/",
+        "release_notes": "https://github.com/langgenius/dify/releases",
     },
     "chaos-mesh": {
         "icon": "https://raw.githubusercontent.com/chaos-mesh/chaos-mesh/master/static/logo.svg",
@@ -952,314 +964,6 @@ CURATED_COMPONENTS = [
                 "Memory request for the MinIO operator.",
                 "Resources",
                 required=True,
-            ),
-        ],
-    },
-    {
-        "id": "etcd",
-        "display_name": "etcd",
-        "package_name": "ccf-etcd",
-        "namespace": "etcd",
-        "source_classification": "community",
-        "packaging_mode": "curated-wrapper",
-        "questions_support": True,
-        "smoke_profile": "default",
-        "image_source_choice": "upstream-official",
-        "notes": (
-            "Community groundhog2k etcd chart built on the official CoreOS etcd image "
-            "(non-Bitnami). Provides a key-value store suitable as the metadata backend for "
-            "Milvus and other components. Defaults stay single-node and internal-only."
-        ),
-        "dependencies": [
-            {
-                "name": "etcd",
-                "repository": "https://groundhog2k.github.io/helm-charts/",
-                "version": "1.1.12",
-                "app_version": "v3.7.1",
-            }
-        ],
-        "values": {
-            "etcd": {
-                "replicas": 1,
-                "service": {"type": "ClusterIP"},
-                "storage": {"requestedSize": "10Gi"},
-            }
-        },
-        "questions": [
-            q(
-                "etcd.replicas",
-                "Replica count",
-                "int",
-                1,
-                "Number of etcd replicas. Use an odd number for a quorum-based cluster.",
-                "Application",
-                required=True,
-            ),
-            q(
-                "etcd.service.type",
-                "Service type",
-                "enum",
-                "ClusterIP",
-                "Service exposure mode for the etcd client port.",
-                "Networking",
-                options=SERVICE_TYPE_OPTIONS,
-            ),
-            q(
-                "etcd.storage.requestedSize",
-                "Storage size",
-                "string",
-                "10Gi",
-                "Requested size for the dynamically provisioned etcd data volume.",
-                "Storage",
-                required=True,
-            ),
-        ],
-    },
-    {
-        "id": "milvus",
-        "display_name": "Milvus",
-        "package_name": "ccf-milvus",
-        "namespace": "milvus",
-        "source_classification": "official",
-        "packaging_mode": "curated-wrapper",
-        "questions_support": True,
-        "smoke_profile": "manual-only",
-        "image_source_choice": "upstream-official",
-        "notes": (
-            "Official Zilliztech Milvus chart with standalone defaults for CCF projects. "
-            "The bundled Bitnami etcd and Kafka subcharts are disabled to keep the catalog "
-            "free of Bitnami charts, so Milvus points at the curated non-Bitnami etcd chart "
-            "while the non-Bitnami MinIO object store stays bundled. Validation is manual-only "
-            "until the external etcd is deployed and storage-class overrides are supplied."
-        ),
-        "dependencies": [
-            {
-                "name": "milvus",
-                "repository": "https://zilliztech.github.io/milvus-helm/",
-                "version": "5.0.25",
-                "app_version": "2.6.21",
-            }
-        ],
-        "values": {
-            "milvus": {
-                "cluster": {"enabled": False},
-                "service": {"type": "ClusterIP"},
-                "ingress": {
-                    "enabled": False,
-                    "ingressClassName": "",
-                    "rules": [
-                        {
-                            "host": "milvus.local",
-                            "path": "/",
-                            "pathType": "Prefix",
-                        }
-                    ],
-                    "tls": [],
-                },
-                "pulsarv3": {"enabled": False},
-                "pulsar": {"enabled": False},
-                "kafka": {"enabled": False},
-                "etcd": {"enabled": False},
-                "externalEtcd": {
-                    "enabled": True,
-                    "endpoints": ["etcd.etcd.svc.cluster.local:2379"],
-                },
-                "minio": {
-                    "enabled": True,
-                    "mode": "standalone",
-                    "persistence": {"size": "50Gi"},
-                    "resources": {"requests": {"memory": "512Mi"}},
-                },
-                "standalone": {
-                    "persistence": {
-                        "enabled": True,
-                        "persistentVolumeClaim": {"size": "20Gi"},
-                    }
-                },
-                "metrics": {"serviceMonitor": {"enabled": False}},
-            }
-        },
-        "questions": [
-            q(
-                "milvus.cluster.enabled",
-                "Cluster mode",
-                "boolean",
-                False,
-                "Enable Milvus cluster mode. Keep disabled for the curated standalone profile.",
-                "Application",
-            ),
-            q(
-                "milvus.service.type",
-                "Service type",
-                "enum",
-                "ClusterIP",
-                "Service exposure mode for the Milvus gRPC endpoint.",
-                "Networking",
-                options=SERVICE_TYPE_OPTIONS,
-            ),
-            q(
-                "milvus.ingress.enabled",
-                "Enable ingress",
-                "boolean",
-                False,
-                "Expose Milvus through an ingress resource.",
-                "Networking",
-            ),
-            q(
-                "milvus.externalEtcd.endpoints[0]",
-                "External etcd endpoint",
-                "string",
-                "etcd.etcd.svc.cluster.local:2379",
-                "Endpoint for the external (non-Bitnami) etcd metadata store, such as the curated etcd chart.",
-                "Storage",
-                required=True,
-            ),
-            q(
-                "milvus.minio.persistence.size",
-                "MinIO PVC size",
-                "string",
-                "50Gi",
-                "Persistent volume size for the bundled non-Bitnami MinIO object store.",
-                "Storage",
-                required=True,
-            ),
-            q(
-                "milvus.standalone.persistence.persistentVolumeClaim.size",
-                "Standalone PVC size",
-                "string",
-                "20Gi",
-                "Persistent volume size for standalone Milvus data.",
-                "Storage",
-                required=True,
-            ),
-        ],
-    },
-    {
-        "id": "dify",
-        "display_name": "Dify",
-        "package_name": "ccf-dify",
-        "namespace": "dify",
-        "source_classification": "community",
-        "packaging_mode": "curated-wrapper",
-        "questions_support": True,
-        "smoke_profile": "manual-only",
-        "image_source_choice": "upstream-official",
-        "notes": (
-            "Community BorisPolonsky Dify chart for building LLM applications. The bundled "
-            "Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free "
-            "of Bitnami charts; defaults expect external PostgreSQL and Valkey services such "
-            "as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate "
-            "vector store stays bundled. Validation remains manual-only until project-specific "
-            "secret keys and datastore credentials are supplied."
-        ),
-        "dependencies": [
-            {
-                "name": "dify",
-                "repository": "https://borispolonsky.github.io/dify-helm",
-                "version": "0.37.0",
-                "app_version": "1.14.2",
-            }
-        ],
-        "values": {
-            "dify": {
-                "global": {"edition": "SELF_HOSTED"},
-                "ingress": {
-                    "enabled": False,
-                    "className": "",
-                    "hosts": [
-                        {
-                            "host": "dify.local",
-                            "paths": [{"path": "/", "pathType": "Prefix"}],
-                        }
-                    ],
-                    "tls": [],
-                },
-                "postgresql": {
-                    "enabled": False,
-                    "image": {
-                        "registry": "docker.io",
-                        "repository": "postgres",
-                        "tag": "16-alpine",
-                    },
-                },
-                "redis": {
-                    "enabled": False,
-                    "image": {
-                        "registry": "docker.io",
-                        "repository": "redis",
-                        "tag": "7-alpine",
-                    },
-                },
-                "weaviate": {"enabled": True},
-                "externalPostgres": {
-                    "enabled": True,
-                    "username": "dify",
-                    "password": "dify",
-                    "address": "postgres-rw.dify.svc.cluster.local",
-                    "port": 5432,
-                    "database": {"api": "dify", "pluginDaemon": "dify_plugin"},
-                },
-                "externalRedis": {
-                    "enabled": True,
-                    "host": "valkey.dify.svc.cluster.local",
-                    "port": 6379,
-                    "username": "",
-                    "password": "",
-                },
-            }
-        },
-        "questions": [
-            q(
-                "dify.global.edition",
-                "Edition",
-                "enum",
-                "SELF_HOSTED",
-                "Dify deployment edition.",
-                "Application",
-                options=["SELF_HOSTED", "CLOUD"],
-            ),
-            q(
-                "dify.ingress.enabled",
-                "Enable ingress",
-                "boolean",
-                False,
-                "Expose the Dify web console through an ingress resource.",
-                "Networking",
-            ),
-            q(
-                "dify.externalPostgres.address",
-                "PostgreSQL host",
-                "string",
-                "postgres-rw.dify.svc.cluster.local",
-                "Hostname for the external (non-Bitnami) PostgreSQL database.",
-                "Database",
-                required=True,
-            ),
-            q(
-                "dify.externalPostgres.username",
-                "PostgreSQL user",
-                "string",
-                "dify",
-                "Username for the external PostgreSQL database.",
-                "Database",
-                required=True,
-            ),
-            q(
-                "dify.externalRedis.host",
-                "Redis host",
-                "string",
-                "valkey.dify.svc.cluster.local",
-                "Hostname for the external (non-Bitnami) Redis or Valkey service.",
-                "Cache",
-                required=True,
-            ),
-            q(
-                "dify.weaviate.enabled",
-                "Bundle Weaviate",
-                "boolean",
-                True,
-                "Deploy the bundled non-Bitnami Weaviate vector store. Disable to use an external vector database.",
-                "Application",
             ),
         ],
     },
@@ -2661,6 +2365,210 @@ CURATED_COMPONENTS = [
         ],
     },
     {
+        "id": "dify",
+        "display_name": "Dify",
+        "package_name": "ccf-dify",
+        "namespace": "dify",
+        "source_classification": "community",
+        "packaging_mode": "curated-wrapper",
+        "questions_support": True,
+        "smoke_profile": "manual-only",
+        "image_source_choice": "upstream-official",
+        "notes": (
+            "Community BorisPolonsky Dify chart for building LLM applications. The bundled "
+            "Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free "
+            "of Bitnami charts; defaults expect external PostgreSQL and Valkey services such "
+            "as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate "
+            "vector store stays bundled. A Helm hook fixes shared volume permissions so the "
+            "API can write tenant keys under privkeys/ during first-time setup. Validation "
+            "remains manual-only until project-specific secret keys and datastore credentials "
+            "are supplied."
+        ),
+        "dependencies": [
+            {
+                "name": "dify",
+                "repository": "https://borispolonsky.github.io/dify-helm",
+                "version": "0.37.0",
+                "app_version": "1.14.2",
+            }
+        ],
+        "values": {
+            "storagePermissionsFix": DIFY_STORAGE_PERMISSIONS_FIX_VALUES,
+            "dify": {
+                "global": {"edition": "SELF_HOSTED"},
+                "ingress": {
+                    "enabled": False,
+                    "className": "",
+                    "hosts": [
+                        {
+                            "host": "dify.local",
+                            "paths": [{"path": "/", "pathType": "Prefix"}],
+                        }
+                    ],
+                    "tls": [
+                        {
+                            "secretName": "dify-tls",
+                            "hosts": ["dify.local"],
+                        }
+                    ],
+                    "annotations": {},
+                },
+                "api": {
+                    "podSecurityContext": {
+                        "enabled": True,
+                        "fsGroup": DIFY_STORAGE_GID,
+                        "fsGroupChangePolicy": "OnRootMismatch",
+                    },
+                    "containerSecurityContext": {
+                        "enabled": True,
+                        "runAsUser": DIFY_STORAGE_UID,
+                    },
+                },
+                "worker": {
+                    "podSecurityContext": {
+                        "enabled": True,
+                        "fsGroup": DIFY_STORAGE_GID,
+                        "fsGroupChangePolicy": "OnRootMismatch",
+                    },
+                    "containerSecurityContext": {
+                        "enabled": True,
+                        "runAsUser": DIFY_STORAGE_UID,
+                    },
+                },
+                "beat": {
+                    "podSecurityContext": {
+                        "enabled": True,
+                        "fsGroup": DIFY_STORAGE_GID,
+                        "fsGroupChangePolicy": "OnRootMismatch",
+                    },
+                    "containerSecurityContext": {
+                        "enabled": True,
+                        "runAsUser": DIFY_STORAGE_UID,
+                    },
+                },
+                "pluginDaemon": {
+                    "podSecurityContext": {
+                        "enabled": True,
+                        "fsGroup": DIFY_STORAGE_GID,
+                        "fsGroupChangePolicy": "OnRootMismatch",
+                    },
+                    "containerSecurityContext": {
+                        "enabled": True,
+                        "runAsUser": DIFY_STORAGE_UID,
+                        "runAsNonRoot": True,
+                    },
+                },
+                "postgresql": {
+                    "enabled": False,
+                    "image": {
+                        "registry": "docker.io",
+                        "repository": "postgres",
+                        "tag": "16-alpine",
+                    },
+                },
+                "redis": {
+                    "enabled": False,
+                    "image": {
+                        "registry": "docker.io",
+                        "repository": "redis",
+                        "tag": "7-alpine",
+                    },
+                },
+                "weaviate": {"enabled": True},
+                "externalPostgres": {
+                    "enabled": True,
+                    "username": "dify",
+                    "password": "dify",
+                    "address": "postgres-rw.dify.svc.cluster.local",
+                    "port": 5432,
+                    "database": {
+                        "api": "dify",
+                        "pluginDaemon": "dify_plugin",
+                    },
+                },
+                "externalRedis": {
+                    "enabled": True,
+                    "host": "valkey.dify.svc.cluster.local",
+                    "port": 6379,
+                    "username": "",
+                    "password": "",
+                },
+            },
+        },
+        "questions": [
+            q(
+                "dify.global.edition",
+                "Edition",
+                "enum",
+                "SELF_HOSTED",
+                "Dify deployment edition.",
+                "Application",
+                options=["SELF_HOSTED", "CLOUD"],
+            ),
+            q(
+                "dify.ingress.enabled",
+                "Enable ingress",
+                "boolean",
+                False,
+                "Expose the Dify web console through an ingress resource.",
+                "Networking",
+            ),
+            q(
+                "dify.ingress.className",
+                "Ingress class",
+                "string",
+                KNOWN_CCF_INGRESS_CLASS,
+                "Optional ingressClassName used when exposing Dify through the cluster "
+                "ingress controller. Leave blank to rely on the cluster default ingress class.",
+                "Networking",
+            ),
+            q(
+                "dify.ingress.hosts[0].host",
+                "Ingress hostname",
+                "string",
+                "dify.local",
+                "Primary hostname used when exposing Dify through ingress.",
+                "Networking",
+            ),
+            q(
+                "dify.externalPostgres.address",
+                "PostgreSQL host",
+                "string",
+                "postgres-rw.dify.svc.cluster.local",
+                "Hostname for the external (non-Bitnami) PostgreSQL database.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "dify.externalPostgres.username",
+                "PostgreSQL user",
+                "string",
+                "dify",
+                "Username for the external PostgreSQL database.",
+                "Database",
+                required=True,
+            ),
+            q(
+                "dify.externalRedis.host",
+                "Redis host",
+                "string",
+                "valkey.dify.svc.cluster.local",
+                "Hostname for the external (non-Bitnami) Redis or Valkey service.",
+                "Cache",
+                required=True,
+            ),
+            q(
+                "dify.weaviate.enabled",
+                "Bundle Weaviate",
+                "boolean",
+                True,
+                "Deploy the bundled non-Bitnami Weaviate vector store. Disable to use "
+                "an external vector database.",
+                "Application",
+            ),
+        ],
+    },
+    {
         "id": "chaos-mesh",
         "display_name": "Chaos Mesh",
         "package_name": "ccf-chaos-mesh",
@@ -2861,36 +2769,6 @@ INGRESS_CAPABILITIES = {
         "annotations_path": "superset.ingress.annotations",
         "add_host_question": True,
     },
-    "milvus": {
-        "enable_path": "milvus.ingress.enabled",
-        "class_path": "milvus.ingress.ingressClassName",
-        "host_path": "milvus.ingress.rules[0].host",
-        "host_default": "milvus.local",
-        "path_path": "milvus.ingress.rules[0].path",
-        "path_default": "/",
-        "extra_defaults": {
-            "milvus.ingress.rules[0].pathType": "Prefix",
-        },
-        "tls_path": "milvus.ingress.tls",
-        "tls_mode": "list",
-        "annotations_path": "milvus.ingress.annotations",
-        "add_host_question": True,
-    },
-    "dify": {
-        "enable_path": "dify.ingress.enabled",
-        "class_path": "dify.ingress.className",
-        "host_path": "dify.ingress.hosts[0].host",
-        "host_default": "dify.local",
-        "path_path": "dify.ingress.hosts[0].paths[0].path",
-        "path_default": "/",
-        "extra_defaults": {
-            "dify.ingress.hosts[0].paths[0].pathType": "Prefix",
-        },
-        "tls_path": "dify.ingress.tls",
-        "tls_mode": "list",
-        "annotations_path": "dify.ingress.annotations",
-        "add_host_question": True,
-    },
     "openmetadata": {
         "enable_path": "openmetadata.ingress.enabled",
         "class_path": "openmetadata.ingress.className",
@@ -2917,6 +2795,21 @@ INGRESS_CAPABILITIES = {
         "tls_mode": "list",
         "annotations_path": "netbox.ingress.annotations",
         "add_host_question": False,
+    },
+    "dify": {
+        "enable_path": "dify.ingress.enabled",
+        "class_path": "dify.ingress.className",
+        "host_path": "dify.ingress.hosts[0].host",
+        "host_default": "dify.local",
+        "path_path": "dify.ingress.hosts[0].paths[0].path",
+        "path_default": "/",
+        "extra_defaults": {
+            "dify.ingress.hosts[0].paths[0].pathType": "Prefix",
+        },
+        "tls_path": "dify.ingress.tls",
+        "tls_mode": "list",
+        "annotations_path": "dify.ingress.annotations",
+        "add_host_question": True,
     },
     "chaos-mesh": {
         "enable_path": "chaos-mesh.dashboard.ingress.enabled",

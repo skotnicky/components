@@ -1,4 +1,18 @@
 # Generated from scripts/catalog_data.py. Adjust the shared metadata instead of editing this file by hand.
+storagePermissionsFix:
+  enabled: true
+  image: busybox:1.36
+  uid: 1001
+  gid: 1001
+  pluginDaemonUid: 1001
+  pluginDaemonGid: 1001
+  apiMountPath: /app/api/storage
+  pluginMountPath: /app/storage
+  fixPluginDaemon: true
+  runAsRoot: true
+  apiClaimName: ''
+  pluginClaimName: ''
+  ttlSecondsAfterFinished: 300
 dify:
   global:
     edition: SELF_HOSTED
@@ -17,6 +31,39 @@ dify:
     annotations:
       cert-manager.io/cluster-issuer: ccf-default
       external-dns.alpha.kubernetes.io/ttl: '300'
+  api:
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+  worker:
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+  beat:
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+  pluginDaemon:
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      enabled: true
+      runAsUser: 1001
+      runAsNonRoot: true
   postgresql:
     enabled: false
     image:

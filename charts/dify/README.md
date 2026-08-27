@@ -15,12 +15,12 @@ This chart packages upstream Helm dependencies with curated default values and a
 - Namespace: `dify`
 - Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.0`
+- Chart version: `0.1.1`
 - App version: `1.14.2`
 
 ## Notes
 
-Community BorisPolonsky Dify chart for building LLM applications. The bundled Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free of Bitnami charts; defaults expect external PostgreSQL and Valkey services such as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate vector store stays bundled. Validation remains manual-only until project-specific secret keys and datastore credentials are supplied.
+Community BorisPolonsky Dify chart for building LLM applications. The bundled Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free of Bitnami charts; defaults expect external PostgreSQL and Valkey services such as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate vector store stays bundled. A Helm hook fixes shared volume permissions so the API can write tenant keys under privkeys/ during first-time setup. Validation remains manual-only until project-specific secret keys and datastore credentials are supplied.
 
 ## Files
 
