@@ -339,6 +339,33 @@ DIFY_STORAGE_PERMISSIONS_FIX_VALUES = {
     "ttlSecondsAfterFinished": 300,
 }
 
+# Bundled non-Bitnami datastores so a fresh ``ccf-dify`` install is self-contained.
+# The chart wraps the upstream Dify chart with its PostgreSQL/Redis subcharts disabled
+# (no Bitnami) and instead ships a plain PostgreSQL (official ``postgres`` image) and
+# Valkey (official ``valkey`` image) that publish the ``postgres-rw`` and ``valkey``
+# Services the Dify ``externalPostgres``/``externalRedis`` defaults point at. Credentials
+# and database names are read from ``dify.externalPostgres`` at render time so the two
+# stay in sync. Set ``enabled: false`` to bring your own managed datastores.
+DIFY_BUNDLED_POSTGRES_VALUES = {
+    "enabled": True,
+    "image": "postgres:16-alpine",
+    "storage": "10Gi",
+    "storageClass": "",
+    "resources": {
+        "requests": {"cpu": "100m", "memory": "256Mi"},
+    },
+}
+
+DIFY_BUNDLED_VALKEY_VALUES = {
+    "enabled": True,
+    "image": "valkey/valkey:8-alpine",
+    "storage": "5Gi",
+    "storageClass": "",
+    "resources": {
+        "requests": {"cpu": "50m", "memory": "64Mi"},
+    },
+}
+
 
 def ccf_ingress_annotations() -> dict:
     """Return the default annotations that wire an ingress into the CCF DNS/Cert service."""
@@ -2372,17 +2399,19 @@ CURATED_COMPONENTS = [
         "source_classification": "community",
         "packaging_mode": "curated-wrapper",
         "questions_support": True,
-        "smoke_profile": "manual-only",
+        "smoke_profile": "needs-overrides",
         "image_source_choice": "upstream-official",
         "notes": (
-            "Community BorisPolonsky Dify chart for building LLM applications. The bundled "
-            "Bitnami PostgreSQL and Redis dependencies are disabled to keep the catalog free "
-            "of Bitnami charts; defaults expect external PostgreSQL and Valkey services such "
-            "as CloudNativePG and the curated Valkey chart, while the non-Bitnami Weaviate "
-            "vector store stays bundled. A Helm hook fixes shared volume permissions so the "
-            "API can write tenant keys under privkeys/ during first-time setup. Validation "
-            "remains manual-only until project-specific secret keys and datastore credentials "
-            "are supplied."
+            "Community BorisPolonsky Dify chart for building LLM applications. The upstream "
+            "Bitnami PostgreSQL and Redis subcharts are disabled to keep the catalog free of "
+            "Bitnami charts; instead the wrapper bundles non-Bitnami PostgreSQL (official "
+            "postgres image) and Valkey (official valkey image) that publish the postgres-rw "
+            "and valkey Services the Dify defaults target, so a fresh install is self-contained. "
+            "Set bundledPostgres.enabled/bundledValkey.enabled to false to use external managed "
+            "datastores instead. The non-Bitnami Weaviate vector store stays bundled from "
+            "upstream, and a Helm hook fixes shared volume permissions so the API can write "
+            "tenant keys under privkeys/ during first-time setup. Live validation typically "
+            "needs storage-class overrides for the bundled data volumes."
         ),
         "dependencies": [
             {
@@ -2394,6 +2423,8 @@ CURATED_COMPONENTS = [
         ],
         "values": {
             "storagePermissionsFix": DIFY_STORAGE_PERMISSIONS_FIX_VALUES,
+            "bundledPostgres": DIFY_BUNDLED_POSTGRES_VALUES,
+            "bundledValkey": DIFY_BUNDLED_VALKEY_VALUES,
             "dify": {
                 "global": {"edition": "SELF_HOSTED"},
                 "ingress": {
@@ -2479,7 +2510,7 @@ CURATED_COMPONENTS = [
                     "enabled": True,
                     "username": "dify",
                     "password": "dify",
-                    "address": "postgres-rw.dify.svc.cluster.local",
+                    "address": "postgres-rw",
                     "port": 5432,
                     "database": {
                         "api": "dify",
@@ -2488,7 +2519,7 @@ CURATED_COMPONENTS = [
                 },
                 "externalRedis": {
                     "enabled": True,
-                    "host": "valkey.dify.svc.cluster.local",
+                    "host": "valkey",
                     "port": 6379,
                     "username": "",
                     "password": "",
@@ -2531,11 +2562,30 @@ CURATED_COMPONENTS = [
                 "Networking",
             ),
             q(
+                "bundledPostgres.enabled",
+                "Bundle PostgreSQL",
+                "boolean",
+                True,
+                "Deploy a bundled non-Bitnami PostgreSQL and publish the postgres-rw Service. "
+                "Disable to point Dify at an external managed database.",
+                "Database",
+            ),
+            q(
+                "bundledPostgres.storage",
+                "PostgreSQL storage size",
+                "string",
+                "10Gi",
+                "Persistent volume size for the bundled PostgreSQL data.",
+                "Database",
+                required=True,
+            ),
+            q(
                 "dify.externalPostgres.address",
                 "PostgreSQL host",
                 "string",
-                "postgres-rw.dify.svc.cluster.local",
-                "Hostname for the external (non-Bitnami) PostgreSQL database.",
+                "postgres-rw",
+                "Hostname Dify uses for PostgreSQL. Defaults to the bundled postgres-rw Service; "
+                "set to an external host when bundledPostgres is disabled.",
                 "Database",
                 required=True,
             ),
@@ -2544,16 +2594,27 @@ CURATED_COMPONENTS = [
                 "PostgreSQL user",
                 "string",
                 "dify",
-                "Username for the external PostgreSQL database.",
+                "Username for the PostgreSQL database. The bundled PostgreSQL is initialized "
+                "with this user.",
                 "Database",
                 required=True,
+            ),
+            q(
+                "bundledValkey.enabled",
+                "Bundle Valkey",
+                "boolean",
+                True,
+                "Deploy a bundled non-Bitnami Valkey cache and publish the valkey Service. "
+                "Disable to point Dify at an external Redis or Valkey.",
+                "Cache",
             ),
             q(
                 "dify.externalRedis.host",
                 "Redis host",
                 "string",
-                "valkey.dify.svc.cluster.local",
-                "Hostname for the external (non-Bitnami) Redis or Valkey service.",
+                "valkey",
+                "Hostname Dify uses for Redis/Valkey. Defaults to the bundled valkey Service; "
+                "set to an external host when bundledValkey is disabled.",
                 "Cache",
                 required=True,
             ),

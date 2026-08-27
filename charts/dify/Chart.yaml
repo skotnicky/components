@@ -4,13 +4,13 @@ name: ccf-dify
 description: Curated Dify wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.1
+version: 0.1.2
 appVersion: 1.14.2
 annotations:
   ccf.catalog/source-classification: community
   ccf.catalog/source-repository: https://borispolonsky.github.io/dify-helm
   ccf.catalog/default-namespace: dify
-  ccf.catalog/smoke-profile: manual-only
+  ccf.catalog/smoke-profile: needs-overrides
   ccf.catalog/image-source-choice: upstream-official
   ccf.catalog/home-url: https://dify.ai/
   ccf.catalog/release-notes-url: https://github.com/langgenius/dify/releases

@@ -1,0 +1,140 @@
+{{- if .Values.bundledPostgres.enabled }}
+{{- $pg := .Values.bundledPostgres }}
+{{- $ext := .Values.dify.externalPostgres }}
+{{- $user := $ext.username | default "dify" }}
+{{- $password := $ext.password | default "dify" }}
+{{- $apiDb := $ext.database.api | default "dify" }}
+{{- $pluginDb := $ext.database.pluginDaemon | default "dify_plugin" }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dify-postgres-init
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-postgres
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-postgres
+data:
+  10-create-plugin-db.sql: |
+    SELECT 'CREATE DATABASE {{ $pluginDb }}'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{ $pluginDb }}')\gexec
+    GRANT ALL PRIVILEGES ON DATABASE {{ $pluginDb }} TO {{ $user }};
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dify-postgres
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-postgres
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if $pg.storageClass }}
+  storageClassName: {{ $pg.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $pg.storage | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-rw
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-postgres
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-postgres
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: {{ $ext.port | default 5432 }}
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: dify-postgres
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: bundled-postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dify-postgres
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: dify-postgres
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/component: bundled-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dify-postgres
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: bundled-postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dify-postgres
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/component: bundled-postgres
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: {{ $pg.image | quote }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_USER
+              value: {{ $user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ $password | quote }}
+            - name: POSTGRES_DB
+              value: {{ $apiDb | quote }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U {{ $user }} -d {{ $apiDb }}"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U {{ $user }} -d {{ $apiDb }}"]
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml $pg.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: dify-postgres
+        - name: init
+          configMap:
+            name: dify-postgres-init
+{{- end }}

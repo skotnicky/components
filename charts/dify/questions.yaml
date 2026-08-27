@@ -34,25 +34,51 @@ questions:
   description: Primary hostname used when exposing Dify through ingress.
   group: Networking
   required: false
+- variable: bundledPostgres.enabled
+  label: Bundle PostgreSQL
+  type: boolean
+  default: true
+  description: Deploy a bundled non-Bitnami PostgreSQL and publish the postgres-rw
+    Service. Disable to point Dify at an external managed database.
+  group: Database
+  required: false
+- variable: bundledPostgres.storage
+  label: PostgreSQL storage size
+  type: string
+  default: 10Gi
+  description: Persistent volume size for the bundled PostgreSQL data.
+  group: Database
+  required: true
 - variable: dify.externalPostgres.address
   label: PostgreSQL host
   type: string
-  default: postgres-rw.dify.svc.cluster.local
-  description: Hostname for the external (non-Bitnami) PostgreSQL database.
+  default: postgres-rw
+  description: Hostname Dify uses for PostgreSQL. Defaults to the bundled postgres-rw
+    Service; set to an external host when bundledPostgres is disabled.
   group: Database
   required: true
 - variable: dify.externalPostgres.username
   label: PostgreSQL user
   type: string
   default: dify
-  description: Username for the external PostgreSQL database.
+  description: Username for the PostgreSQL database. The bundled PostgreSQL is initialized
+    with this user.
   group: Database
   required: true
+- variable: bundledValkey.enabled
+  label: Bundle Valkey
+  type: boolean
+  default: true
+  description: Deploy a bundled non-Bitnami Valkey cache and publish the valkey Service.
+    Disable to point Dify at an external Redis or Valkey.
+  group: Cache
+  required: false
 - variable: dify.externalRedis.host
   label: Redis host
   type: string
-  default: valkey.dify.svc.cluster.local
-  description: Hostname for the external (non-Bitnami) Redis or Valkey service.
+  default: valkey
+  description: Hostname Dify uses for Redis/Valkey. Defaults to the bundled valkey
+    Service; set to an external host when bundledValkey is disabled.
   group: Cache
   required: true
 - variable: dify.weaviate.enabled
