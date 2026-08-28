@@ -9,7 +9,7 @@
     "chart_version": "0.1.2"
   },
   "dify": {
-    "chart_version": "0.1.2"
+    "chart_version": "0.1.3"
   },
   "cloudnative-pg": {
     "chart_version": "0.1.2"

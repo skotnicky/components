@@ -4,7 +4,7 @@ name: ccf-dify
 description: Curated Dify wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.2
+version: 0.1.3
 appVersion: 1.14.2
 annotations:
   ccf.catalog/source-classification: community
