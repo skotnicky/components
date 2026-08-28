@@ -323,6 +323,17 @@ CCF_EXTERNAL_DNS_TTL = "300"
 DIFY_STORAGE_UID = 1001
 DIFY_STORAGE_GID = 1001
 
+# Default public hostname/base URL used for Dify's ingress and the public URL config the
+# app bakes into its ConfigMaps. Override with the real project hostname at install time.
+DIFY_DEFAULT_HOST = "dify.local"
+DIFY_PUBLIC_BASE_URL = f"https://{DIFY_DEFAULT_HOST}"
+
+# Storage class for Dify's shared api/plugin-daemon RWX volumes. Left blank to use the
+# cluster default, but on multi-node clusters a real shared filesystem class (for example
+# CephFS-backed "shared-fs"/"manila-csi") is required: block-storage classes may advertise
+# RWX yet behave as single-attach, which deadlocks pods and the permission-fix jobs.
+DIFY_SHARED_STORAGE_CLASS = ""
+
 DIFY_STORAGE_PERMISSIONS_FIX_VALUES = {
     "enabled": True,
     "image": "busybox:1.36",
@@ -2409,9 +2420,13 @@ CURATED_COMPONENTS = [
             "and valkey Services the Dify defaults target, so a fresh install is self-contained. "
             "Set bundledPostgres.enabled/bundledValkey.enabled to false to use external managed "
             "datastores instead. The non-Bitnami Weaviate vector store stays bundled from "
-            "upstream, and a Helm hook fixes shared volume permissions so the API can write "
-            "tenant keys under privkeys/ during first-time setup. Live validation typically "
-            "needs storage-class overrides for the bundled data volumes."
+            "upstream, and per-claim Helm hooks fix shared volume permissions so the API and "
+            "plugin daemon can write during first-time setup without mounting both RWX volumes "
+            "in one pod. Public URLs default to the ingress host so console/app/file links work "
+            "out of the box; override them with the real hostname when exposing the app. On "
+            "multi-node clusters set the shared storage class to a true RWX filesystem (for "
+            "example shared-fs or manila-csi) because block-storage RWX can behave as "
+            "single-attach."
         ),
         "dependencies": [
             {
@@ -2426,20 +2441,34 @@ CURATED_COMPONENTS = [
             "bundledPostgres": DIFY_BUNDLED_POSTGRES_VALUES,
             "bundledValkey": DIFY_BUNDLED_VALKEY_VALUES,
             "dify": {
-                "global": {"edition": "SELF_HOSTED"},
+                "global": {
+                    "edition": "SELF_HOSTED",
+                    # Dify writes these verbatim into the api/web ConfigMaps as the public
+                    # URLs (CONSOLE_API_URL, APP_WEB_URL, FILES_URL, ...). Upstream leaves
+                    # them blank, which breaks redirects, file URLs, and console behavior once
+                    # exposed. Default them to the ingress host so a fresh install is coherent;
+                    # override with the real public base URL when the ingress host changes.
+                    "consoleApiDomain": DIFY_PUBLIC_BASE_URL,
+                    "consoleWebDomain": DIFY_PUBLIC_BASE_URL,
+                    "serviceApiDomain": DIFY_PUBLIC_BASE_URL,
+                    "appApiDomain": DIFY_PUBLIC_BASE_URL,
+                    "appWebDomain": DIFY_PUBLIC_BASE_URL,
+                    "filesDomain": DIFY_PUBLIC_BASE_URL,
+                    "triggerDomain": DIFY_PUBLIC_BASE_URL,
+                },
                 "ingress": {
                     "enabled": False,
                     "className": "",
                     "hosts": [
                         {
-                            "host": "dify.local",
+                            "host": DIFY_DEFAULT_HOST,
                             "paths": [{"path": "/", "pathType": "Prefix"}],
                         }
                     ],
                     "tls": [
                         {
                             "secretName": "dify-tls",
-                            "hosts": ["dify.local"],
+                            "hosts": [DIFY_DEFAULT_HOST],
                         }
                     ],
                     "annotations": {},
@@ -2453,6 +2482,13 @@ CURATED_COMPONENTS = [
                     "containerSecurityContext": {
                         "enabled": True,
                         "runAsUser": DIFY_STORAGE_UID,
+                    },
+                    "persistence": {
+                        "persistentVolumeClaim": {
+                            "storageClass": DIFY_SHARED_STORAGE_CLASS,
+                            "accessModes": "ReadWriteMany",
+                            "size": "5Gi",
+                        },
                     },
                 },
                 "worker": {
@@ -2487,6 +2523,13 @@ CURATED_COMPONENTS = [
                         "enabled": True,
                         "runAsUser": DIFY_STORAGE_UID,
                         "runAsNonRoot": True,
+                    },
+                    "persistence": {
+                        "persistentVolumeClaim": {
+                            "storageClass": DIFY_SHARED_STORAGE_CLASS,
+                            "accessModes": "ReadWriteMany",
+                            "size": "5Gi",
+                        },
                     },
                 },
                 "postgresql": {
@@ -2557,9 +2600,73 @@ CURATED_COMPONENTS = [
                 "dify.ingress.hosts[0].host",
                 "Ingress hostname",
                 "string",
-                "dify.local",
+                DIFY_DEFAULT_HOST,
                 "Primary hostname used when exposing Dify through ingress.",
                 "Networking",
+            ),
+            q(
+                "dify.global.consoleWebDomain",
+                "Console web URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL for the Dify console UI (include scheme). Set to the ingress "
+                "host, e.g. https://dify.example.com.",
+                "Public URLs",
+                required=True,
+            ),
+            q(
+                "dify.global.consoleApiDomain",
+                "Console API URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL for the Dify console API (include scheme).",
+                "Public URLs",
+                required=True,
+            ),
+            q(
+                "dify.global.serviceApiDomain",
+                "Service API URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL for the Dify service API (include scheme).",
+                "Public URLs",
+                required=True,
+            ),
+            q(
+                "dify.global.appWebDomain",
+                "Web app URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL for published Dify web apps (include scheme).",
+                "Public URLs",
+                required=True,
+            ),
+            q(
+                "dify.global.appApiDomain",
+                "Web app API URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL used by web apps to reach the API (include scheme).",
+                "Public URLs",
+                required=True,
+            ),
+            q(
+                "dify.global.filesDomain",
+                "Files URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL for file preview/download links (include scheme).",
+                "Public URLs",
+                required=True,
+            ),
+            q(
+                "dify.global.triggerDomain",
+                "Trigger URL",
+                "string",
+                DIFY_PUBLIC_BASE_URL,
+                "Public base URL for trigger endpoints (include scheme).",
+                "Public URLs",
+                required=True,
             ),
             q(
                 "bundledPostgres.enabled",
@@ -2626,6 +2733,25 @@ CURATED_COMPONENTS = [
                 "Deploy the bundled non-Bitnami Weaviate vector store. Disable to use "
                 "an external vector database.",
                 "Application",
+            ),
+            q(
+                "dify.api.persistence.persistentVolumeClaim.storageClass",
+                "Shared storage class (API)",
+                "string",
+                DIFY_SHARED_STORAGE_CLASS,
+                "Storage class for the shared RWX API data volume. Leave blank for the cluster "
+                "default, but on multi-node clusters set a true shared filesystem class (for "
+                "example shared-fs or manila-csi); block-storage classes can deadlock RWX claims.",
+                "Storage",
+            ),
+            q(
+                "dify.pluginDaemon.persistence.persistentVolumeClaim.storageClass",
+                "Shared storage class (plugin daemon)",
+                "string",
+                DIFY_SHARED_STORAGE_CLASS,
+                "Storage class for the shared RWX plugin-daemon data volume. Use the same shared "
+                "filesystem class as the API volume on multi-node clusters.",
+                "Storage",
             ),
         ],
     },

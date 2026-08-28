@@ -34,6 +34,56 @@ questions:
   description: Primary hostname used when exposing Dify through ingress.
   group: Networking
   required: false
+- variable: dify.global.consoleWebDomain
+  label: Console web URL
+  type: string
+  default: https://dify.local
+  description: Public base URL for the Dify console UI (include scheme). Set to the
+    ingress host, e.g. https://dify.example.com.
+  group: Public URLs
+  required: true
+- variable: dify.global.consoleApiDomain
+  label: Console API URL
+  type: string
+  default: https://dify.local
+  description: Public base URL for the Dify console API (include scheme).
+  group: Public URLs
+  required: true
+- variable: dify.global.serviceApiDomain
+  label: Service API URL
+  type: string
+  default: https://dify.local
+  description: Public base URL for the Dify service API (include scheme).
+  group: Public URLs
+  required: true
+- variable: dify.global.appWebDomain
+  label: Web app URL
+  type: string
+  default: https://dify.local
+  description: Public base URL for published Dify web apps (include scheme).
+  group: Public URLs
+  required: true
+- variable: dify.global.appApiDomain
+  label: Web app API URL
+  type: string
+  default: https://dify.local
+  description: Public base URL used by web apps to reach the API (include scheme).
+  group: Public URLs
+  required: true
+- variable: dify.global.filesDomain
+  label: Files URL
+  type: string
+  default: https://dify.local
+  description: Public base URL for file preview/download links (include scheme).
+  group: Public URLs
+  required: true
+- variable: dify.global.triggerDomain
+  label: Trigger URL
+  type: string
+  default: https://dify.local
+  description: Public base URL for trigger endpoints (include scheme).
+  group: Public URLs
+  required: true
 - variable: bundledPostgres.enabled
   label: Bundle PostgreSQL
   type: boolean
@@ -88,4 +138,22 @@ questions:
   description: Deploy the bundled non-Bitnami Weaviate vector store. Disable to use
     an external vector database.
   group: Application
+  required: false
+- variable: dify.api.persistence.persistentVolumeClaim.storageClass
+  label: Shared storage class (API)
+  type: string
+  default: ''
+  description: Storage class for the shared RWX API data volume. Leave blank for the
+    cluster default, but on multi-node clusters set a true shared filesystem class
+    (for example shared-fs or manila-csi); block-storage classes can deadlock RWX
+    claims.
+  group: Storage
+  required: false
+- variable: dify.pluginDaemon.persistence.persistentVolumeClaim.storageClass
+  label: Shared storage class (plugin daemon)
+  type: string
+  default: ''
+  description: Storage class for the shared RWX plugin-daemon data volume. Use the
+    same shared filesystem class as the API volume on multi-node clusters.
+  group: Storage
   required: false

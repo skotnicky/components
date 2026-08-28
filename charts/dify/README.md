@@ -15,12 +15,12 @@ This chart packages upstream Helm dependencies with curated default values and a
 - Namespace: `dify`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
+- Chart version: `0.1.3`
 - App version: `1.14.2`
 
 ## Notes
 
-Community BorisPolonsky Dify chart for building LLM applications. The upstream Bitnami PostgreSQL and Redis subcharts are disabled to keep the catalog free of Bitnami charts; instead the wrapper bundles non-Bitnami PostgreSQL (official postgres image) and Valkey (official valkey image) that publish the postgres-rw and valkey Services the Dify defaults target, so a fresh install is self-contained. Set bundledPostgres.enabled/bundledValkey.enabled to false to use external managed datastores instead. The non-Bitnami Weaviate vector store stays bundled from upstream, and a Helm hook fixes shared volume permissions so the API can write tenant keys under privkeys/ during first-time setup. Live validation typically needs storage-class overrides for the bundled data volumes.
+Community BorisPolonsky Dify chart for building LLM applications. The upstream Bitnami PostgreSQL and Redis subcharts are disabled to keep the catalog free of Bitnami charts; instead the wrapper bundles non-Bitnami PostgreSQL (official postgres image) and Valkey (official valkey image) that publish the postgres-rw and valkey Services the Dify defaults target, so a fresh install is self-contained. Set bundledPostgres.enabled/bundledValkey.enabled to false to use external managed datastores instead. The non-Bitnami Weaviate vector store stays bundled from upstream, and per-claim Helm hooks fix shared volume permissions so the API and plugin daemon can write during first-time setup without mounting both RWX volumes in one pod. Public URLs default to the ingress host so console/app/file links work out of the box; override them with the real hostname when exposing the app. On multi-node clusters set the shared storage class to a true RWX filesystem (for example shared-fs or manila-csi) because block-storage RWX can behave as single-attach.
 
 ## Files
 
