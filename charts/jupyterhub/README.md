@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `jupyterhub` from `https://hub.jupyter.org/helm-chart/` at `4.3.3`
+- `jupyterhub` from `https://hub.jupyter.org/helm-chart/` at `4.4.1`
 
 ## Defaults
 
 - Namespace: `jupyterhub`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `5.4.4`
+- Chart version: `0.1.3`
+- App version: `5.5.1`
 
 ## Notes
 

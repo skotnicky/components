@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `chaos-mesh` from `https://charts.chaos-mesh.org` at `2.8.2`
+- `chaos-mesh` from `https://charts.chaos-mesh.org` at `2.8.4`
 
 ## Defaults
 
 - Namespace: `chaos-mesh`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `2.8.2`
+- Chart version: `0.1.3`
+- App version: `2.8.4`
 
 ## Notes
 

@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `valkey` from `https://valkey.io/valkey-helm/` at `0.9.4`
+- `valkey` from `https://valkey.io/valkey-helm/` at `0.11.0`
 
 ## Defaults
 
 - Namespace: `valkey`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `9.0.2`
+- Chart version: `0.1.3`
+- App version: `9.1.1`
 
 ## Notes
 

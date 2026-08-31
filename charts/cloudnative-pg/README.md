@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `cloudnative-pg` from `https://cloudnative-pg.github.io/charts` at `0.28.0`
+- `cloudnative-pg` from `https://cloudnative-pg.github.io/charts` at `0.29.0`
 
 ## Defaults
 
 - Namespace: `cnpg-system`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `1.29.0`
+- Chart version: `0.1.3`
+- App version: `1.30.0`
 
 ## Notes
 

@@ -8,16 +8,16 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `base` from `https://istio-release.storage.googleapis.com/charts` at `1.29.2`
-- `istiod` from `https://istio-release.storage.googleapis.com/charts` at `1.29.2`
+- `base` from `https://istio-release.storage.googleapis.com/charts` at `1.30.4`
+- `istiod` from `https://istio-release.storage.googleapis.com/charts` at `1.30.4`
 
 ## Defaults
 
 - Namespace: `istio-system`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `1.29.2`
+- Chart version: `0.1.3`
+- App version: `1.30.4`
 
 ## Notes
 
