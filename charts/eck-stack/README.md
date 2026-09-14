@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `eck-stack` from `https://helm.elastic.co` at `0.18.2`
+- `eck-stack` from `https://helm.elastic.co` at `0.20.0`
 
 ## Defaults
 
 - Namespace: `elastic-stack`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `0.18.2`
+- Chart version: `0.1.3`
+- App version: `0.20.0`
 
 ## Notes
 

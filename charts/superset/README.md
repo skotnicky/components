@@ -8,14 +8,14 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `superset` from `https://apache.github.io/superset` at `0.22.4`
+- `superset` from `https://apache.github.io/superset` at `0.22.8`
 
 ## Defaults
 
 - Namespace: `superset`
 - Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.0`
+- Chart version: `0.1.1`
 - App version: `6.1.0`
 
 ## Notes

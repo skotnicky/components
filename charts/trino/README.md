@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `trino` from `https://trinodb.github.io/charts/` at `1.42.1`
+- `trino` from `https://trinodb.github.io/charts/` at `1.42.2`
 
 ## Defaults
 
 - Namespace: `trino`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `479`
+- Chart version: `0.1.3`
+- App version: `480`
 
 ## Notes
 
