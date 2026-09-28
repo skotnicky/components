@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `eck-operator` from `https://helm.elastic.co` at `3.3.2`
+- `eck-operator` from `https://helm.elastic.co` at `3.5.0`
 
 ## Defaults
 
 - Namespace: `elastic-system`
 - Smoke profile: `default`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `3.3.2`
+- Chart version: `0.1.3`
+- App version: `3.5.0`
 
 ## Notes
 

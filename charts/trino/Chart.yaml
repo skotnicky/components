@@ -4,8 +4,8 @@ name: ccf-trino
 description: Curated Trino wrapper chart for the Cloudera Cloud Factory components
   catalog.
 type: application
-version: 0.1.2
-appVersion: '479'
+version: 0.1.3
+appVersion: '480'
 annotations:
   ccf.catalog/source-classification: official
   ccf.catalog/source-repository: https://trinodb.github.io/charts/
@@ -17,6 +17,6 @@ annotations:
 dependencies:
 - name: trino
   repository: https://trinodb.github.io/charts/
-  version: 1.42.1
+  version: 1.42.2
 home: https://trino.io/
 icon: https://trino.io/assets/trino.png

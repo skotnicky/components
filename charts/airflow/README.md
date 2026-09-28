@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `airflow` from `https://airflow.apache.org` at `1.21.0`
+- `airflow` from `https://airflow.apache.org` at `1.22.0`
 
 ## Defaults
 
 - Namespace: `airflow`
 - Smoke profile: `manual-only`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.0`
-- App version: `3.2.0`
+- Chart version: `0.1.1`
+- App version: `3.2.2`
 
 ## Notes
 

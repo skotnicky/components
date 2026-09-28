@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `harbor` from `https://helm.goharbor.io` at `1.18.3`
+- `harbor` from `https://helm.goharbor.io` at `1.19.2`
 
 ## Defaults
 
 - Namespace: `harbor`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.2`
-- App version: `2.14.3`
+- Chart version: `0.1.3`
+- App version: `2.15.2`
 
 ## Notes
 
