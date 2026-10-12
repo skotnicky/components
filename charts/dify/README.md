@@ -8,15 +8,15 @@ This chart packages upstream Helm dependencies with curated default values and a
 
 ## Upstream Dependencies
 
-- `dify` from `https://borispolonsky.github.io/dify-helm` at `0.37.0`
+- `dify` from `https://borispolonsky.github.io/dify-helm` at `0.38.0`
 
 ## Defaults
 
 - Namespace: `dify`
 - Smoke profile: `needs-overrides`
 - Image source choice: `upstream-official`
-- Chart version: `0.1.3`
-- App version: `1.14.2`
+- Chart version: `0.1.4`
+- App version: `1.16.1`
 
 ## Notes
 
