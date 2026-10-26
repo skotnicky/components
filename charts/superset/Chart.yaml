@@ -4,7 +4,7 @@ name: ccf-superset
 description: Curated Apache Superset wrapper chart for the Cloudera Cloud Factory
   components catalog.
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: 6.1.0
 annotations:
   ccf.catalog/source-classification: official
@@ -17,6 +17,6 @@ annotations:
 dependencies:
 - name: superset
   repository: https://apache.github.io/superset
-  version: 0.22.4
+  version: 0.22.8
 home: https://superset.apache.org/
 icon: https://superset.apache.org/img/superset-logo-horiz.svg
